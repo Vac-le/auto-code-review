@@ -1,0 +1,34 @@
+{
+  "name": "auto-code-review",
+  "owner": {
+    "name": "Auto Code Review Contributors"
+  },
+  "description": "Self-hosted Claude Code plugins for high-signal AI code review.",
+  "version": "0.1.0",
+  "plugins": [
+    {
+      "name": "auto-code-review",
+      "displayName": "Auto Code Review",
+      "source": "./",
+      "description": "Review Git changes with an isolated, read-only AI reviewer that reports only evidence-backed findings.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Auto Code Review Contributors"
+      },
+      "license": "Apache-2.0",
+      "keywords": [
+        "ai",
+        "code-review",
+        "git",
+        "security"
+      ],
+      "category": "development",
+      "tags": [
+        "review",
+        "quality",
+        "security"
+      ],
+      "strict": true
+    }
+  ]
+}

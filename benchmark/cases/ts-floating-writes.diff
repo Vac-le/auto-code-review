@@ -1,0 +1,12 @@
+diff --git a/src/store.ts b/src/store.ts
+index c8a27bb..9de71f0 100644
+--- a/src/store.ts
++++ b/src/store.ts
+@@ -1,5 +1,6 @@
+ export async function storeAll(items: Item[]): Promise<number> {
+-  await Promise.all(items.map((item) => store(item)));
++  items.forEach(async (item) => {
++    await store(item);
++  });
+   return items.length;
+ }

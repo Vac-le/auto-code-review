@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "auto-code-review": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/git-server.mjs"]
+    }
+  }
+}

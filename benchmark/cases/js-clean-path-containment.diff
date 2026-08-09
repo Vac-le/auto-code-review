@@ -1,0 +1,15 @@
+diff --git a/src/files.js b/src/files.js
+index e8213f0..4da786b 100644
+--- a/src/files.js
++++ b/src/files.js
+@@ -2,5 +2,10 @@ import path from "node:path";
+ 
+ export function resolveUpload(root, requested) {
+-  return path.resolve(root, requested);
++  const destination = path.resolve(root, requested);
++  const relative = path.relative(root, destination);
++  if (relative.startsWith("..") || path.isAbsolute(relative)) {
++    throw new Error("Upload path escapes configured root");
++  }
++  return destination;
+ }

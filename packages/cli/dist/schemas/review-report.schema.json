@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://auto-code-review.dev/schemas/review-report.schema.json",
+  "$comment": "Cross-field invariants such as startLine <= endLine require Auto Code Review CLI semantic validation; standard JSON Schema cannot compare sibling numeric values.",
+  "title": "Auto Code Review report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "scope", "summary", "findings"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "base", "head"],
+      "properties": {
+        "kind": { "enum": ["working-tree", "staged", "base", "commit", "branch", "path", "pull-request"] },
+        "base": { "type": ["string", "null"], "minLength": 1, "maxLength": 1024, "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$" },
+        "head": { "type": ["string", "null"], "minLength": 1, "maxLength": 1024, "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$" }
+      }
+    },
+    "summary": { "type": "string", "minLength": 1, "maxLength": 2000, "pattern": "^[^\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]*$" },
+    "findings": {
+      "type": "array",
+      "maxItems": 10,
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "priority",
+        "confidence",
+        "category",
+        "file",
+        "startLine",
+        "endLine",
+        "title",
+        "evidence",
+        "failureScenario"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^ACR-[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "priority": { "enum": ["P0", "P1", "P2", "P3"] },
+        "confidence": { "type": "number", "minimum": 0.8, "maximum": 1 },
+        "category": {
+          "enum": [
+            "correctness",
+            "security",
+            "data-integrity",
+            "concurrency",
+            "performance",
+            "compatibility",
+            "testing"
+          ]
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^(?!/)(?!\\./)(?![A-Za-z]:[\\\\/])(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$))[^\\\\\\u0000-\\u001f\\u007f-\\u009f]+$"
+        },
+        "startLine": { "type": "integer", "minimum": 1 },
+        "endLine": { "type": "integer", "minimum": 1 },
+        "side": { "enum": ["new", "old"] },
+        "title": { "type": "string", "minLength": 4, "maxLength": 100, "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$" },
+        "evidence": { "type": "string", "minLength": 12, "maxLength": 4000, "pattern": "^[^\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]*$" },
+        "failureScenario": { "type": "string", "minLength": 12, "maxLength": 4000, "pattern": "^[^\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]*$" },
+        "suggestedFix": { "type": "string", "minLength": 4, "maxLength": 4000, "pattern": "^[^\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f-\\u009f]*$" },
+        "fingerprint": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]+$"
+        }
+      }
+    }
+  }
+}

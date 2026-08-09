@@ -1,0 +1,13 @@
+diff --git a/src/profile.ts b/src/profile.ts
+index bff421a..0d2ac97 100644
+--- a/src/profile.ts
++++ b/src/profile.ts
+@@ -1,4 +1,7 @@
+ export async function displayName(id: string): Promise<string> {
+   const user = await users.find(id);
+-  return user.name.trim();
++  if (user === null) {
++    return "Unknown user";
++  }
++  return user.name.trim();
+ }

@@ -1,0 +1,17 @@
+node_modules/
+.npm-cache/
+.package-smoke/
+artifacts/
+.venv/
+dist/
+coverage/
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+!.env.example
+.auto-code-review/
+work/
+benchmark/results/*.json
+!benchmark/results/.gitkeep

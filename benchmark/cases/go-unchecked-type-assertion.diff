@@ -1,0 +1,13 @@
+diff --git a/api/payload.go b/api/payload.go
+index 697b921..eb6bd93 100644
+--- a/api/payload.go
++++ b/api/payload.go
+@@ -1,8 +1,5 @@
+ package api
+ 
+-func parseID(payload map[string]any) (string, bool) {
+-	id, ok := payload["id"].(string)
+-	return id, ok
++func parseID(payload map[string]any) string {
++	return payload["id"].(string)
+ }

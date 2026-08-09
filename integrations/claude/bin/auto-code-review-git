@@ -1,0 +1,157 @@
+#!/usr/bin/env node
+import { spawnSync } from 'node:child_process';
+import { fstatSync } from 'node:fs';
+import { devNull } from 'node:os';
+
+const MAX_OUTPUT = 32 * 1024 * 1024;
+const gitNullDevice = process.platform === 'win32' ? 'NUL' : devNull;
+const gitEnvironment = {
+  ...process.env,
+  GIT_CONFIG_GLOBAL: gitNullDevice,
+  GIT_CONFIG_NOSYSTEM: '1',
+  GIT_EXTERNAL_DIFF: '',
+  GIT_PAGER: 'cat',
+  GIT_TERMINAL_PROMPT: '0',
+  PAGER: 'cat'
+};
+
+if (fstatSync(1).isFile() || fstatSync(2).isFile()) {
+  process.stderr.write('auto-code-review-git: output redirection to regular files is not allowed\n');
+  process.exit(2);
+}
+
+function fail(message, code = 2) {
+  process.stderr.write(`auto-code-review-git: ${message}\n`);
+  process.exit(code);
+}
+
+function invoke(program, args, { allowFailure = false, capture = false } = {}) {
+  const hardenedArgs = program === 'git'
+    ? ['-c', 'core.fsmonitor=false', '-c', 'core.excludesFile=', '-c', 'diff.external=', '-c', 'core.pager=cat', '-c', 'interactive.diffFilter=', ...args]
+    : args;
+  const result = spawnSync(program, hardenedArgs, {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    env: gitEnvironment,
+    maxBuffer: MAX_OUTPUT,
+    shell: false,
+    windowsHide: true
+  });
+  if (result.error) fail(result.error.message, 1);
+  if (result.status !== 0 && !allowFailure) {
+    if (result.stdout) process.stdout.write(result.stdout);
+    if (result.stderr) process.stderr.write(result.stderr);
+    process.exit(result.status ?? 1);
+  }
+  if (!capture) {
+    if (result.stdout) process.stdout.write(result.stdout);
+    if (result.stderr) process.stderr.write(result.stderr);
+  }
+  return result;
+}
+
+function safeValue(value, label) {
+  if (!value || value.startsWith('-') || /[\u0000-\u001f\u007f]/.test(value)) fail(`invalid ${label}`);
+  return value;
+}
+
+function resolveCommit(value) {
+  const ref = safeValue(value, 'Git revision');
+  const result = invoke('git', ['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`], { capture: true });
+  return result.stdout.trim();
+}
+
+function safePaths(values) {
+  return values.map((value) => {
+    if (!value || value.startsWith('-') || value.includes('\0') || /[\r\n]/.test(value)) fail('invalid path');
+    return value;
+  });
+}
+
+function diff(args) {
+  let staged = false;
+  let base = null;
+  let index = 0;
+  for (; index < args.length; index += 1) {
+    const token = args[index];
+    if (token === '--') {
+      index += 1;
+      break;
+    }
+    if (token === '--staged') staged = true;
+    else if (token === '--base') base = safeValue(args[++index], 'base revision');
+    else fail(`unsupported diff option '${token}'`);
+  }
+  if (staged && base) fail('--staged and --base are mutually exclusive');
+  const paths = safePaths(args.slice(index));
+  const fixed = ['diff', '--no-ext-diff', '--no-textconv', '--no-color', '--find-renames'];
+  if (staged) fixed.push('--cached');
+  else if (base) {
+    const head = resolveCommit('HEAD');
+    const resolvedBase = resolveCommit(base);
+    const mergeBase = invoke('git', ['merge-base', resolvedBase, head], { capture: true }).stdout.trim();
+    fixed.push(`${mergeBase}..${head}`);
+  } else {
+    const head = invoke('git', ['rev-parse', '--verify', 'HEAD^{commit}'], { allowFailure: true, capture: true });
+    if (head.status === 0) fixed.push('HEAD');
+    else fixed.push('--cached');
+  }
+  invoke('git', [...fixed, '--', ...paths]);
+}
+
+function defaultBranch() {
+  const remote = invoke('git', ['symbolic-ref', '--quiet', '--short', 'refs/remotes/origin/HEAD'], { allowFailure: true, capture: true });
+  if (remote.status === 0) {
+    process.stdout.write(`${remote.stdout.trim().replace(/^origin\//, '')}\n`);
+    return;
+  }
+  for (const candidate of ['main', 'master']) {
+    const found = invoke('git', ['show-ref', '--verify', '--quiet', `refs/heads/${candidate}`], { allowFailure: true, capture: true });
+    if (found.status === 0) {
+      process.stdout.write(`${candidate}\n`);
+      return;
+    }
+  }
+  fail('could not resolve the default branch', 1);
+}
+
+function pullRequest(mode, target) {
+  const value = safeValue(target, 'pull request');
+  if (!/^#?\d+$/.test(value) && !/^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/pull\/\d+\/?$/.test(value)) {
+    fail('pull request must be a number, #number, or canonical GitHub pull URL');
+  }
+  if (mode === 'diff') invoke('gh', ['pr', 'diff', value, '--color', 'never']);
+  else if (mode === 'view') invoke('gh', ['pr', 'view', value, '--json', 'number,title,baseRefName,headRefName,files']);
+  else fail("pr mode must be 'diff' or 'view'");
+}
+
+const [command, ...args] = process.argv.slice(2);
+switch (command) {
+  case 'status':
+    if (args.length) fail('status accepts no arguments');
+    invoke('git', ['status', '--short', '--untracked-files=all']);
+    break;
+  case 'diff':
+    diff(args);
+    break;
+  case 'show': {
+    if (args.length !== 1) fail('show requires exactly one revision');
+    const commit = resolveCommit(args[0]);
+    invoke('git', ['show', '--no-ext-diff', '--no-textconv', '--no-color', '--format=fuller', commit, '--']);
+    break;
+  }
+  case 'default-branch':
+    if (args.length) fail('default-branch accepts no arguments');
+    defaultBranch();
+    break;
+  case 'pr':
+    if (args.length !== 2) fail('pr requires a mode and target');
+    pullRequest(args[0], args[1]);
+    break;
+  case '--help':
+  case '-h':
+    process.stdout.write('Usage: auto-code-review-git status | diff [--staged|--base REF] [-- PATH...] | show REF | default-branch | pr <view|diff> TARGET\n');
+    break;
+  default:
+    fail('unknown or missing command');
+}

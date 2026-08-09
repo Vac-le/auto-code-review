@@ -1,0 +1,32 @@
+name: False positive
+description: Report a finding that should have been filtered by the evidence protocol.
+title: "[False positive]: "
+labels: [false-positive]
+body:
+  - type: textarea
+    id: finding
+    attributes:
+      label: Sanitized finding
+      description: Include severity, confidence, file/line, claimed trigger, and impact.
+    validations:
+      required: true
+  - type: textarea
+    id: counterevidence
+    attributes:
+      label: Counter-evidence
+      description: Explain which guard, invariant, test, or caller makes the finding invalid.
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Host and model version
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed credentials, personal data, and proprietary source code.
+          required: true

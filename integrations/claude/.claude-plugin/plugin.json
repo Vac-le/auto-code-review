@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "auto-code-review",
+  "displayName": "Auto Code Review",
+  "version": "0.1.0",
+  "description": "High-signal, read-only AI review for local Git changes, branches, paths, and pull requests.",
+  "author": {
+    "name": "Auto Code Review Contributors"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "ai",
+    "code-review",
+    "git",
+    "security"
+  ],
+  "skills": "./skills/",
+  "agents": [
+    "./agents/code-reviewer.md"
+  ],
+  "defaultEnabled": true
+}

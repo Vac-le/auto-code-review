@@ -1,0 +1,10 @@
+diff --git a/src/jobs.js b/src/jobs.js
+index 49dbd6c..ef91275 100644
+--- a/src/jobs.js
++++ b/src/jobs.js
+@@ -1,5 +1,5 @@
+ export async function runJobs(jobs) {
+-  for (const job of jobs) await job.run();
++  await Promise.all(jobs.map((job) => job.run()));
+   return jobs.length;
+ }

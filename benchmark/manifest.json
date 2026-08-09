@@ -1,0 +1,302 @@
+{
+  "schemaVersion": "1.0",
+  "id": "auto-code-review-public-v1",
+  "title": "Auto Code Review Public Benchmark v1",
+  "description": "Compact multilingual diffs for deterministic code-review evaluation.",
+  "publishedAt": "2026-08-09",
+  "license": "CC0-1.0",
+  "matching": {
+    "strategy": "rule-file-nearest-line",
+    "maxLineDistance": 3
+  },
+  "summary": {
+    "caseCount": 16,
+    "buggyCaseCount": 11,
+    "cleanCaseCount": 5,
+    "expectedFindingCount": 11,
+    "languages": [
+      "typescript",
+      "javascript",
+      "python",
+      "go"
+    ]
+  },
+  "cases": [
+    {
+      "id": "ts-auth-fail-open",
+      "language": "typescript",
+      "kind": "buggy",
+      "difficulty": "medium",
+      "diff": "cases/ts-auth-fail-open.diff",
+      "description": "An authorization predicate changes from explicit allow to implicit allow.",
+      "expectedFindings": [
+        {
+          "id": "TS-AUTH-001",
+          "ruleId": "authorization-bypass",
+          "category": "security",
+          "severity": "critical",
+          "file": "src/auth.ts",
+          "line": 6,
+          "side": "RIGHT",
+          "title": "Missing and non-admin users can delete resources",
+          "rationale": "The new predicate permits every user except one explicitly banned role, including a missing user and ordinary users."
+        }
+      ]
+    },
+    {
+      "id": "ts-floating-writes",
+      "language": "typescript",
+      "kind": "buggy",
+      "difficulty": "easy",
+      "diff": "cases/ts-floating-writes.diff",
+      "description": "An async callback is introduced inside forEach.",
+      "expectedFindings": [
+        {
+          "id": "TS-ASYNC-001",
+          "ruleId": "floating-promise",
+          "category": "correctness",
+          "severity": "high",
+          "file": "src/store.ts",
+          "line": 2,
+          "side": "RIGHT",
+          "title": "The function returns before writes complete",
+          "rationale": "Array.forEach ignores callback promises, so callers observe success before store operations finish or fail."
+        }
+      ]
+    },
+    {
+      "id": "ts-cache-unit-mismatch",
+      "language": "typescript",
+      "kind": "buggy",
+      "difficulty": "easy",
+      "diff": "cases/ts-cache-unit-mismatch.diff",
+      "description": "A seconds-to-milliseconds conversion is removed.",
+      "expectedFindings": [
+        {
+          "id": "TS-UNIT-001",
+          "ruleId": "unit-mismatch",
+          "category": "correctness",
+          "severity": "high",
+          "file": "src/cache.ts",
+          "line": 12,
+          "side": "RIGHT",
+          "title": "Cache entries expire one thousand times too early",
+          "rationale": "setTimeout accepts milliseconds, while ttlSeconds is documented and computed in seconds."
+        }
+      ]
+    },
+    {
+      "id": "ts-clean-null-guard",
+      "language": "typescript",
+      "kind": "clean",
+      "difficulty": "easy",
+      "diff": "cases/ts-clean-null-guard.diff",
+      "description": "A nullable lookup is guarded before dereference.",
+      "expectedFindings": []
+    },
+    {
+      "id": "js-path-traversal",
+      "language": "javascript",
+      "kind": "buggy",
+      "difficulty": "medium",
+      "diff": "cases/js-path-traversal.diff",
+      "description": "A request parameter is joined directly to a trusted upload root.",
+      "expectedFindings": [
+        {
+          "id": "JS-PATH-001",
+          "ruleId": "path-traversal",
+          "category": "security",
+          "severity": "critical",
+          "file": "src/download.js",
+          "line": 5,
+          "side": "RIGHT",
+          "title": "A crafted filename escapes the upload directory",
+          "rationale": "path.join normalizes parent segments but does not enforce containment beneath uploadRoot."
+        }
+      ]
+    },
+    {
+      "id": "js-stateful-regexp",
+      "language": "javascript",
+      "kind": "buggy",
+      "difficulty": "medium",
+      "diff": "cases/js-stateful-regexp.diff",
+      "description": "A reusable validation expression gains the global flag.",
+      "expectedFindings": [
+        {
+          "id": "JS-REGEX-001",
+          "ruleId": "stateful-regexp",
+          "category": "correctness",
+          "severity": "medium",
+          "file": "src/email.js",
+          "line": 1,
+          "side": "RIGHT",
+          "title": "Repeated validation alternates for the same email",
+          "rationale": "RegExp.test mutates lastIndex for global expressions, so a module-level validator becomes stateful across calls."
+        }
+      ]
+    },
+    {
+      "id": "js-clean-path-containment",
+      "language": "javascript",
+      "kind": "clean",
+      "difficulty": "medium",
+      "diff": "cases/js-clean-path-containment.diff",
+      "description": "Resolved paths are rejected when they leave the trusted root.",
+      "expectedFindings": []
+    },
+    {
+      "id": "js-clean-parallel-await",
+      "language": "javascript",
+      "kind": "clean",
+      "difficulty": "easy",
+      "diff": "cases/js-clean-parallel-await.diff",
+      "description": "Independent async jobs are intentionally awaited with Promise.all.",
+      "expectedFindings": []
+    },
+    {
+      "id": "py-mutable-default",
+      "language": "python",
+      "kind": "buggy",
+      "difficulty": "easy",
+      "diff": "cases/py-mutable-default.diff",
+      "description": "A mutable list is introduced as a function default.",
+      "expectedFindings": [
+        {
+          "id": "PY-DEFAULT-001",
+          "ruleId": "mutable-default-argument",
+          "category": "correctness",
+          "severity": "medium",
+          "file": "app/history.py",
+          "line": 1,
+          "side": "RIGHT",
+          "title": "History leaks across independent calls",
+          "rationale": "Python evaluates the default list once, causing callers that omit seen to share state."
+        }
+      ]
+    },
+    {
+      "id": "py-sql-injection",
+      "language": "python",
+      "kind": "buggy",
+      "difficulty": "easy",
+      "diff": "cases/py-sql-injection.diff",
+      "description": "A parameterized query is replaced by string interpolation.",
+      "expectedFindings": [
+        {
+          "id": "PY-SQL-001",
+          "ruleId": "sql-injection",
+          "category": "security",
+          "severity": "critical",
+          "file": "app/users.py",
+          "line": 2,
+          "side": "RIGHT",
+          "title": "User-controlled email is interpolated into SQL",
+          "rationale": "An attacker can change the query structure through the email argument; bind parameters must be retained."
+        }
+      ]
+    },
+    {
+      "id": "py-unawaited-coroutine",
+      "language": "python",
+      "kind": "buggy",
+      "difficulty": "easy",
+      "diff": "cases/py-unawaited-coroutine.diff",
+      "description": "An async notification call is no longer awaited.",
+      "expectedFindings": [
+        {
+          "id": "PY-ASYNC-001",
+          "ruleId": "unawaited-coroutine",
+          "category": "correctness",
+          "severity": "high",
+          "file": "app/signup.py",
+          "line": 5,
+          "side": "RIGHT",
+          "title": "Welcome emails are never sent",
+          "rationale": "Calling an async function without await only creates a coroutine object and does not execute its body."
+        }
+      ]
+    },
+    {
+      "id": "py-clean-parameterized-query",
+      "language": "python",
+      "kind": "clean",
+      "difficulty": "easy",
+      "diff": "cases/py-clean-parameterized-query.diff",
+      "description": "A query is converted to driver parameter binding.",
+      "expectedFindings": []
+    },
+    {
+      "id": "go-response-body-leak",
+      "language": "go",
+      "kind": "buggy",
+      "difficulty": "medium",
+      "diff": "cases/go-response-body-leak.diff",
+      "description": "Response body cleanup is moved below an early return.",
+      "expectedFindings": [
+        {
+          "id": "GO-RESOURCE-001",
+          "ruleId": "response-body-leak",
+          "category": "reliability",
+          "severity": "high",
+          "file": "fetch/client.go",
+          "line": 13,
+          "side": "RIGHT",
+          "title": "Non-200 responses leak the HTTP response body",
+          "rationale": "The error return executes before defer is registered, preventing connection reuse and eventually exhausting resources."
+        }
+      ]
+    },
+    {
+      "id": "go-unchecked-type-assertion",
+      "language": "go",
+      "kind": "buggy",
+      "difficulty": "easy",
+      "diff": "cases/go-unchecked-type-assertion.diff",
+      "description": "Untrusted decoded JSON is asserted to string without checking.",
+      "expectedFindings": [
+        {
+          "id": "GO-TYPE-001",
+          "ruleId": "unchecked-type-assertion",
+          "category": "correctness",
+          "severity": "high",
+          "file": "api/payload.go",
+          "line": 4,
+          "side": "RIGHT",
+          "title": "Malformed payloads panic the request handler",
+          "rationale": "A missing or non-string id makes the single-value type assertion panic instead of returning a validation error."
+        }
+      ]
+    },
+    {
+      "id": "go-concurrent-map-write",
+      "language": "go",
+      "kind": "buggy",
+      "difficulty": "medium",
+      "diff": "cases/go-concurrent-map-write.diff",
+      "description": "A serial index builder is parallelized without synchronizing its map.",
+      "expectedFindings": [
+        {
+          "id": "GO-CONCURRENCY-001",
+          "ruleId": "concurrent-map-write",
+          "category": "concurrency",
+          "severity": "critical",
+          "file": "catalog/index.go",
+          "line": 13,
+          "side": "RIGHT",
+          "title": "Worker goroutines write to a map concurrently",
+          "rationale": "Go maps are not safe for concurrent writes and the new goroutines can trigger a race or fatal runtime error."
+        }
+      ]
+    },
+    {
+      "id": "go-clean-locked-map",
+      "language": "go",
+      "kind": "clean",
+      "difficulty": "medium",
+      "diff": "cases/go-clean-locked-map.diff",
+      "description": "Concurrent map updates are protected by a mutex and joined.",
+      "expectedFindings": []
+    }
+  ]
+}

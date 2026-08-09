@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0",
+  "benchmark": "auto-code-review-public-v1",
+  "cases": [
+    {
+      "caseId": "ts-auth-fail-open",
+      "findings": [
+        {
+          "ruleId": "authorization-bypass",
+          "file": "src/auth.ts",
+          "line": 6,
+          "severity": "critical",
+          "message": "Correct finding."
+        },
+        {
+          "ruleId": "authorization-bypass",
+          "file": "src/auth.ts",
+          "line": 6,
+          "severity": "critical",
+          "message": "Duplicate finding; this must count as a false positive."
+        }
+      ]
+    },
+    {
+      "caseId": "ts-floating-writes",
+      "findings": [
+        {
+          "ruleId": "floating-promise",
+          "file": "src/store.ts",
+          "line": 4,
+          "severity": "high",
+          "message": "Semantically right but two lines away."
+        }
+      ]
+    },
+    {
+      "caseId": "ts-clean-null-guard",
+      "findings": [
+        {
+          "ruleId": "null-dereference",
+          "file": "src/profile.ts",
+          "line": 6,
+          "severity": "high",
+          "message": "Hallucinated finding on a clean case."
+        }
+      ]
+    },
+    {
+      "caseId": "js-path-traversal",
+      "findings": [
+        {
+          "ruleId": "unsafe-deserialization",
+          "file": "src/download.js",
+          "line": 5,
+          "severity": "critical",
+          "message": "Right location but wrong defect taxonomy."
+        }
+      ]
+    }
+  ]
+}

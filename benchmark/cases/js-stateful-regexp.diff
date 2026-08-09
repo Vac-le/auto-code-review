@@ -1,0 +1,11 @@
+diff --git a/src/email.js b/src/email.js
+index 7ee3692..4885180 100644
+--- a/src/email.js
++++ b/src/email.js
+@@ -1,5 +1,5 @@
+-const EMAIL = /^[^@]+@[^@]+$/;
++const EMAIL = /^[^@]+@[^@]+$/g;
+ 
+ export function isEmail(value) {
+   return EMAIL.test(value);
+ }

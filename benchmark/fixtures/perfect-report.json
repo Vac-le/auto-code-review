@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "1.0",
+  "benchmark": "auto-code-review-public-v1",
+  "cases": [
+    {
+      "caseId": "ts-auth-fail-open",
+      "findings": [
+        {
+          "ruleId": "authorization-bypass",
+          "file": "src/auth.ts",
+          "line": 6,
+          "severity": "critical",
+          "message": "The predicate now permits missing users and every non-banned role."
+        }
+      ]
+    },
+    {
+      "caseId": "ts-floating-writes",
+      "findings": [
+        {
+          "ruleId": "floating-promise",
+          "file": "src/store.ts",
+          "line": 2,
+          "severity": "high",
+          "message": "forEach does not await its async callback."
+        }
+      ]
+    },
+    {
+      "caseId": "ts-cache-unit-mismatch",
+      "findings": [
+        {
+          "ruleId": "unit-mismatch",
+          "file": "src/cache.ts",
+          "line": 12,
+          "severity": "high",
+          "message": "setTimeout expects milliseconds but ttl is seconds."
+        }
+      ]
+    },
+    {
+      "caseId": "ts-clean-null-guard",
+      "findings": []
+    },
+    {
+      "caseId": "js-path-traversal",
+      "findings": [
+        {
+          "ruleId": "path-traversal",
+          "file": "src/download.js",
+          "line": 5,
+          "severity": "critical",
+          "message": "Parent segments can escape uploadRoot."
+        }
+      ]
+    },
+    {
+      "caseId": "js-stateful-regexp",
+      "findings": [
+        {
+          "ruleId": "stateful-regexp",
+          "file": "src/email.js",
+          "line": 1,
+          "severity": "medium",
+          "message": "The global flag makes repeated test calls depend on lastIndex."
+        }
+      ]
+    },
+    {
+      "caseId": "js-clean-path-containment",
+      "findings": []
+    },
+    {
+      "caseId": "js-clean-parallel-await",
+      "findings": []
+    },
+    {
+      "caseId": "py-mutable-default",
+      "findings": [
+        {
+          "ruleId": "mutable-default-argument",
+          "file": "app/history.py",
+          "line": 1,
+          "severity": "medium",
+          "message": "The list instance is shared across calls."
+        }
+      ]
+    },
+    {
+      "caseId": "py-sql-injection",
+      "findings": [
+        {
+          "ruleId": "sql-injection",
+          "file": "app/users.py",
+          "line": 2,
+          "severity": "critical",
+          "message": "email can alter the interpolated SQL statement."
+        }
+      ]
+    },
+    {
+      "caseId": "py-unawaited-coroutine",
+      "findings": [
+        {
+          "ruleId": "unawaited-coroutine",
+          "file": "app/signup.py",
+          "line": 5,
+          "severity": "high",
+          "message": "The send_email coroutine is created but never run."
+        }
+      ]
+    },
+    {
+      "caseId": "py-clean-parameterized-query",
+      "findings": []
+    },
+    {
+      "caseId": "go-response-body-leak",
+      "findings": [
+        {
+          "ruleId": "response-body-leak",
+          "file": "fetch/client.go",
+          "line": 13,
+          "severity": "high",
+          "message": "The defer is registered after an error-status return path."
+        }
+      ]
+    },
+    {
+      "caseId": "go-unchecked-type-assertion",
+      "findings": [
+        {
+          "ruleId": "unchecked-type-assertion",
+          "file": "api/payload.go",
+          "line": 4,
+          "severity": "high",
+          "message": "A missing or non-string id panics."
+        }
+      ]
+    },
+    {
+      "caseId": "go-concurrent-map-write",
+      "findings": [
+        {
+          "ruleId": "concurrent-map-write",
+          "file": "catalog/index.go",
+          "line": 13,
+          "severity": "critical",
+          "message": "Multiple goroutines write byID without synchronization."
+        }
+      ]
+    },
+    {
+      "caseId": "go-clean-locked-map",
+      "findings": []
+    }
+  ]
+}

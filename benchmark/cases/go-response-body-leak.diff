@@ -1,0 +1,17 @@
+diff --git a/fetch/client.go b/fetch/client.go
+index 49a75b8..2be9347 100644
+--- a/fetch/client.go
++++ b/fetch/client.go
+@@ -5,11 +5,11 @@ import (
+ func Fetch(url string) ([]byte, error) {
+ 	resp, err := http.Get(url)
+ 	if err != nil {
+ 		return nil, err
+ 	}
+-	defer resp.Body.Close()
+ 	if resp.StatusCode != http.StatusOK {
+ 		return nil, fmt.Errorf("unexpected status: %s", resp.Status)
+ 	}
++	defer resp.Body.Close()
+ 	return io.ReadAll(resp.Body)
+ }

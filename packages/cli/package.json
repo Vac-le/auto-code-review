@@ -1,0 +1,55 @@
+{
+  "name": "@auto-code-review/cli",
+  "version": "0.1.0",
+  "description": "Deterministic local context and validation engine for AI code review agents",
+  "keywords": [
+    "ai",
+    "code-review",
+    "codex",
+    "claude",
+    "git"
+  ],
+  "homepage": "https://github.com/auto-code-review/auto-code-review#readme",
+  "bugs": {
+    "url": "https://github.com/auto-code-review/auto-code-review/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/auto-code-review/auto-code-review.git",
+    "directory": "packages/cli"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "bin": {
+    "auto-code-review": "./dist/cli.js",
+    "acr": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "scripts",
+    "src",
+    "tsconfig.json",
+    "tsconfig.build.json"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "postbuild": "node scripts/copy-schemas.mjs",
+    "prepack": "npm run build",
+    "build:bootstrap": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test test/*.test.mjs",
+    "test:coverage": "node --experimental-test-coverage --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "typescript": "^5.9.2"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  }
+}

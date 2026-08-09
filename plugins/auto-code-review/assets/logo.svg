@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Auto Code Review</title>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#111827"/>
+  <path d="M34 32h42a18 18 0 0 1 18 18v28a18 18 0 0 1-18 18H52L34 108V32Z" fill="url(#g)"/>
+  <path d="m52 61 8 8 18-20" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M52 82h27" fill="none" stroke="#ddd6fe" stroke-width="6" stroke-linecap="round"/>
+</svg>

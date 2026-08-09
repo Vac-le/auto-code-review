@@ -1,0 +1,4 @@
+interface:
+  display_name: "Auto Code Review"
+  short_description: "High-signal AI review for Git changes"
+  default_prompt: "Use $auto-code-review to review my current Git changes and report only verified, actionable findings."

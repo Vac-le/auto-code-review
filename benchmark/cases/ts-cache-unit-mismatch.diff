@@ -1,0 +1,10 @@
+diff --git a/src/cache.ts b/src/cache.ts
+index 355b46d..8a0ca70 100644
+--- a/src/cache.ts
++++ b/src/cache.ts
+@@ -10,5 +10,5 @@ export function remember(key: string, value: Value, ttlSeconds: number): void {
+   cache.set(key, value);
+   const ttl = Math.max(1, ttlSeconds);
+-  setTimeout(() => cache.delete(key), ttl * 1_000);
++  setTimeout(() => cache.delete(key), ttl);
+ }

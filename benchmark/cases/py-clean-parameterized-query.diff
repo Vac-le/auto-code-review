@@ -1,0 +1,9 @@
+diff --git a/app/search.py b/app/search.py
+index d4d7bf4..aefcc41 100644
+--- a/app/search.py
++++ b/app/search.py
+@@ -1,4 +1,3 @@
+ def search(connection, term: str):
+-    query = f"SELECT * FROM documents WHERE title LIKE '%{term}%'"
+-    return connection.execute(query)
++    return connection.execute("SELECT * FROM documents WHERE title LIKE ?", (f"%{term}%",))

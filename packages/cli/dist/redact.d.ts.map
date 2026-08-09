@@ -1,0 +1,1 @@
+{"version":3,"file":"redact.d.ts","sourceRoot":"","sources":["../src/redact.ts"],"names":[],"mappings":"AAcA,MAAM,WAAW,eAAe;IAC9B,IAAI,EAAE,MAAM,CAAC;IACb,KAAK,EAAE,MAAM,CAAC;CACf;AAED,wBAAgB,aAAa,CAAC,KAAK,EAAE,MAAM,GAAG,eAAe,CA4C5D"}

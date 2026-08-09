@@ -1,0 +1,3 @@
+# The CLI publishes compiled Node.js 20-compatible runtime artifacts.
+!dist/
+!dist/**

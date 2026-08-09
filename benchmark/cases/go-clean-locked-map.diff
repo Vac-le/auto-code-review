@@ -1,0 +1,28 @@
+diff --git a/catalog/cache.go b/catalog/cache.go
+index a6b67c0..0586afc 100644
+--- a/catalog/cache.go
++++ b/catalog/cache.go
+@@ -1,11 +1,19 @@
+ package catalog
+ 
++import "sync"
++
+ func loadAll(ids []string) map[string]Item {
+ 	items := make(map[string]Item, len(ids))
++	var mu sync.Mutex
++	var wg sync.WaitGroup
+ 	for _, id := range ids {
+-		items[id] = load(id)
++		id := id
++		wg.Add(1)
++		go func() {
++			defer wg.Done()
++			item := load(id)
++			mu.Lock()
++			items[id] = item
++			mu.Unlock()
++		}()
+ 	}
++	wg.Wait()
+ 	return items
+ }

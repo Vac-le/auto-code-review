@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://auto-code-review.dev/schemas/review-snapshot.schema.json",
+  "$comment": "Cross-field invariants such as range.start <= range.end and context numbering require Auto Code Review CLI semantic validation.",
+  "title": "Auto Code Review deterministic snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "repository", "limits", "summary", "files", "omitted"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "head", "branch", "mode", "base"],
+      "properties": {
+        "root": { "const": "." },
+        "head": { "oneOf": [{ "type": "string", "pattern": "^[a-fA-F0-9]{40,64}$" }, { "type": "null" }] },
+        "branch": { "type": ["string", "null"] },
+        "mode": { "enum": ["working", "staged", "base"] },
+        "base": { "oneOf": [{ "type": "string", "pattern": "^[a-fA-F0-9]{40,64}$" }, { "type": "null" }] }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contextLines", "maxContextLines", "maxFiles", "maxFileBytes", "maxPatchBytes", "maxTotalBytes"],
+      "properties": {
+        "contextLines": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "maxContextLines": { "type": "integer", "minimum": 1, "maximum": 5000 },
+        "maxFiles": { "type": "integer", "minimum": 1, "maximum": 1000 },
+        "maxFileBytes": { "type": "integer", "minimum": 1024, "maximum": 16777216 },
+        "maxPatchBytes": { "type": "integer", "minimum": 1024, "maximum": 4194304 },
+        "maxTotalBytes": { "type": "integer", "minimum": 4096, "maximum": 67108864 }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files", "additions", "deletions", "omitted", "redactions", "truncated"],
+      "properties": {
+        "files": { "type": "integer", "minimum": 0 },
+        "additions": { "type": "integer", "minimum": 0 },
+        "deletions": { "type": "integer", "minimum": 0 },
+        "omitted": { "type": "integer", "minimum": 0 },
+        "redactions": { "type": "integer", "minimum": 0 },
+        "truncated": { "type": "boolean" }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/file" }
+    },
+    "omitted": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/omittedFile" }
+    }
+  },
+  "$defs": {
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^(?!/)(?!\\./)(?![A-Za-z]:[\\\\/])(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$))[^\\\\\\u0000-\\u001f\\u007f-\\u009f]+$"
+    },
+    "range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "integer", "minimum": 1 },
+        "end": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "hunk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["oldStart", "oldLines", "newStart", "newLines", "oldRange", "newRange"],
+      "properties": {
+        "oldStart": { "type": "integer", "minimum": 0 },
+        "oldLines": { "type": "integer", "minimum": 0 },
+        "newStart": { "type": "integer", "minimum": 0 },
+        "newLines": { "type": "integer", "minimum": 0 },
+        "oldRange": { "oneOf": [{ "$ref": "#/$defs/range" }, { "type": "null" }] },
+        "newRange": { "oneOf": [{ "$ref": "#/$defs/range" }, { "type": "null" }] }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "start", "end", "text"],
+      "properties": {
+        "source": { "enum": ["worktree", "index", "base"] },
+        "start": { "type": "integer", "minimum": 1 },
+        "end": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string" }
+      }
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "status", "language", "additions", "deletions", "redactions", "truncated", "hunks", "context", "patch"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "oldPath": { "$ref": "#/$defs/path" },
+        "status": { "enum": ["added", "modified", "deleted", "renamed", "copied", "type-changed", "unmerged"] },
+        "language": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "additions": { "type": "integer", "minimum": 0 },
+        "deletions": { "type": "integer", "minimum": 0 },
+        "redactions": { "type": "integer", "minimum": 0 },
+        "truncated": { "type": "boolean" },
+        "hunks": { "type": "array", "items": { "$ref": "#/$defs/hunk" } },
+        "context": { "type": "array", "items": { "$ref": "#/$defs/context" } },
+        "patch": { "type": "string" }
+      }
+    },
+    "omittedFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "reason"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1, "maxLength": 1024 },
+        "reason": {
+          "enum": ["binary", "generated", "lockfile", "sensitive-path", "too-large", "file-limit", "unsafe-path", "unreadable"]
+        },
+        "detail": { "type": "string", "maxLength": 1000 }
+      }
+    }
+  }
+}

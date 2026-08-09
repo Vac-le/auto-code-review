@@ -1,0 +1,11 @@
+diff --git a/app/history.py b/app/history.py
+index 748fb17..d5be90b 100644
+--- a/app/history.py
++++ b/app/history.py
+@@ -1,6 +1,3 @@
+-def remember(value: str, seen: list[str] | None = None) -> list[str]:
+-    if seen is None:
+-        seen = []
++def remember(value: str, seen: list[str] = []) -> list[str]:
+     seen.append(value)
+     return seen

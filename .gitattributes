@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+integrations/claude/bin/* text eol=lf
+benchmark/cases/*.diff -whitespace

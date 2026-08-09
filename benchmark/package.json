@@ -1,0 +1,13 @@
+{
+  "name": "auto-code-review-benchmark",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Public, zero-dependency evaluation corpus for Auto Code Review",
+  "scripts": {
+    "test": "node --test test/evaluate.test.cjs",
+    "evaluate:perfect": "node evaluate.cjs --report fixtures/perfect-report.json"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

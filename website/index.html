@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Auto Code Review brings one evidence-first review standard to Codex and Claude Code, with an adapter-ready protocol."
+    />
+    <title>Auto Code Review — One review standard, every coding agent</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="nav-shell">
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="Auto Code Review home">
+          <svg viewBox="0 0 40 40" aria-hidden="true">
+            <rect width="40" height="40" rx="11" fill="currentColor" />
+            <path d="m11 18 6 6 12-13" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M16 30h13" fill="none" stroke="#ddd6fe" stroke-width="3" stroke-linecap="round" />
+          </svg>
+          <span>Auto Code Review</span>
+        </a>
+        <div class="nav-links">
+          <a href="#workflow">How it works</a>
+          <a href="#benchmark">Benchmark</a>
+          <a href="#install">Install</a>
+          <a class="github-link" href="https://github.com/auto-code-review/auto-code-review">GitHub <span aria-hidden="true">↗</span></a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="pulse"></span> Open source · Local-first · No extra API key</p>
+          <h1>One review standard.<br /><span>Every coding agent.</span></h1>
+          <p class="hero-subtitle">
+            Install once and get evidence-first reviews in Codex and Claude Code. Every finding includes a trigger,
+            observable impact, and precise location—speculation stays out.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#install">Install in two minutes</a>
+            <button class="button secondary" type="button" data-scroll-demo>Try the live review</button>
+          </div>
+          <ul class="trust-row" aria-label="Product guarantees">
+            <li>Read-only by default</li>
+            <li>Uses your current agent</li>
+            <li>Public quality benchmark</li>
+          </ul>
+        </div>
+
+        <div class="review-card" aria-label="Example code review finding">
+          <div class="window-bar">
+            <span class="window-dot red"></span><span class="window-dot amber"></span><span class="window-dot green"></span>
+            <span class="window-title">checkout.ts · branch review</span>
+            <span class="verified-pill">Verified</span>
+          </div>
+          <pre class="code"><code><span class="line muted">38</span>  const charge = await gateway.charge(input)
+<span class="line muted">39</span>  if (charge.timedOut) {
+<span class="line removed">40</span> -  return retry(input)
+<span class="line added">40</span> +  return retry({ ...input, attempt: 2 })
+<span class="line muted">41</span>  }</code></pre>
+          <article class="finding high">
+            <header>
+              <span class="priority">P1</span>
+              <strong>Retry can charge the same payment twice</strong>
+              <span class="confidence">94%</span>
+            </header>
+            <p>A timeout can occur after the first charge commits. The retry creates a new attempt without reusing an idempotency key.</p>
+            <footer><span>Concrete trigger</span><span>Changed line 40</span><span>Second-pass verified</span></footer>
+          </article>
+        </div>
+      </section>
+
+      <section class="proof" aria-label="Key product metrics">
+        <div><strong>&lt; 2 min</strong><span>install to first review</span></div>
+        <div><strong>≥ 0.80</strong><span>minimum report confidence</span></div>
+        <div><strong>0</strong><span>additional model API keys</span></div>
+        <div><strong>100%</strong><span>benchmark cases public</span></div>
+      </section>
+
+      <section class="section workflow" id="workflow">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence before opinion</p>
+          <h2>A review pipeline you can inspect</h2>
+          <p>The host model reasons about code. A shared protocol controls scope and filters weak output; the optional CLI adds deterministic location validation.</p>
+        </div>
+        <ol class="workflow-grid">
+          <li><span>01</span><h3>Map the complete diff</h3><p>Enumerate changed files and hunks before analyzing details. Skip binaries, generated output, and secrets.</p></li>
+          <li><span>02</span><h3>Build bounded context</h3><p>Follow only the callers, types, tests, and project rules needed to prove or disprove a candidate.</p></li>
+          <li><span>03</span><h3>Challenge every finding</h3><p>A second pass checks the trigger, impact, causality, line range, and possible counter-evidence.</p></li>
+          <li><span>04</span><h3>Report the signal</h3><p>Return at most ten prioritized findings in Markdown or JSON. Clean changes get a clean result.</p></li>
+        </ol>
+      </section>
+
+      <section class="section demo-section" id="demo">
+        <div class="section-heading compact">
+          <p class="eyebrow">Interactive example</p>
+          <h2>Watch weak candidates get filtered</h2>
+          <p>This deterministic demo mirrors the verification stages used by the plugin.</p>
+        </div>
+        <div class="demo-shell">
+          <div class="demo-toolbar">
+            <label for="scope">Review scope</label>
+            <select id="scope" data-testid="scope-select">
+              <option value="working-tree">Uncommitted changes</option>
+              <option value="staged">Staged changes</option>
+              <option value="branch">Branch against main</option>
+            </select>
+            <button class="button primary run-button" type="button" data-run-review data-testid="run-review">Run review</button>
+          </div>
+          <div class="demo-body">
+            <div class="pipeline" aria-live="polite" data-pipeline>
+              <div class="pipeline-step" data-stage="scope"><span></span>Map 4 changed files</div>
+              <div class="pipeline-step" data-stage="context"><span></span>Inspect relevant context</div>
+              <div class="pipeline-step" data-stage="verify"><span></span>Verify 5 candidates</div>
+              <div class="pipeline-step" data-stage="report"><span></span>Keep 1 verified finding</div>
+            </div>
+            <div class="demo-result" data-demo-result>
+              <div class="empty-result">
+                <span aria-hidden="true">⌁</span>
+                <p>Run the review to see the verification trace.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section benchmark" id="benchmark">
+        <div class="section-heading">
+          <p class="eyebrow">Quality is measured</p>
+          <h2>No private victory lap</h2>
+          <p>Buggy and clean patches, expected findings, and the scoring harness live in the repository. CI verifies the scorer; named host/model runs are required before publishing behavioral score claims.</p>
+        </div>
+        <div class="benchmark-grid">
+          <article><span class="metric-label">Signal</span><strong>Precision / Recall / F1</strong><p>Match reported root causes against human-labeled expected findings.</p></article>
+          <article><span class="metric-label">Trust</span><strong>False positives on clean diffs</strong><p>Clean cases prevent the prompt from learning to invent problems everywhere.</p></article>
+          <article><span class="metric-label">Evidence</span><strong>File and line accuracy</strong><p>Reports fail validation when locations do not exist or miss the reviewed change.</p></article>
+        </div>
+      </section>
+
+      <section class="section install" id="install">
+        <div class="section-heading compact">
+          <p class="eyebrow">Start locally</p>
+          <h2>Use the agent you already trust</h2>
+          <p>Choose a platform. The default workflow adds no model gateway and sends no telemetry.</p>
+        </div>
+        <div class="install-card">
+          <div class="platform-tabs" role="tablist" aria-label="Installation platform">
+            <button role="tab" aria-selected="true" aria-controls="codex-panel" id="codex-tab" data-platform="codex">Codex</button>
+            <button role="tab" aria-selected="false" aria-controls="claude-panel" id="claude-tab" data-platform="claude" tabindex="-1">Claude Code</button>
+          </div>
+          <div class="install-panel" role="tabpanel" id="codex-panel" aria-labelledby="codex-tab" data-panel="codex">
+            <p>From the cloned repository, register it and install the Codex skill in one command.</p>
+            <div class="command-row"><code>npm run install:agents -- --platform codex</code><button type="button" data-copy="npm run install:agents -- --platform codex">Copy</button></div>
+            <p class="invoke">Then ask: <code>$auto-code-review review my current changes</code></p>
+          </div>
+          <div class="install-panel" role="tabpanel" id="claude-panel" aria-labelledby="claude-tab" data-panel="claude" hidden>
+            <p>From the cloned repository, register it and install the namespaced skill in one command.</p>
+            <div class="command-row"><code>npm run install:agents -- --platform claude</code><button type="button" data-copy="npm run install:agents -- --platform claude">Copy</button></div>
+            <p class="invoke">Then run: <code>/auto-code-review:review</code></p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div><strong>Auto Code Review</strong><span>One review standard, every coding agent.</span></div>
+      <p>Apache-2.0 · Local-first · Built in the open</p>
+    </footer>
+    <div class="toast" role="status" aria-live="polite" data-toast></div>
+  </body>
+</html>

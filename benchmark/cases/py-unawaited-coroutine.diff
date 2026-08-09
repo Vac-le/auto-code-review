@@ -1,0 +1,11 @@
+diff --git a/app/signup.py b/app/signup.py
+index 4c1725b..1afdfc8 100644
+--- a/app/signup.py
++++ b/app/signup.py
+@@ -2,5 +2,5 @@ from .mail import send_email
+ 
+ async def complete_signup(repository, email: str):
+     user = await repository.create(email)
+-    await send_email(user.email)
++    send_email(user.email)
+     return user

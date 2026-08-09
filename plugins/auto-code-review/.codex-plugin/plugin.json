@@ -1,0 +1,27 @@
+{
+  "name": "auto-code-review",
+  "version": "0.1.0",
+  "description": "Evidence-first AI code review for Git changes, using the coding agent you already trust.",
+  "author": {
+    "name": "Auto Code Review Contributors"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["code-review", "ai", "git", "quality", "security"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Auto Code Review",
+    "shortDescription": "High-signal review with verified findings.",
+    "longDescription": "Review staged, uncommitted, branch, commit, or file changes with an evidence-first workflow that verifies failure scenarios, filters speculation, and produces consistent prioritized findings.",
+    "developerName": "Auto Code Review Contributors",
+    "category": "Productivity",
+    "capabilities": ["Read"],
+    "defaultPrompt": [
+      "Review my current Git changes and report only verified defects.",
+      "Review this branch against main for correctness and security regressions.",
+      "Produce a structured JSON review of my staged changes."
+    ],
+    "brandColor": "#7C3AED",
+    "composerIcon": "./assets/logo.svg",
+    "logo": "./assets/logo.svg"
+  }
+}

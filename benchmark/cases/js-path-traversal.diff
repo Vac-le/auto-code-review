@@ -1,0 +1,14 @@
+diff --git a/src/download.js b/src/download.js
+index 81791fa..8ccb135 100644
+--- a/src/download.js
++++ b/src/download.js
+@@ -1,6 +1,7 @@
+ import path from "node:path";
+ 
+-export function download(uploadRoot, safeName) {
+-  return path.join(uploadRoot, path.basename(safeName));
++export function download(uploadRoot, request) {
++  const requested = request.query.name;
++  const destination = path.join(uploadRoot, requested);
++  return destination;
+ }

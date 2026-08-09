@@ -1,0 +1,24 @@
+diff --git a/catalog/index.go b/catalog/index.go
+index 48e1a11..6fb29da 100644
+--- a/catalog/index.go
++++ b/catalog/index.go
+@@ -1,9 +1,17 @@
+ package catalog
+ 
++import "sync"
++
+ func index(items []Item) map[string]Item {
+ 	byID := make(map[string]Item, len(items))
++	var wg sync.WaitGroup
+ 	for _, item := range items {
+-		byID[item.ID] = item
++		item := item
++		wg.Add(1)
++		go func() {
++			defer wg.Done()
++			byID[item.ID] = item
++		}()
+ 	}
++	wg.Wait()
+ 	return byID
+ }

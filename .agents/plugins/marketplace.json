@@ -1,0 +1,20 @@
+{
+  "name": "auto-code-review",
+  "interface": {
+    "displayName": "Auto Code Review"
+  },
+  "plugins": [
+    {
+      "name": "auto-code-review",
+      "source": {
+        "source": "local",
+        "path": "./plugins/auto-code-review"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
