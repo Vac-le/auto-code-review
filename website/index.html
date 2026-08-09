@@ -1,21 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Auto Code Review brings one evidence-first review standard to Codex and Claude Code, with an adapter-ready protocol."
+      content="Auto Code Review 为 Codex 与 Claude Code 提供证据优先的统一 AI 代码审查标准。"
+      data-i18n-content="description"
     />
-    <title>Auto Code Review — One review standard, every coding agent</title>
-    <link rel="stylesheet" href="/styles.css" />
-    <script src="/app.js" defer></script>
+    <title>Auto Code Review — 一套审查标准，适配每个编程智能体</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main" data-i18n="skip">跳到主要内容</a>
     <header class="nav-shell">
-      <nav class="nav" aria-label="Primary navigation">
-        <a class="brand" href="#top" aria-label="Auto Code Review home">
+      <nav class="nav" aria-label="主导航" data-i18n-aria-label="primaryNav">
+        <a class="brand" href="#top" aria-label="Auto Code Review 首页" data-i18n-aria-label="home">
           <svg viewBox="0 0 40 40" aria-hidden="true">
             <rect width="40" height="40" rx="11" fill="currentColor" />
             <path d="m11 18 6 6 12-13" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
@@ -24,10 +25,14 @@
           <span>Auto Code Review</span>
         </a>
         <div class="nav-links">
-          <a href="#workflow">How it works</a>
-          <a href="#benchmark">Benchmark</a>
-          <a href="#install">Install</a>
-          <a class="github-link" href="https://github.com/auto-code-review/auto-code-review">GitHub <span aria-hidden="true">↗</span></a>
+          <a href="#workflow" data-i18n="navWorkflow">工作原理</a>
+          <a href="#benchmark" data-i18n="navBenchmark">质量基准</a>
+          <a href="#install" data-i18n="navInstall">安装</a>
+          <div class="language-switch" role="group" aria-label="语言" data-i18n-aria-label="language">
+            <button type="button" data-language="zh" aria-pressed="true">中文</button>
+            <button type="button" data-language="en" aria-pressed="false">EN</button>
+          </div>
+          <a class="github-link" href="https://github.com/Vac-le/auto-code-review">GitHub <span aria-hidden="true">↗</span></a>
         </div>
       </nav>
     </header>
@@ -35,28 +40,27 @@
     <main id="main">
       <section class="hero" id="top">
         <div class="hero-copy">
-          <p class="eyebrow"><span class="pulse"></span> Open source · Local-first · No extra API key</p>
-          <h1>One review standard.<br /><span>Every coding agent.</span></h1>
-          <p class="hero-subtitle">
-            Install once and get evidence-first reviews in Codex and Claude Code. Every finding includes a trigger,
-            observable impact, and precise location—speculation stays out.
+          <p class="eyebrow"><span class="pulse"></span><span data-i18n="heroEyebrow">开源 · 本地优先 · 无需额外 API Key</span></p>
+          <h1><span class="headline-main" data-i18n="heroTitle">一套审查标准。</span><br /><span data-i18n="heroAccent">适配每个编程智能体。</span></h1>
+          <p class="hero-subtitle" data-i18n="heroSubtitle">
+            一次安装，即可在 Codex 与 Claude Code 中获得证据优先的审查。每个问题都包含触发条件、可观察影响和精确位置——拒绝猜测。
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="#install">Install in two minutes</a>
-            <button class="button secondary" type="button" data-scroll-demo>Try the live review</button>
+            <a class="button primary" href="#install" data-i18n="installCta">两分钟完成安装</a>
+            <button class="button secondary" type="button" data-scroll-demo data-i18n="demoCta">体验在线审查</button>
           </div>
-          <ul class="trust-row" aria-label="Product guarantees">
-            <li>Read-only by default</li>
-            <li>Uses your current agent</li>
-            <li>Public quality benchmark</li>
+          <ul class="trust-row" aria-label="产品保证" data-i18n-aria-label="guarantees">
+            <li data-i18n="trustReadonly">默认只读</li>
+            <li data-i18n="trustHost">复用当前智能体</li>
+            <li data-i18n="trustBenchmark">公开质量基准</li>
           </ul>
         </div>
 
-        <div class="review-card" aria-label="Example code review finding">
+        <div class="review-card" aria-label="代码审查问题示例" data-i18n-aria-label="findingExample">
           <div class="window-bar">
             <span class="window-dot red"></span><span class="window-dot amber"></span><span class="window-dot green"></span>
             <span class="window-title">checkout.ts · branch review</span>
-            <span class="verified-pill">Verified</span>
+            <span class="verified-pill" data-i18n="verified">已验证</span>
           </div>
           <pre class="code"><code><span class="line muted">38</span>  const charge = await gateway.charge(input)
 <span class="line muted">39</span>  if (charge.timedOut) {
@@ -66,63 +70,63 @@
           <article class="finding high">
             <header>
               <span class="priority">P1</span>
-              <strong>Retry can charge the same payment twice</strong>
+              <strong data-i18n="findingTitle">重试可能导致同一笔支付被扣款两次</strong>
               <span class="confidence">94%</span>
             </header>
-            <p>A timeout can occur after the first charge commits. The retry creates a new attempt without reusing an idempotency key.</p>
-            <footer><span>Concrete trigger</span><span>Changed line 40</span><span>Second-pass verified</span></footer>
+            <p data-i18n="findingBody">首次扣款成功后仍可能发生超时，而重试没有复用幂等键，因此会创建新的扣款请求。</p>
+            <footer><span data-i18n="concreteTrigger">明确触发条件</span><span data-i18n="changedLine">变更行 40</span><span data-i18n="secondPass">二次验证通过</span></footer>
           </article>
         </div>
       </section>
 
-      <section class="proof" aria-label="Key product metrics">
-        <div><strong>&lt; 2 min</strong><span>install to first review</span></div>
-        <div><strong>≥ 0.80</strong><span>minimum report confidence</span></div>
-        <div><strong>0</strong><span>additional model API keys</span></div>
-        <div><strong>100%</strong><span>benchmark cases public</span></div>
+      <section class="proof" aria-label="核心产品指标" data-i18n-aria-label="metrics">
+        <div><strong>&lt; 2 min</strong><span data-i18n="metricInstall">从安装到首次审查</span></div>
+        <div><strong>≥ 0.80</strong><span data-i18n="metricConfidence">最低报告置信度</span></div>
+        <div><strong>0</strong><span data-i18n="metricKeys">额外模型 API Key</span></div>
+        <div><strong>100%</strong><span data-i18n="metricPublic">基准案例公开</span></div>
       </section>
 
       <section class="section workflow" id="workflow">
         <div class="section-heading">
-          <p class="eyebrow">Evidence before opinion</p>
-          <h2>A review pipeline you can inspect</h2>
-          <p>The host model reasons about code. A shared protocol controls scope and filters weak output; the optional CLI adds deterministic location validation.</p>
+          <p class="eyebrow" data-i18n="workflowEyebrow">先看证据，再下结论</p>
+          <h2 data-i18n="workflowTitle">一条你可以检查的审查流水线</h2>
+          <p data-i18n="workflowIntro">宿主模型负责理解代码，共享协议控制审查范围并过滤薄弱结论；可选 CLI 提供确定性的代码位置验证。</p>
         </div>
         <ol class="workflow-grid">
-          <li><span>01</span><h3>Map the complete diff</h3><p>Enumerate changed files and hunks before analyzing details. Skip binaries, generated output, and secrets.</p></li>
-          <li><span>02</span><h3>Build bounded context</h3><p>Follow only the callers, types, tests, and project rules needed to prove or disprove a candidate.</p></li>
-          <li><span>03</span><h3>Challenge every finding</h3><p>A second pass checks the trigger, impact, causality, line range, and possible counter-evidence.</p></li>
-          <li><span>04</span><h3>Report the signal</h3><p>Return at most ten prioritized findings in Markdown or JSON. Clean changes get a clean result.</p></li>
+          <li><span>01</span><h3 data-i18n="step1Title">映射完整 diff</h3><p data-i18n="step1Body">分析细节前先枚举所有变更文件与代码块，并跳过二进制、生成文件和敏感信息。</p></li>
+          <li><span>02</span><h3 data-i18n="step2Title">构建有限上下文</h3><p data-i18n="step2Body">只追踪证明或推翻候选问题所需的调用方、类型、测试和项目规则。</p></li>
+          <li><span>03</span><h3 data-i18n="step3Title">质疑每个发现</h3><p data-i18n="step3Body">第二轮检查触发条件、影响、因果关系、行范围与可能的反证。</p></li>
+          <li><span>04</span><h3 data-i18n="step4Title">只报告有效信号</h3><p data-i18n="step4Body">最多返回十个按优先级排序的问题，支持 Markdown 或 JSON；没有问题就明确给出干净结果。</p></li>
         </ol>
       </section>
 
       <section class="section demo-section" id="demo">
         <div class="section-heading compact">
-          <p class="eyebrow">Interactive example</p>
-          <h2>Watch weak candidates get filtered</h2>
-          <p>This deterministic demo mirrors the verification stages used by the plugin.</p>
+          <p class="eyebrow" data-i18n="demoEyebrow">交互示例</p>
+          <h2 data-i18n="demoTitle">看看薄弱候选如何被过滤</h2>
+          <p data-i18n="demoIntro">这个确定性演示复现了插件使用的验证阶段。</p>
         </div>
         <div class="demo-shell">
           <div class="demo-toolbar">
-            <label for="scope">Review scope</label>
+            <label for="scope" data-i18n="scopeLabel">审查范围</label>
             <select id="scope" data-testid="scope-select">
-              <option value="working-tree">Uncommitted changes</option>
-              <option value="staged">Staged changes</option>
-              <option value="branch">Branch against main</option>
+              <option value="working-tree" data-i18n="scopeWorking">未提交的变更</option>
+              <option value="staged" data-i18n="scopeStaged">暂存区变更</option>
+              <option value="branch" data-i18n="scopeBranch">当前分支与 main 对比</option>
             </select>
-            <button class="button primary run-button" type="button" data-run-review data-testid="run-review">Run review</button>
+            <button class="button primary run-button" type="button" data-run-review data-testid="run-review" data-i18n="runReview">开始审查</button>
           </div>
           <div class="demo-body">
             <div class="pipeline" aria-live="polite" data-pipeline>
-              <div class="pipeline-step" data-stage="scope"><span></span>Map 4 changed files</div>
-              <div class="pipeline-step" data-stage="context"><span></span>Inspect relevant context</div>
-              <div class="pipeline-step" data-stage="verify"><span></span>Verify 5 candidates</div>
-              <div class="pipeline-step" data-stage="report"><span></span>Keep 1 verified finding</div>
+              <div class="pipeline-step" data-stage="scope"><span></span><span data-i18n="pipelineScope">映射 4 个变更文件</span></div>
+              <div class="pipeline-step" data-stage="context"><span></span><span data-i18n="pipelineContext">检查相关上下文</span></div>
+              <div class="pipeline-step" data-stage="verify"><span></span><span data-i18n="pipelineVerify">验证 5 个候选问题</span></div>
+              <div class="pipeline-step" data-stage="report"><span></span><span data-i18n="pipelineReport">保留 1 个已验证问题</span></div>
             </div>
             <div class="demo-result" data-demo-result>
               <div class="empty-result">
                 <span aria-hidden="true">⌁</span>
-                <p>Run the review to see the verification trace.</p>
+                <p data-i18n="emptyResult">运行审查后查看完整验证轨迹。</p>
               </div>
             </div>
           </div>
@@ -131,45 +135,45 @@
 
       <section class="section benchmark" id="benchmark">
         <div class="section-heading">
-          <p class="eyebrow">Quality is measured</p>
-          <h2>No private victory lap</h2>
-          <p>Buggy and clean patches, expected findings, and the scoring harness live in the repository. CI verifies the scorer; named host/model runs are required before publishing behavioral score claims.</p>
+          <p class="eyebrow" data-i18n="benchmarkEyebrow">质量必须可衡量</p>
+          <h2 data-i18n="benchmarkTitle">不做无法复现的自我庆祝</h2>
+          <p data-i18n="benchmarkIntro">有缺陷与干净的补丁、预期发现和评分工具全部公开在仓库中。CI 验证评分器；发布行为分数前必须注明宿主、模型版本和语料。</p>
         </div>
         <div class="benchmark-grid">
-          <article><span class="metric-label">Signal</span><strong>Precision / Recall / F1</strong><p>Match reported root causes against human-labeled expected findings.</p></article>
-          <article><span class="metric-label">Trust</span><strong>False positives on clean diffs</strong><p>Clean cases prevent the prompt from learning to invent problems everywhere.</p></article>
-          <article><span class="metric-label">Evidence</span><strong>File and line accuracy</strong><p>Reports fail validation when locations do not exist or miss the reviewed change.</p></article>
+          <article><span class="metric-label" data-i18n="signal">信号</span><strong>Precision / Recall / F1</strong><p data-i18n="signalBody">将报告的根因与人工标注的预期发现进行匹配。</p></article>
+          <article><span class="metric-label" data-i18n="trust">可信度</span><strong data-i18n="trustMetric">干净 diff 的误报率</strong><p data-i18n="trustBody">干净案例可以防止提示词养成“处处编造问题”的倾向。</p></article>
+          <article><span class="metric-label" data-i18n="evidence">证据</span><strong data-i18n="evidenceMetric">文件与行号准确性</strong><p data-i18n="evidenceBody">位置不存在或没有命中被审查的变更时，报告无法通过验证。</p></article>
         </div>
       </section>
 
       <section class="section install" id="install">
         <div class="section-heading compact">
-          <p class="eyebrow">Start locally</p>
-          <h2>Use the agent you already trust</h2>
-          <p>Choose a platform. The default workflow adds no model gateway and sends no telemetry.</p>
+          <p class="eyebrow" data-i18n="installEyebrow">从本地开始</p>
+          <h2 data-i18n="installTitle">使用你已经信任的智能体</h2>
+          <p data-i18n="installIntro">选择一个平台。默认工作流不增加模型网关，也不会发送遥测数据。</p>
         </div>
         <div class="install-card">
-          <div class="platform-tabs" role="tablist" aria-label="Installation platform">
+          <div class="platform-tabs" role="tablist" aria-label="安装平台" data-i18n-aria-label="installPlatform">
             <button role="tab" aria-selected="true" aria-controls="codex-panel" id="codex-tab" data-platform="codex">Codex</button>
             <button role="tab" aria-selected="false" aria-controls="claude-panel" id="claude-tab" data-platform="claude" tabindex="-1">Claude Code</button>
           </div>
           <div class="install-panel" role="tabpanel" id="codex-panel" aria-labelledby="codex-tab" data-panel="codex">
-            <p>From the cloned repository, register it and install the Codex skill in one command.</p>
-            <div class="command-row"><code>npm run install:agents -- --platform codex</code><button type="button" data-copy="npm run install:agents -- --platform codex">Copy</button></div>
-            <p class="invoke">Then ask: <code>$auto-code-review review my current changes</code></p>
+            <p data-i18n="codexInstall">克隆仓库后，只需一条命令即可注册并安装 Codex Skill。</p>
+            <div class="command-row"><code>npm run install:agents -- --platform codex</code><button type="button" data-copy="npm run install:agents -- --platform codex" data-i18n="copy">复制</button></div>
+            <p class="invoke"><span data-i18n="thenAsk">然后输入：</span> <code>$auto-code-review review my current changes</code></p>
           </div>
           <div class="install-panel" role="tabpanel" id="claude-panel" aria-labelledby="claude-tab" data-panel="claude" hidden>
-            <p>From the cloned repository, register it and install the namespaced skill in one command.</p>
-            <div class="command-row"><code>npm run install:agents -- --platform claude</code><button type="button" data-copy="npm run install:agents -- --platform claude">Copy</button></div>
-            <p class="invoke">Then run: <code>/auto-code-review:review</code></p>
+            <p data-i18n="claudeInstall">克隆仓库后，只需一条命令即可注册并安装带命名空间的 Claude Skill。</p>
+            <div class="command-row"><code>npm run install:agents -- --platform claude</code><button type="button" data-copy="npm run install:agents -- --platform claude" data-i18n="copy">复制</button></div>
+            <p class="invoke"><span data-i18n="thenRun">然后运行：</span> <code>/auto-code-review:review</code></p>
           </div>
         </div>
       </section>
     </main>
 
     <footer>
-      <div><strong>Auto Code Review</strong><span>One review standard, every coding agent.</span></div>
-      <p>Apache-2.0 · Local-first · Built in the open</p>
+      <div><strong>Auto Code Review</strong><span data-i18n="footerTagline">一套审查标准，适配每个编程智能体。</span></div>
+      <p data-i18n="footerMeta">Apache-2.0 · 本地优先 · 开放构建</p>
     </footer>
     <div class="toast" role="status" aria-live="polite" data-toast></div>
   </body>

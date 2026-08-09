@@ -13,4 +13,4 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - Public multilingual benchmark with clean-patch false-positive cases.
 - Static product site, automated quality gates, and contribution governance.
 
-[Unreleased]: https://github.com/auto-code-review/auto-code-review/commits/main
+[Unreleased]: https://github.com/Vac-le/auto-code-review/commits/main

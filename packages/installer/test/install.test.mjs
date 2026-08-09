@@ -5,7 +5,7 @@ import { buildPlan, parseArgs, runPlan } from '../src/install.mjs';
 test('defaults to both platforms without an API key or gateway', () => {
   const options = parseArgs([]);
   assert.deepEqual(options, {
-    platform: 'all', scope: 'user', source: 'auto-code-review/auto-code-review', dryRun: false, local: false
+    platform: 'all', scope: 'user', source: 'Vac-le/auto-code-review', dryRun: false, local: false
   });
   const plan = buildPlan(options);
   assert.equal(plan.length, 4);
@@ -27,7 +27,7 @@ test('local Claude source uses an explicitly relative path', () => {
 test('builds a scoped Claude-only plan', () => {
   const options = parseArgs(['--platform', 'claude', '--scope', 'project']);
   assert.deepEqual(buildPlan(options), [
-    { host: 'claude', args: ['plugin', 'marketplace', 'add', 'auto-code-review/auto-code-review', '--scope', 'project'] },
+    { host: 'claude', args: ['plugin', 'marketplace', 'add', 'Vac-le/auto-code-review', '--scope', 'project'] },
     { host: 'claude', args: ['plugin', 'install', 'auto-code-review@auto-code-review', '--scope', 'project'] }
   ]);
 });
@@ -89,7 +89,7 @@ test('treats already-installed responses as idempotent success', () => {
 });
 
 test('fails closed when a marketplace name already exists', () => {
-  const plan = [{ host: 'codex', args: ['plugin', 'marketplace', 'add', 'auto-code-review/auto-code-review'] }];
+  const plan = [{ host: 'codex', args: ['plugin', 'marketplace', 'add', 'Vac-le/auto-code-review'] }];
   assert.throws(
     () => runPlan(plan, { runtimePlatform: 'linux', spawn: () => ({ status: 1, stderr: 'Marketplace already exists' }) }),
     /already exists/
@@ -106,7 +106,7 @@ test('uses the Windows command shell only for fixed allowlisted commands', () =>
       return { status: 0 };
     }
   });
-  assert.equal(calls[0].command, 'codex.cmd plugin marketplace add auto-code-review/auto-code-review');
+  assert.equal(calls[0].command, 'codex.cmd plugin marketplace add Vac-le/auto-code-review');
   assert.deepEqual(calls[0].args, []);
   assert.equal(calls[0].options.shell, true);
   assert.equal(calls.every((call) => !/[&|<>^%\r\n]/.test(call.command)), true);

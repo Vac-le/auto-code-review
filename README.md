@@ -36,7 +36,7 @@ After the first public package release, the same installer is distributed as `np
 Requirements: Node.js 20+, Git 2.30+, and either Codex or Claude Code.
 
 ```bash
-git clone https://github.com/auto-code-review/auto-code-review.git
+git clone https://github.com/Vac-le/auto-code-review.git
 cd auto-code-review
 npm install
 npm run quality

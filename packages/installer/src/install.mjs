@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 
-export const DEFAULT_SOURCE = 'auto-code-review/auto-code-review';
+export const DEFAULT_SOURCE = 'Vac-le/auto-code-review';
 const PLATFORMS = new Set(['all', 'codex', 'claude']);
 const SCOPES = new Set(['user', 'project', 'local']);
 

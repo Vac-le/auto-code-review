@@ -35,10 +35,13 @@ test('serves the accessible product page with security headers', async () => {
   assert.match(html, /<main id="main">/);
   assert.match(html, /role="tablist"/);
   assert.match(html, /data-testid="run-review"/);
-  assert.match(html, /No extra API key/);
+  assert.match(html, /<html lang="zh-CN">/);
+  assert.match(html, /无需额外 API Key/);
+  assert.match(html, /data-language="zh" aria-pressed="true"/);
+  assert.match(html, /data-language="en" aria-pressed="false"/);
   assert.match(html, /npm run install:agents -- --platform codex/);
   assert.match(html, /npm run install:agents -- --platform claude/);
-  assert.match(html, /named host\/model runs are required/);
+  assert.match(html, /发布行为分数前必须注明宿主、模型版本和语料/);
   assert.doesNotMatch(html, /and other coding agents/);
   assert.doesNotMatch(html, /SARIF/);
 });
@@ -48,6 +51,10 @@ test('serves static assets with correct content types', async () => {
   const script = await fetch(`${baseUrl}/app.js`);
   assert.match(css.headers.get('content-type'), /^text\/css/);
   assert.match(script.headers.get('content-type'), /^text\/javascript/);
+  const source = await script.text();
+  assert.match(source, /localStorage\.getItem\('auto-code-review-language'\)/);
+  assert.match(source, /One review standard, every coding agent/);
+  assert.match(source, /一套审查标准，适配每个编程智能体/);
 });
 
 test('does not expose files outside the website root', async () => {

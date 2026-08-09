@@ -9,13 +9,13 @@
     "claude",
     "git"
   ],
-  "homepage": "https://github.com/auto-code-review/auto-code-review#readme",
+  "homepage": "https://github.com/Vac-le/auto-code-review#readme",
   "bugs": {
-    "url": "https://github.com/auto-code-review/auto-code-review/issues"
+    "url": "https://github.com/Vac-le/auto-code-review/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/auto-code-review/auto-code-review.git",
+    "url": "git+https://github.com/Vac-le/auto-code-review.git",
     "directory": "packages/cli"
   },
   "type": "module",
