@@ -171,6 +171,7 @@ export function createDashboardServer(options: DashboardOptions, dependencies: D
           hosts,
           preferredHost: options.preferredHost ?? hosts.find((item) => item.available)?.host ?? null,
           snapshot: { ...snapshot.summary, filesList: snapshot.files.map(({ path, status, additions, deletions }) => ({ path, status, additions, deletions })) },
+          activeReview: activeJob ? publicJob(activeJob) : null,
         });
       }
       if (request.method === "POST" && url.pathname === "/api/reviews") {

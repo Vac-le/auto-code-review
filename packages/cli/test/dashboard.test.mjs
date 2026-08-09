@@ -4,7 +4,7 @@ import test from "node:test";
 import { createDashboardServer } from "../dist/ui.js";
 import { seedRepository, write } from "./helpers.mjs";
 
-async function setup() {
+async function setup(reviewOverride) {
   const root = seedRepository();
   write(root, "src/dashboard.ts", "export const enabled = true;\n");
   const review = async ({ snapshot }) => {
@@ -34,7 +34,7 @@ async function setup() {
       { host: "codex", available: true, version: "codex-test" },
       { host: "claude", available: false, version: null },
     ],
-    review,
+    review: reviewOverride ?? review,
   });
   dashboard.server.listen(0, "127.0.0.1");
   await once(dashboard.server, "listening");
@@ -100,6 +100,46 @@ test("local dashboard runs a review and returns only a validated report", async 
     assert.equal(job.validation.valid, true);
     assert.equal(job.report.findings[0].id, "ACR-DASHBOARD-1");
     assert.equal(Object.hasOwn(job, "controller"), false);
+
+    const restored = await fetch(`${dashboard.baseUrl}/api/status`, {
+      headers: { "x-auto-code-review-token": dashboard.token },
+    });
+    assert.equal(restored.status, 200);
+    const restoredBody = await restored.json();
+    assert.equal(restoredBody.activeReview.id, id);
+    assert.equal(restoredBody.activeReview.state, "complete");
+    assert.equal(restoredBody.activeReview.report.findings[0].id, "ACR-DASHBOARD-1");
+  } finally {
+    dashboard.server.close();
+    await once(dashboard.server, "close");
+  }
+});
+
+test("status exposes the active review so a refreshed page can reconnect", async () => {
+  const dashboard = await setup(async () => await new Promise(() => {}));
+  try {
+    const headers = {
+      "x-auto-code-review-token": dashboard.token,
+      "content-type": "application/json",
+      origin: dashboard.baseUrl,
+    };
+    const start = await fetch(`${dashboard.baseUrl}/api/reviews`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ host: "codex", scope: "working" }),
+    });
+    const started = await start.json();
+    assert.equal(start.status, 202);
+
+    const status = await fetch(`${dashboard.baseUrl}/api/status`, {
+      headers: { "x-auto-code-review-token": dashboard.token },
+    });
+    const body = await status.json();
+    assert.equal(status.status, 200);
+    assert.equal(body.activeReview.id, started.id);
+    assert.equal(body.activeReview.state, "reviewing");
+    assert.equal(Object.hasOwn(body.activeReview, "controller"), false);
+    assert.equal(Object.hasOwn(body.activeReview.snapshot.filesList[0], "patch"), false);
   } finally {
     dashboard.server.close();
     await once(dashboard.server, "close");
