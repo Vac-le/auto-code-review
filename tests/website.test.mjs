@@ -43,6 +43,10 @@ test('serves the accessible product page with security headers', async () => {
   assert.match(html, /property="og:image" content="https:\/\/vac-le\.github\.io\/auto-code-review\/og\.png"/);
   assert.match(html, /data-language="zh" aria-pressed="true"/);
   assert.match(html, /data-language="en" aria-pressed="false"/);
+  assert.match(html, /class="brand-mark"/);
+  assert.match(html, /class="nav-menu"/);
+  assert.match(html, /class="globe-icon"/);
+  assert.doesNotMatch(html, /<svg[^>]*viewBox="0 0 40 40"/);
   assert.match(html, /npm run install:agents -- --platform codex/);
   assert.match(html, /npm run install:agents -- --platform claude/);
   assert.match(html, /npm run ui -- --repo \/path\/to\/project/);
@@ -77,6 +81,7 @@ test('serves the Markdown-backed documentation page in both languages', async ()
   assert.equal(page.status, 200);
   assert.match(html, /data-markdown/);
   assert.match(html, /data-doc-language="zh"/);
+  assert.match(html, /class="nav-menu docs-nav-menu"/);
   assert.match(html, /href="\.\/usage\.zh-CN\.md"/);
   assert.match(chinese.headers.get('content-type'), /^text\/markdown/);
   assert.match(await chinese.text(), /官网中的“交互演示”只展示审查步骤/);

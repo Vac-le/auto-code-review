@@ -1,11 +1,11 @@
 const ui = {
   zh: {
     description: 'Auto Code Review 安装、使用范围、报告说明和常见问题。',
-    titleText: '使用文档 — Auto Code Review', skip: '跳到文档正文', navigation: '文档导航', home: '返回 Auto Code Review 首页', language: '文档语言', backHome: '返回首页', contents: '文档目录', markdownSource: '查看 Markdown 源文件 ↗', eyebrow: '产品指南', title: 'Auto Code Review 使用文档', intro: '从安装到第一次真实代码审查，按步骤即可完成。', loading: '正在载入文档…', loadError: '文档载入失败，请打开 Markdown 源文件。'
+    titleText: '使用文档 — Auto Code Review', skip: '跳到文档正文', navigation: '文档导航', home: '返回 Auto Code Review 首页', language: '文档语言', backHome: '返回首页', navHome: '首页', navDocs: '使用文档', navBenchmark: '质量基准', navInstall: '安装', contents: '文档目录', markdownSource: '查看 Markdown 源文件 ↗', eyebrow: '产品指南', title: 'Auto Code Review 使用文档', intro: '从安装到第一次真实代码审查，按步骤即可完成。', loading: '正在载入文档…', loadError: '文档载入失败，请打开 Markdown 源文件。'
   },
   en: {
     description: 'Installation, review scopes, report format, and troubleshooting for Auto Code Review.',
-    titleText: 'Documentation — Auto Code Review', skip: 'Skip to documentation', navigation: 'Documentation navigation', home: 'Back to Auto Code Review home', language: 'Documentation language', backHome: 'Back home', contents: 'On this page', markdownSource: 'View Markdown source ↗', eyebrow: 'Product guide', title: 'Auto Code Review documentation', intro: 'Follow these steps from installation to your first real code review.', loading: 'Loading documentation…', loadError: 'The guide could not be loaded. Open the Markdown source instead.'
+    titleText: 'Documentation — Auto Code Review', skip: 'Skip to documentation', navigation: 'Documentation navigation', home: 'Back to Auto Code Review home', language: 'Documentation language', backHome: 'Back home', navHome: 'Home', navDocs: 'Docs', navBenchmark: 'Benchmark', navInstall: 'Install', contents: 'On this page', markdownSource: 'View Markdown source ↗', eyebrow: 'Product guide', title: 'Auto Code Review documentation', intro: 'Follow these steps from installation to your first real code review.', loading: 'Loading documentation…', loadError: 'The guide could not be loaded. Open the Markdown source instead.'
   }
 };
 

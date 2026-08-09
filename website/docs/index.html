@@ -22,16 +22,22 @@
     <header class="nav-shell">
       <nav class="nav docs-nav" aria-label="文档导航" data-doc-aria="navigation">
         <a class="brand" href="../index.html" aria-label="返回 Auto Code Review 首页" data-doc-aria="home">
-          <span class="brand-mark" aria-hidden="true">✓</span>
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
           <span>Auto Code Review</span>
         </a>
-        <div class="docs-nav-actions">
-          <a href="../index.html" data-doc-ui="backHome">返回首页</a>
-          <a href="https://github.com/Vac-le/auto-code-review">GitHub ↗</a>
+        <div class="nav-menu docs-nav-menu">
+          <a href="../index.html" data-doc-ui="navHome">首页</a>
+          <a class="active" href="./index.html" data-doc-ui="navDocs">使用文档</a>
+          <a href="../index.html#benchmark" data-doc-ui="navBenchmark">质量基准</a>
+          <a href="../index.html#install" data-doc-ui="navInstall">安装</a>
+        </div>
+        <div class="nav-actions docs-nav-actions">
           <div class="language-switch" role="group" aria-label="文档语言" data-doc-aria="language">
+            <span class="globe-icon" aria-hidden="true"></span>
             <button type="button" data-doc-language="zh" aria-pressed="true">中文</button>
             <button type="button" data-doc-language="en" aria-pressed="false">EN</button>
           </div>
+          <a class="github-link" href="https://github.com/Vac-le/auto-code-review" aria-label="GitHub">GitHub <span aria-hidden="true">↗</span></a>
         </div>
       </nav>
     </header>

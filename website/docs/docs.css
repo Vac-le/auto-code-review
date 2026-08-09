@@ -1,5 +1,4 @@
 .docs-page { min-height: 100vh; }
-.brand-mark { display: grid; place-items: center; width: 34px; height: 34px; color: #fff; background: var(--ink); border-radius: 4px; font-size: 1.15rem; font-weight: 800; }
 .docs-nav-actions { display: flex; align-items: center; gap: 1rem; color: #55554f; font-size: .86rem; }
 .docs-nav-actions > a { border-bottom: 1px solid transparent; }
 .docs-nav-actions > a:hover, .docs-nav-actions > a:focus-visible { color: var(--ink); border-bottom-color: var(--ink); }
