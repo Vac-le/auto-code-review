@@ -78,6 +78,7 @@ test("CLI exposes help and rejects unknown commands without a stack trace", () =
   const help = run(["--help"]);
   assert.equal(help.status, 0);
   assert.match(help.stdout, /snapshot/);
+  assert.match(help.stdout, /auto-code-review ui/);
   const bad = run(["unknown"]);
   assert.equal(bad.status, 2);
   assert.match(bad.stderr, /UNKNOWN_COMMAND/);

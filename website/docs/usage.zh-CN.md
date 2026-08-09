@@ -29,7 +29,28 @@ npm run install:agents -- --platform claude
 
 安装完成后，请新建一个 Codex 任务或重新启动 Claude Code 会话。
 
-## 3. 在 Codex 中使用
+## 3. 打开本地审查界面
+
+在克隆的 Auto Code Review 项目中运行，并通过 `--repo` 指定需要审查的 Git 仓库：
+
+```bash
+npm run ui -- --repo C:\path\to\your-project
+```
+
+CLI 正式发布或全局安装后，也可以直接进入需要审查的仓库运行 `auto-code-review ui`。
+
+命令会在本机启动服务并自动打开浏览器，地址类似 `http://127.0.0.1:4387`。页面会显示当前仓库、Codex/Claude Code 可用状态、真实变更文件和经过验证的审查报告。关闭终端中的命令或按 `Ctrl+C` 即可停止本地界面。
+
+只使用指定平台或端口：
+
+```bash
+npm run ui -- --repo C:\path\to\your-project --host codex
+npm run ui -- --repo C:\path\to\your-project --host claude --port 4390
+```
+
+本地界面只监听 `127.0.0.1`，每次启动使用新的随机会话令牌。它不会把代码发送到 Auto Code Review 自建服务器；模型调用仍通过你选择并已登录的 Codex 或 Claude Code 账号完成。
+
+## 4. 在 Codex 中使用
 
 用 Codex 打开需要审查的 Git 项目，然后在新任务中输入：
 
@@ -69,7 +90,7 @@ $auto-code-review review changes under src/auth
 $auto-code-review review commit abc123
 ```
 
-## 4. 在 Claude Code 中使用
+## 5. 在 Claude Code 中使用
 
 进入需要审查的 Git 项目，然后运行：
 
@@ -93,7 +114,7 @@ $auto-code-review review commit abc123
 - `123`：审查编号为 123 的 Pull Request
 - `--json`：输出结构化 JSON 报告
 
-## 5. 如何阅读审查报告
+## 6. 如何阅读审查报告
 
 每条问题都应包含：
 
@@ -114,7 +135,7 @@ $auto-code-review review commit abc123
 
 如果没有候选问题通过二次验证，插件会返回 `No verified findings`。这表示本次审查没有发现达到报告标准的问题，并不代表代码已经被形式化证明完全正确。
 
-## 6. 审查后让 AI 修复
+## 7. 审查后让 AI 修复
 
 Auto Code Review 默认只读，不会修改文件。确认报告后，可以继续对 Codex 或 Claude Code 说：
 
@@ -124,7 +145,7 @@ Auto Code Review 默认只读，不会修改文件。确认报告后，可以继
 
 修复完成后，建议再次运行 Auto Code Review，确认问题已经消失且没有引入新的回归。
 
-## 7. 可选命令行工具
+## 8. 其他命令行工具
 
 命令行工具用于生成代码快照、校验 JSON 报告和格式化输出；真正判断代码问题的仍是 Codex 或 Claude Code 中的 AI 模型。
 
@@ -135,7 +156,7 @@ npm exec -- auto-code-review format --report report.json
 npm exec -- auto-code-review doctor
 ```
 
-## 8. 安全与隐私
+## 9. 安全与隐私
 
 - 默认只执行只读审查，不修改代码或 Git 状态
 - 不需要额外的模型 API Key 或模型网关
@@ -146,7 +167,7 @@ npm exec -- auto-code-review doctor
 
 代码是否离开本机仍取决于你所使用的 Codex 或 Claude Code 服务及其账号设置，请同时遵守对应平台的隐私政策。
 
-## 9. 常见问题
+## 10. 常见问题
 
 ### 安装后找不到命令
 

@@ -16,6 +16,7 @@
     "validate": "node scripts/validate-project.mjs",
     "quality": "npm run typecheck && npm run build && npm test && npm run validate",
     "site": "node website/server.mjs",
+    "ui": "node packages/cli/dist/cli.js ui",
     "install:agents": "node packages/installer/src/cli.mjs --local"
   },
   "engines": {

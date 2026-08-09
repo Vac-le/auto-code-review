@@ -45,6 +45,7 @@ test('serves the accessible product page with security headers', async () => {
   assert.match(html, /data-language="en" aria-pressed="false"/);
   assert.match(html, /npm run install:agents -- --platform codex/);
   assert.match(html, /npm run install:agents -- --platform claude/);
+  assert.match(html, /npm run ui -- --repo \/path\/to\/project/);
   assert.match(html, /结果公开，评分可复现/);
   assert.doesNotMatch(html, /and other coding agents/);
   assert.doesNotMatch(html, /SARIF/);

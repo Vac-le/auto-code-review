@@ -1,0 +1,17 @@
+.page-heading > * {
+  min-width: 0;
+}
+
+.page-heading h1 {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 620px) {
+  .repository-card,
+  .control-panel,
+  .workspace,
+  .changes-panel {
+    min-width: 0;
+    width: 100%;
+  }
+}

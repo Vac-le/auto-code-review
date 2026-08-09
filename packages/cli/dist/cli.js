@@ -6,6 +6,7 @@ import { runDoctor } from "./doctor.js";
 import { CliError, errorMessage } from "./errors.js";
 import { formatMarkdown } from "./format.js";
 import { createSnapshot } from "./snapshot.js";
+import { startDashboard } from "./ui.js";
 import { validateReport } from "./validate.js";
 const VERSION = "0.1.0";
 const MAX_JSON_INPUT = 16 * 1024 * 1024;
@@ -16,6 +17,7 @@ Usage:
   auto-code-review validate --report <file|-> --snapshot <file> [options]
   auto-code-review format --report <file|-> [--snapshot <file>] [options]
   auto-code-review doctor [options]
+  auto-code-review ui [options]
 
 Snapshot options:
   --repo <path>                Repository directory (default: current directory)
@@ -42,6 +44,12 @@ Format options:
   --snapshot <file>            Optionally validate anchors before formatting
   --output <file>              Write Markdown to a file
   --strict                     Reject validation warnings
+
+Local UI options:
+  --repo <path>                Repository directory (default: current directory)
+  --host <codex|claude>        Preferred review platform (default: auto-detect)
+  --port <number>              Local loopback port (default: 4387)
+  --no-open                    Do not open the browser automatically
 
 General:
   -h, --help                   Show help
@@ -249,6 +257,28 @@ function doctorCommand(args) {
     output(json(report, options.flags.has("--pretty")));
     return report.ok ? 0 : 1;
 }
+function uiCommand(args) {
+    const options = parseOptions(args, new Set(["--repo", "--host", "--port"]), new Set(["--no-open", "--help"]));
+    if (options.flags.has("--help")) {
+        output(HELP);
+        return 0;
+    }
+    requireNoPositionals(options);
+    const host = options.values.get("--host");
+    if (host !== undefined && host !== "codex" && host !== "claude") {
+        throw new CliError("--host must be codex or claude.", { code: "INVALID_OPTION_VALUE" });
+    }
+    const port = integerOption(options, "--port") ?? 4387;
+    if (port < 1 || port > 65535)
+        throw new CliError("--port must be between 1 and 65535.", { code: "INVALID_OPTION_VALUE" });
+    startDashboard({
+        cwd: resolve(options.values.get("--repo") ?? process.cwd()),
+        port,
+        open: !options.flags.has("--no-open"),
+        ...(host ? { preferredHost: host } : {}),
+    });
+    return 0;
+}
 export function main(args) {
     if (args.length === 0 || args[0] === "--help" || args[0] === "-h") {
         output(HELP);
@@ -264,6 +294,7 @@ export function main(args) {
         case "validate": return validateCommand(rest);
         case "format": return formatCommand(rest);
         case "doctor": return doctorCommand(rest);
+        case "ui": return uiCommand(rest);
         default: throw new CliError(`Unknown command '${command}'. Run with --help for usage.`, { code: "UNKNOWN_COMMAND" });
     }
 }

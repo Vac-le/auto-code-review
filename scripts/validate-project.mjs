@@ -31,7 +31,13 @@ const required = [
   'website/docs/docs.css',
   'website/docs/docs.js',
   'website/docs/usage.zh-CN.md',
-  'website/docs/usage.en.md'
+  'website/docs/usage.en.md',
+  'packages/cli/src/host-review.ts',
+  'packages/cli/src/ui.ts',
+  'packages/cli/src/dashboard/index.html',
+  'packages/cli/src/dashboard/styles.css',
+  'packages/cli/src/dashboard/responsive.css',
+  'packages/cli/src/dashboard/app.js'
 ];
 
 for (const relative of required) {

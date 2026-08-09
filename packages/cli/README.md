@@ -11,12 +11,14 @@ npm install --global @auto-code-review/cli
 ```
 
 ```bash
+auto-code-review ui
 auto-code-review snapshot --staged --output snapshot.json
 auto-code-review validate --report report.json --snapshot snapshot.json
 auto-code-review format --report report.json --snapshot snapshot.json
 auto-code-review doctor
 ```
 
+- `ui` starts the token-protected local dashboard on `127.0.0.1`, opens it in the browser, and invokes the selected signed-in Codex or Claude Code CLI with a read-only, redacted snapshot. The returned report is validated before display. Stop it with `Ctrl+C`.
 - `snapshot` collects Git hunks and bounded context without running repository code. It skips binaries, generated output, lockfiles, sensitive paths, and symbolic links, and redacts common credentials.
 - `validate` enforces the canonical `scope`, `P0`–`P3`, confidence, category, evidence, path, line, and deduplication contract against a snapshot.
 - `format` renders a validated report as Markdown.
@@ -26,7 +28,7 @@ Run `auto-code-review --help` for every option. Snapshot and validation output i
 
 ## Privacy model
 
-The CLI is local and read-only apart from an explicitly selected output file. It invokes Git with argument arrays rather than a shell, never executes project code, never follows worktree symbolic links, and never contacts a network service. Review snapshots are deterministic for the same Git state.
+The CLI is local and read-only apart from an explicitly selected output file. It invokes Git with argument arrays rather than a shell, never executes project code, and never follows worktree symbolic links. Deterministic commands do not contact a network service. The `ui` command sends only its bounded, redacted snapshot through the Codex or Claude Code account the user explicitly selects; it does not contact an Auto Code Review server. Review snapshots are deterministic for the same Git state.
 
 The published report and snapshot JSON Schemas are included under `dist/schemas/`.
 

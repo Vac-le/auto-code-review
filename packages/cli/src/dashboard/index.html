@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Auto Code Review 本地代码审查面板" />
+    <title>本地审查 — Auto Code Review</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./responsive.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">跳到主要内容</a>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Auto Code Review">
+        <span class="brand-mark" aria-hidden="true">✓</span>
+        <span>Auto Code Review</span>
+      </a>
+      <div class="top-actions">
+        <span class="local-badge"><span></span><span data-i18n="localOnly">仅在本机运行</span></span>
+        <div class="language-switch" role="group" aria-label="语言">
+          <button type="button" data-language="zh" aria-pressed="true">中文</button>
+          <button type="button" data-language="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="shell">
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow" data-i18n="eyebrow">真实本地审查</p>
+          <h1 data-i18n="title">检查当前代码变更</h1>
+          <p data-i18n="intro">代码快照在本机生成，由你已登录的 Codex 或 Claude Code 审查；结果通过证据校验后才会显示。</p>
+        </div>
+        <div class="repository-card" aria-live="polite">
+          <span data-i18n="repository">当前仓库</span>
+          <strong data-repository-name>正在读取…</strong>
+          <code data-repository-path></code>
+          <small data-repository-branch></small>
+        </div>
+      </header>
+
+      <section class="control-panel" aria-labelledby="review-settings">
+        <div class="control-heading">
+          <div><span class="step-number">01</span><h2 id="review-settings" data-i18n="settings">设置审查</h2></div>
+          <p data-i18n="settingsHint">选择平台和范围，然后开始一次只读审查。</p>
+        </div>
+        <div class="control-grid">
+          <fieldset>
+            <legend data-i18n="platform">审查平台</legend>
+            <div class="choice-row" data-hosts>
+              <button type="button" class="choice" data-host="codex" aria-pressed="false"><strong>Codex</strong><small data-host-status="codex">检测中</small></button>
+              <button type="button" class="choice" data-host="claude" aria-pressed="false"><strong>Claude Code</strong><small data-host-status="claude">检测中</small></button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend data-i18n="scope">审查范围</legend>
+            <div class="choice-row scope-row">
+              <button type="button" class="choice" data-scope="working" aria-pressed="true" data-i18n="working">未提交变更</button>
+              <button type="button" class="choice" data-scope="staged" aria-pressed="false" data-i18n="staged">暂存区</button>
+              <button type="button" class="choice" data-scope="base" aria-pressed="false" data-i18n="base">与基础分支对比</button>
+            </div>
+            <label class="base-field" data-base-field hidden><span data-i18n="baseRevision">基础分支</span><input type="text" value="main" maxlength="1024" data-base-input /></label>
+          </fieldset>
+        </div>
+        <div class="run-row">
+          <p><span aria-hidden="true">●</span> <span data-i18n="readonly">只读运行，不会修改代码或 Git 状态</span></p>
+          <button class="run-button" type="button" data-run disabled><span data-i18n="run">开始真实审查</span><span aria-hidden="true">→</span></button>
+        </div>
+      </section>
+
+      <section class="workspace" aria-labelledby="review-output">
+        <aside class="progress-panel">
+          <div class="section-label"><span class="step-number">02</span><h2 data-i18n="progress">审查进度</h2></div>
+          <ol class="progress-list" data-progress>
+            <li data-stage="snapshot"><span></span><div><strong data-i18n="stageSnapshot">生成安全快照</strong><small data-i18n="stageSnapshotHint">过滤密钥与无关文件</small></div></li>
+            <li data-stage="reviewing"><span></span><div><strong data-i18n="stageReview">模型分析代码</strong><small data-i18n="stageReviewHint">使用当前平台账号</small></div></li>
+            <li data-stage="validating"><span></span><div><strong data-i18n="stageValidate">验证证据与行号</strong><small data-i18n="stageValidateHint">淘汰不可靠问题</small></div></li>
+            <li data-stage="complete"><span></span><div><strong data-i18n="stageComplete">生成审查报告</strong><small data-i18n="stageCompleteHint">最多十条高置信度问题</small></div></li>
+          </ol>
+          <button class="cancel-button" type="button" data-cancel hidden data-i18n="cancel">取消审查</button>
+        </aside>
+
+        <div class="result-panel">
+          <div class="result-heading">
+            <div class="section-label"><span class="step-number">03</span><h2 id="review-output" data-i18n="result">审查结果</h2></div>
+            <span class="result-status" data-result-status data-i18n="waiting">等待开始</span>
+          </div>
+          <div class="result-content" data-result aria-live="polite">
+            <div class="empty-state">
+              <span aria-hidden="true">⌁</span>
+              <h3 data-i18n="emptyTitle">还没有审查报告</h3>
+              <p data-i18n="emptyBody">选择上方设置并开始审查。模型完成分析后，经过验证的问题会显示在这里。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="changes-panel" aria-labelledby="changed-files">
+        <div class="changes-heading"><div class="section-label"><span class="step-number">04</span><h2 id="changed-files" data-i18n="files">变更文件</h2></div><span data-change-summary></span></div>
+        <div class="file-list" data-files><p data-i18n="loading">正在读取 Git 变更…</p></div>
+      </section>
+    </main>
+    <div class="toast" role="status" aria-live="polite" data-toast></div>
+  </body>
+</html>

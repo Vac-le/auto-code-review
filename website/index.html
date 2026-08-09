@@ -183,6 +183,18 @@
             <p class="invoke"><span data-i18n="thenRun">然后运行：</span> <code>/auto-code-review:review</code></p>
           </div>
         </div>
+        <div class="local-ui-callout">
+          <div>
+            <span class="step-number">UI</span>
+            <h3 data-i18n="localUiTitle">在浏览器中查看真实审查</h3>
+            <p data-i18n="localUiBody">本地 Dashboard 会读取指定 Git 仓库，调用已登录的 Codex 或 Claude Code，并展示经过验证的真实结果。</p>
+          </div>
+          <div>
+            <div class="command-row"><code>npm run ui -- --repo /path/to/project</code><button type="button" data-copy="npm run ui -- --repo /path/to/project" data-i18n="copy">复制</button></div>
+            <p class="local-ui-hint" data-i18n="localUiHint">把路径替换成需要审查的项目；按 Ctrl+C 即可关闭本地页面。</p>
+            <a href="./docs/index.html" data-i18n="openDocs">查看完整使用文档</a>
+          </div>
+        </div>
       </section>
     </main>
 

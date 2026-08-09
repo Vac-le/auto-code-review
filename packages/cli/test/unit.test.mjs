@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { EventEmitter } from "node:events";
 import { chmodSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -9,6 +10,8 @@ import { classifyIgnoredPath, detectLanguage, isBinary, looksGenerated } from ".
 import { redactSecrets } from "../dist/redact.js";
 import { parseHunks, parseNameStatus } from "../dist/snapshot.js";
 import { validateReport } from "../dist/validate.js";
+import { commandFromNpmWrapper, safeHostPathDirectories } from "../dist/host-review.js";
+import { launchBrowser, resolveBrowserOpener } from "../dist/ui.js";
 import { write } from "./helpers.mjs";
 
 function compileSchemaPatterns(value) {
@@ -82,11 +85,51 @@ test("ignore classifier covers lockfiles, generated trees, and sensitive paths",
   assert.equal(detectLanguage("component.tsx"), "typescript");
 });
 
+test("review host discovery never searches the repository through relative PATH entries", () => {
+  const separator = process.platform === "win32" ? ";" : ":";
+  const absolute = process.platform === "win32" ? "C:\\trusted\\bin" : "/trusted/bin";
+  const quoted = process.platform === "win32" ? `"${absolute}"` : absolute;
+  const repositoryBin = join(absolute, "reviewed-project", "node_modules", ".bin");
+  assert.deepEqual(safeHostPathDirectories(["", ".", "tools", quoted, repositoryBin].join(separator), [join(absolute, "reviewed-project")]), [absolute]);
+});
+
+test("Windows npm wrapper discovery supports the standard percent-tilde-dp0 form", (context) => {
+  if (process.platform !== "win32") return context.skip("Windows wrapper syntax");
+  const root = mkdtempSync(join(tmpdir(), "acr-wrapper-"));
+  const script = write(root, "node_modules/reviewer/bin/reviewer.js", "console.log('reviewer 1.0');\n");
+  const wrapper = write(root, "codex.cmd", '@ECHO off\r\n"%~dp0\\node_modules\\reviewer\\bin\\reviewer.js" %*\r\n');
+  assert.equal(commandFromNpmWrapper(wrapper)?.prefix[0], script);
+});
+
+test("a missing browser opener cannot crash the local dashboard", () => {
+  let calls = 0;
+  assert.equal(launchBrowser("http://127.0.0.1:4387/#token=abc", "linux", () => { calls += 1; }, [], ""), false);
+  assert.equal(calls, 0);
+});
+
+test("browser opener lookup excludes reviewed repositories and relative PATH entries", () => {
+  const root = mkdtempSync(join(tmpdir(), "acr-opener-"));
+  const repository = join(root, "reviewed");
+  const trusted = join(root, "trusted");
+  write(repository, "xdg-open", "untrusted");
+  const opener = write(trusted, "xdg-open", "trusted");
+  const separator = process.platform === "win32" ? ";" : ":";
+  const pathValue = [".", repository, trusted].join(separator);
+  assert.equal(resolveBrowserOpener("linux", pathValue, [repository]), opener);
+
+  const child = new EventEmitter();
+  child.unref = () => {};
+  assert.equal(launchBrowser("http://127.0.0.1:4387/#token=abc", "linux", () => child, [repository], trusted), true);
+  assert.equal(child.listenerCount("error"), 1);
+  assert.doesNotThrow(() => child.emit("error", Object.assign(new Error("missing"), { code: "ENOENT" })));
+});
+
 test("published JSON schemas parse and expose the canonical strict contract", () => {
   const reportSchema = JSON.parse(readFileSync(new URL("../../../schemas/review-report.schema.json", import.meta.url), "utf8"));
   const snapshotSchema = JSON.parse(readFileSync(new URL("../../../schemas/review-snapshot.schema.json", import.meta.url), "utf8"));
   const packagedReportSchema = JSON.parse(readFileSync(new URL("../dist/schemas/review-report.schema.json", import.meta.url), "utf8"));
   const packagedSnapshotSchema = JSON.parse(readFileSync(new URL("../dist/schemas/review-snapshot.schema.json", import.meta.url), "utf8"));
+  const hostSchema = JSON.parse(readFileSync(new URL("../dist/schemas/review-host-output.schema.json", import.meta.url), "utf8"));
   compileSchemaPatterns(reportSchema);
   compileSchemaPatterns(snapshotSchema);
   assert.equal(reportSchema.additionalProperties, false);
@@ -97,6 +140,16 @@ test("published JSON schemas parse and expose the canonical strict contract", ()
   assert.equal(snapshotSchema.additionalProperties, false);
   assert.deepEqual(packagedReportSchema, reportSchema);
   assert.deepEqual(packagedSnapshotSchema, snapshotSchema);
+  const inspectHostNode = (node) => {
+    if (!node || typeof node !== "object") return;
+    if (node.properties) assert.deepEqual(node.required, Object.keys(node.properties));
+    assert.equal(Object.hasOwn(node, "pattern"), false);
+    for (const child of Object.values(node.properties ?? {})) inspectHostNode(child);
+    for (const child of Object.values(node.$defs ?? {})) inspectHostNode(child);
+    if (node.items) inspectHostNode(node.items);
+  };
+  inspectHostNode(hostSchema);
+  assert.equal(hostSchema.properties.schemaVersion.type, "string");
 });
 
 test("generated detection requires a header marker and avoids source-code false positives", () => {

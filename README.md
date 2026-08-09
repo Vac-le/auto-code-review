@@ -71,7 +71,19 @@ Then invoke:
 
 ## Optional companion CLI
 
-The CLI performs deterministic plumbing; it does not replace the host model as the reviewer.
+The CLI includes a real local review dashboard. From the Git repository you want to review, run:
+
+From the cloned Auto Code Review checkout, point the dashboard at any repository:
+
+```bash
+npm run ui -- --repo /path/to/your-project
+```
+
+After the CLI package is released or installed globally, run `auto-code-review ui` directly inside the repository you want to review.
+
+It opens a browser on `127.0.0.1`, detects the repository and signed-in Codex or Claude Code installation, and displays validated findings from a real review. The server is available only while that command is running; press `Ctrl+C` to stop it. Select a platform or port with `--host codex`, `--host claude`, or `--port 4387`.
+
+The remaining commands provide deterministic plumbing:
 
 ```bash
 npm exec -- auto-code-review snapshot --staged --output snapshot.json

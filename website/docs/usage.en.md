@@ -29,7 +29,28 @@ npm run install:agents -- --platform claude
 
 Start a new Codex task or restart your Claude Code session after installation.
 
-## 3. Use with Codex
+## 3. Open the local review dashboard
+
+Run this from the cloned Auto Code Review checkout and point `--repo` at the Git repository you want to review:
+
+```bash
+npm run ui -- --repo /path/to/your-project
+```
+
+After the CLI is released or installed globally, you can instead run `auto-code-review ui` directly inside the repository you want to review.
+
+The command starts a local service and opens a browser at an address such as `http://127.0.0.1:4387`. The page shows the current repository, Codex and Claude Code availability, real changed files, and the validated review report. Stop the command with `Ctrl+C` to close the local dashboard.
+
+Select one platform or a different port:
+
+```bash
+npm run ui -- --repo /path/to/your-project --host codex
+npm run ui -- --repo /path/to/your-project --host claude --port 4390
+```
+
+The dashboard listens only on `127.0.0.1` and creates a fresh random session token every time. It does not send code to an Auto Code Review server; model requests use the signed-in Codex or Claude Code account you select.
+
+## 4. Use with Codex
 
 Open the Git project in Codex and enter this in a new task:
 
@@ -69,7 +90,7 @@ Review one commit:
 $auto-code-review review commit abc123
 ```
 
-## 4. Use with Claude Code
+## 5. Use with Claude Code
 
 Open the Git project and run:
 
@@ -93,7 +114,7 @@ Open the Git project and run:
 - `123`: review pull request 123
 - `--json`: return the structured JSON report
 
-## 5. Read the report
+## 6. Read the report
 
 Every finding should include:
 
@@ -114,7 +135,7 @@ Priority meanings:
 
 When no candidate survives the second verification pass, the plugin returns `No verified findings`. This means the review found no issue that met the reporting threshold; it is not a formal proof that the code is perfect.
 
-## 6. Ask the AI to fix findings
+## 7. Ask the AI to fix findings
 
 Auto Code Review is read-only by default. After checking the report, ask Codex or Claude Code:
 
@@ -124,7 +145,7 @@ Fix the P1 and P2 findings, add regression tests, and run the relevant test suit
 
 Run Auto Code Review again after the fix to confirm the findings are gone and no new regression was introduced.
 
-## 7. Optional command-line tool
+## 8. Other command-line tools
 
 The CLI creates bounded snapshots, validates JSON reports, and formats output. The AI model active in Codex or Claude Code still performs the actual reasoning.
 
@@ -135,7 +156,7 @@ npm exec -- auto-code-review format --report report.json
 npm exec -- auto-code-review doctor
 ```
 
-## 8. Security and privacy
+## 9. Security and privacy
 
 - Reviews are read-only by default and do not change code or Git state
 - No additional model API key or model gateway is required
@@ -146,7 +167,7 @@ npm exec -- auto-code-review doctor
 
 Whether code leaves your machine still depends on the Codex or Claude Code service and account settings you use. Follow the privacy policy of the selected host platform.
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 ### The command is missing after installation
 
