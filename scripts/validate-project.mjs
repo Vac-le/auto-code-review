@@ -25,7 +25,13 @@ const required = [
   '.github/workflows/ci.yml',
   'website/index.html',
   'website/styles.css',
-  'website/app.js'
+  'website/app.js',
+  'website/og.png',
+  'website/docs/index.html',
+  'website/docs/docs.css',
+  'website/docs/docs.js',
+  'website/docs/usage.zh-CN.md',
+  'website/docs/usage.en.md'
 ];
 
 for (const relative of required) {

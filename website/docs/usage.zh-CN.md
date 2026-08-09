@@ -1,0 +1,169 @@
+# Auto Code Review 使用指南
+
+> 官网中的“交互演示”只展示审查步骤，不会读取你的代码。真正的审查需要在 Git 仓库中通过 Codex 或 Claude Code 调用插件。
+
+## 1. 使用前准备
+
+- Node.js 20 或更高版本
+- Git 2.30 或更高版本
+- 已安装 Codex 或 Claude Code
+- 需要审查的目录必须是 Git 仓库
+
+## 2. 安装插件
+
+克隆项目并安装依赖：
+
+```bash
+git clone https://github.com/Vac-le/auto-code-review.git
+cd auto-code-review
+npm install
+npm run install:agents
+```
+
+安装程序会检测本机已有的平台，并为 Codex 和 Claude Code 安装对应插件。只安装一个平台时可以运行：
+
+```bash
+npm run install:agents -- --platform codex
+npm run install:agents -- --platform claude
+```
+
+安装完成后，请新建一个 Codex 任务或重新启动 Claude Code 会话。
+
+## 3. 在 Codex 中使用
+
+用 Codex 打开需要审查的 Git 项目，然后在新任务中输入：
+
+```text
+$auto-code-review review my current changes
+```
+
+### 常用审查范围
+
+审查尚未提交的全部变更：
+
+```text
+$auto-code-review review my current changes
+```
+
+只审查暂存区：
+
+```text
+$auto-code-review review staged changes
+```
+
+审查当前分支相对 main 的改动：
+
+```text
+$auto-code-review review my branch against main
+```
+
+只审查指定目录：
+
+```text
+$auto-code-review review changes under src/auth
+```
+
+审查指定提交：
+
+```text
+$auto-code-review review commit abc123
+```
+
+## 4. 在 Claude Code 中使用
+
+进入需要审查的 Git 项目，然后运行：
+
+```text
+/auto-code-review:review
+```
+
+### 常用参数
+
+```text
+/auto-code-review:review --staged
+/auto-code-review:review --base main
+/auto-code-review:review src/auth
+/auto-code-review:review 123
+/auto-code-review:review --staged --json
+```
+
+- `--staged`：只审查暂存区
+- `--base main`：审查当前分支相对 main 的改动
+- `src/auth`：只审查指定文件或目录
+- `123`：审查编号为 123 的 Pull Request
+- `--json`：输出结构化 JSON 报告
+
+## 5. 如何阅读审查报告
+
+每条问题都应包含：
+
+- **优先级**：P0、P1、P2 或 P3
+- **准确位置**：文件路径和最小行号范围
+- **触发条件**：什么输入、状态或执行路径会触发问题
+- **实际影响**：用户或系统会观察到什么错误结果
+- **问题原因**：为什么当前代码无法正确处理
+- **修复建议**：限定范围的修复方向
+- **置信度**：结构化报告中的可信程度，最低为 0.80
+
+优先级含义：
+
+- **P0**：可能立即造成大范围数据损失或安全事故，必须停止发布
+- **P1**：高影响问题，应在合并或发布前修复
+- **P2**：正常优先级的真实缺陷
+- **P3**：影响较小但可以明确复现的问题
+
+如果没有候选问题通过二次验证，插件会返回 `No verified findings`。这表示本次审查没有发现达到报告标准的问题，并不代表代码已经被形式化证明完全正确。
+
+## 6. 审查后让 AI 修复
+
+Auto Code Review 默认只读，不会修改文件。确认报告后，可以继续对 Codex 或 Claude Code 说：
+
+```text
+修复审查报告中的 P1 和 P2，补充回归测试，并运行相关测试。
+```
+
+修复完成后，建议再次运行 Auto Code Review，确认问题已经消失且没有引入新的回归。
+
+## 7. 可选命令行工具
+
+命令行工具用于生成代码快照、校验 JSON 报告和格式化输出；真正判断代码问题的仍是 Codex 或 Claude Code 中的 AI 模型。
+
+```bash
+npm exec -- auto-code-review snapshot --staged --output snapshot.json
+npm exec -- auto-code-review validate --report report.json --snapshot snapshot.json
+npm exec -- auto-code-review format --report report.json
+npm exec -- auto-code-review doctor
+```
+
+## 8. 安全与隐私
+
+- 默认只执行只读审查，不修改代码或 Git 状态
+- 不需要额外的模型 API Key 或模型网关
+- 不会把代码发送到 Auto Code Review 自建服务器
+- 使用当前 Codex 或 Claude Code 会话中已经配置的模型和账号
+- 自动跳过常见密钥文件、二进制文件、生成文件和锁文件
+- 报告输出前会过滤常见令牌、私钥和凭据格式
+
+代码是否离开本机仍取决于你所使用的 Codex 或 Claude Code 服务及其账号设置，请同时遵守对应平台的隐私政策。
+
+## 9. 常见问题
+
+### 安装后找不到命令
+
+新建 Codex 任务或重新启动 Claude Code 会话。插件是在会话启动时载入的。
+
+### 报告没有任何问题
+
+先确认 Git 仓库中确实存在未提交、已暂存或相对基础分支的改动。没有问题通过证据门槛时，返回干净结果是正常行为。
+
+### 可以直接在官网上传代码吗
+
+目前不可以。官网演示使用固定示例，不接收或保存用户代码。真实审查必须在 Codex 或 Claude Code 中运行。
+
+### 会自动修改代码吗
+
+不会。审查插件默认只读。只有你在审查完成后明确要求 AI 修复，平台才可以进入代码修改流程。
+
+### 从哪里报告问题
+
+请前往 [GitHub Issues](https://github.com/Vac-le/auto-code-review/issues) 提交问题。安全漏洞请使用仓库的 Security Advisory 私密报告渠道。

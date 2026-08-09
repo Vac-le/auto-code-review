@@ -11,7 +11,9 @@ const contentTypes = new Map([
   ['.css', 'text/css; charset=utf-8'],
   ['.js', 'text/javascript; charset=utf-8'],
   ['.svg', 'image/svg+xml'],
-  ['.json', 'application/json; charset=utf-8']
+  ['.json', 'application/json; charset=utf-8'],
+  ['.md', 'text/markdown; charset=utf-8'],
+  ['.png', 'image/png']
 ]);
 const MAX_STATIC_BYTES = 2 * 1024 * 1024;
 

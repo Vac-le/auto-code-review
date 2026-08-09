@@ -37,24 +37,49 @@ test('serves the accessible product page with security headers', async () => {
   assert.match(html, /data-testid="run-review"/);
   assert.match(html, /<html lang="zh-CN">/);
   assert.match(html, /无需额外 API Key/);
+  assert.match(html, /href="\.\/docs\/index\.html"/);
+  assert.match(html, /property="og:image" content="https:\/\/vac-le\.github\.io\/auto-code-review\/og\.png"/);
   assert.match(html, /data-language="zh" aria-pressed="true"/);
   assert.match(html, /data-language="en" aria-pressed="false"/);
   assert.match(html, /npm run install:agents -- --platform codex/);
   assert.match(html, /npm run install:agents -- --platform claude/);
-  assert.match(html, /发布行为分数前必须注明宿主、模型版本和语料/);
+  assert.match(html, /结果公开，评分可复现/);
   assert.doesNotMatch(html, /and other coding agents/);
   assert.doesNotMatch(html, /SARIF/);
+  assert.doesNotMatch(html, /智能体|薄弱候选|自我庆祝|审查流水线|宿主模型|映射完整 diff/);
 });
 
 test('serves static assets with correct content types', async () => {
   const css = await fetch(`${baseUrl}/styles.css`);
   const script = await fetch(`${baseUrl}/app.js`);
+  const preview = await fetch(`${baseUrl}/og.png`);
   assert.match(css.headers.get('content-type'), /^text\/css/);
   assert.match(script.headers.get('content-type'), /^text\/javascript/);
+  assert.match(preview.headers.get('content-type'), /^image\/png/);
   const source = await script.text();
   assert.match(source, /localStorage\.getItem\('auto-code-review-language'\)/);
   assert.match(source, /One review standard, every coding agent/);
-  assert.match(source, /一套审查标准，适配每个编程智能体/);
+  assert.match(source, /一套标准，审查每一次代码变更/);
+});
+
+test('serves the Markdown-backed documentation page in both languages', async () => {
+  const [page, chinese, english, script, styles] = await Promise.all([
+    fetch(`${baseUrl}/docs/index.html`),
+    fetch(`${baseUrl}/docs/usage.zh-CN.md`),
+    fetch(`${baseUrl}/docs/usage.en.md`),
+    fetch(`${baseUrl}/docs/docs.js`),
+    fetch(`${baseUrl}/docs/docs.css`)
+  ]);
+  const html = await page.text();
+  assert.equal(page.status, 200);
+  assert.match(html, /data-markdown/);
+  assert.match(html, /data-doc-language="zh"/);
+  assert.match(html, /href="\.\/usage\.zh-CN\.md"/);
+  assert.match(chinese.headers.get('content-type'), /^text\/markdown/);
+  assert.match(await chinese.text(), /官网中的“交互演示”只展示审查步骤/);
+  assert.match(await english.text(), /interactive demo on the website only illustrates/);
+  assert.match(await script.text(), /usage\.zh-CN\.md/);
+  assert.match(styles.headers.get('content-type'), /^text\/css/);
 });
 
 test('does not expose files outside the website root', async () => {
