@@ -10,7 +10,7 @@ import { classifyIgnoredPath, detectLanguage, isBinary, looksGenerated } from ".
 import { redactSecrets } from "../dist/redact.js";
 import { parseHunks, parseNameStatus } from "../dist/snapshot.js";
 import { validateReport } from "../dist/validate.js";
-import { commandFromNpmWrapper, safeHostPathDirectories } from "../dist/host-review.js";
+import { canonicalizeHostReport, commandFromNpmWrapper, safeHostPathDirectories } from "../dist/host-review.js";
 import { launchBrowser, resolveBrowserOpener } from "../dist/ui.js";
 import { write } from "./helpers.mjs";
 
@@ -21,6 +21,15 @@ function compileSchemaPatterns(value) {
     Object.values(value).forEach(compileSchemaPatterns);
   }
 }
+
+test("host reports receive deterministic canonical finding ids", () => {
+  const report = fixtureReport({ id: "finding 1" });
+  const first = canonicalizeHostReport(report);
+  const second = canonicalizeHostReport(report);
+  assert.match(first.findings[0].id, /^ACR-[A-F0-9]{12}$/);
+  assert.equal(first.findings[0].id, second.findings[0].id);
+  assert.equal(validateReport(first, fixtureSnapshot(), { strict: true }).valid, true);
+});
 
 function fixtureSnapshot() {
   return {
@@ -212,6 +221,16 @@ test("validator accepts an evidence-backed finding anchored to a changed line", 
   assert.equal(result.valid, true);
   assert.deepEqual(result.errors, []);
   assert.equal(result.stats.findings, 1);
+});
+
+test("strict validation accepts a changed anchor when optional context was truncated", () => {
+  const snapshot = fixtureSnapshot();
+  snapshot.files[0].truncated = true;
+  snapshot.files[0].context = [];
+  snapshot.summary.truncated = true;
+  const result = validateReport(fixtureReport(), snapshot, { strict: true });
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.errors, []);
 });
 
 test("validator accepts the canonical platform contract and rejects more than ten findings", () => {

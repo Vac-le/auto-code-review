@@ -480,8 +480,10 @@ export function validateReport(input, snapshotInput, options = {}) {
                                 warnings.push({ level: "warning", code: "UNCHANGED_END_ANCHOR", path: `${prefix}.endLine`, message: "The finding range ends on unchanged context." });
                             }
                         }
-                        if (startChanged && !startInContext)
-                            warnings.push({ level: "warning", code: "LINE_OUTSIDE_CONTEXT", path: `${prefix}.startLine`, message: "The anchor is changed, but its bounded context was truncated from the snapshot." });
+                        // A changed anchor is already present in the bounded patch. The
+                        // optional full-file context block may be truncated independently,
+                        // which must not invalidate evidence that remains visible in the
+                        // patch itself.
                     }
                 }
                 if (idValid && priorityValid && categoryValid && confidenceValid && normalizedPath && lineValid && endLineValid && sideValid
