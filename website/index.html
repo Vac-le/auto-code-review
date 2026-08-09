@@ -117,12 +117,18 @@
         </div>
         <div class="demo-shell">
           <div class="demo-toolbar">
-            <label for="scope" data-i18n="scopeLabel">审查范围</label>
-            <select id="scope" data-testid="scope-select">
-              <option value="working-tree" data-i18n="scopeWorking">未提交的变更</option>
-              <option value="staged" data-i18n="scopeStaged">暂存区变更</option>
-              <option value="branch" data-i18n="scopeBranch">当前分支与 main 对比</option>
-            </select>
+            <span class="scope-label" id="scope-label" data-i18n="scopeLabel">审查范围</span>
+            <div class="scope-picker" data-scope-picker>
+              <button class="scope-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="scope-menu" aria-labelledby="scope-label scope-value" data-scope-trigger data-testid="scope-select">
+                <span id="scope-value" data-scope-value data-i18n="scopeWorking">未提交的变更</span>
+                <span class="scope-chevron" aria-hidden="true"></span>
+              </button>
+              <div class="scope-menu" id="scope-menu" role="listbox" aria-labelledby="scope-label" data-scope-menu hidden>
+                <button type="button" role="option" aria-selected="true" data-scope-option="working-tree" data-i18n="scopeWorking">未提交的变更</button>
+                <button type="button" role="option" aria-selected="false" data-scope-option="staged" data-i18n="scopeStaged">暂存区变更</button>
+                <button type="button" role="option" aria-selected="false" data-scope-option="branch" data-i18n="scopeBranch">当前分支与 main 对比</button>
+              </div>
+            </div>
             <button class="button primary run-button" type="button" data-run-review data-testid="run-review" data-i18n="runReview">开始审查</button>
           </div>
           <div class="demo-body">

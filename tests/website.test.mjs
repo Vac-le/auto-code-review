@@ -35,6 +35,8 @@ test('serves the accessible product page with security headers', async () => {
   assert.match(html, /<main id="main">/);
   assert.match(html, /role="tablist"/);
   assert.match(html, /data-testid="run-review"/);
+  assert.match(html, /role="listbox"/);
+  assert.match(html, /data-scope-option="branch"/);
   assert.match(html, /<html lang="zh-CN">/);
   assert.match(html, /无需额外 API Key/);
   assert.match(html, /href="\.\/docs\/index\.html"/);

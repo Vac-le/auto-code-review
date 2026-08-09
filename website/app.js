@@ -130,13 +130,61 @@ document.querySelector('[data-scroll-demo]').addEventListener('click', () => {
   document.querySelector('#demo').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
+const scopePicker = document.querySelector('[data-scope-picker]');
+const scopeTrigger = document.querySelector('[data-scope-trigger]');
+const scopeMenu = document.querySelector('[data-scope-menu]');
+const scopeValue = document.querySelector('[data-scope-value]');
+const scopeOptions = [...document.querySelectorAll('[data-scope-option]')];
+
+function setScopeMenu(open) {
+  scopeMenu.hidden = !open;
+  scopeTrigger.setAttribute('aria-expanded', String(open));
+  scopePicker.classList.toggle('open', open);
+}
+
+function chooseScope(option) {
+  scopeOptions.forEach((candidate) => candidate.setAttribute('aria-selected', String(candidate === option)));
+  scopeValue.dataset.i18n = option.dataset.i18n;
+  scopeValue.dataset.value = option.dataset.scopeOption;
+  scopeValue.textContent = option.textContent;
+  setScopeMenu(false);
+  scopeTrigger.focus();
+}
+
+scopeTrigger.addEventListener('click', () => setScopeMenu(scopeMenu.hidden));
+scopeTrigger.addEventListener('keydown', (event) => {
+  if (!['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+  event.preventDefault();
+  setScopeMenu(true);
+  const selected = scopeOptions.find((option) => option.getAttribute('aria-selected') === 'true');
+  (event.key === 'ArrowDown' ? selected : scopeOptions.at(-1)).focus();
+});
+scopeOptions.forEach((option, index) => {
+  option.addEventListener('click', () => chooseScope(option));
+  option.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setScopeMenu(false);
+      scopeTrigger.focus();
+      return;
+    }
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? scopeOptions.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + scopeOptions.length) % scopeOptions.length;
+    scopeOptions[nextIndex].focus();
+  });
+});
+document.addEventListener('click', (event) => {
+  if (!scopePicker.contains(event.target)) setScopeMenu(false);
+});
+
 const runButton = document.querySelector('[data-run-review]');
 const result = document.querySelector('[data-demo-result]');
 const steps = [...document.querySelectorAll('.pipeline-step')];
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 function renderFinding() {
-  const scope = document.querySelector('#scope').selectedOptions[0].textContent;
+  const scope = scopeValue.textContent;
   result.innerHTML = `
     <article class="demo-finding" data-testid="demo-finding">
       <div class="result-top"><span class="priority">P1</span><h3>${t('demoFindingTitle')}</h3><span class="confidence">94%</span></div>
