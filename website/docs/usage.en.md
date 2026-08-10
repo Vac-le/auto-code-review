@@ -39,6 +39,8 @@ npm run ui -- --repo /path/to/your-project
 
 After the CLI is released or installed globally, you can instead run `auto-code-review ui` directly inside the repository you want to review.
 
+Start it from a normal PowerShell, Windows Terminal, or system shell. Do not launch it from a sandboxed Codex or Claude agent task: repository access stays read-only, but the host CLI still needs write access to its own login state and runtime directory.
+
 The command starts a local service and opens a browser at an address such as `http://127.0.0.1:4387`. The page shows the current repository, Codex and Claude Code availability, real changed files, and the validated review report. Stop the command with `Ctrl+C` to close the local dashboard.
 
 Select one platform or a different port:

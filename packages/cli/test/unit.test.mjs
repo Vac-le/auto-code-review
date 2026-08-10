@@ -10,7 +10,7 @@ import { classifyIgnoredPath, detectLanguage, isBinary, looksGenerated } from ".
 import { redactSecrets } from "../dist/redact.js";
 import { parseHunks, parseNameStatus } from "../dist/snapshot.js";
 import { validateReport } from "../dist/validate.js";
-import { canonicalizeHostReport, commandFromNpmWrapper, safeHostPathDirectories } from "../dist/host-review.js";
+import { canonicalizeHostReport, commandFromNpmWrapper, safeHostFailureDetail, safeHostPathDirectories } from "../dist/host-review.js";
 import { launchBrowser, resolveBrowserOpener } from "../dist/ui.js";
 import { write } from "./helpers.mjs";
 
@@ -29,6 +29,15 @@ test("host reports receive deterministic canonical finding ids", () => {
   assert.match(first.findings[0].id, /^ACR-[A-F0-9]{12}$/);
   assert.equal(first.findings[0].id, second.findings[0].id);
   assert.equal(validateReport(first, fixtureSnapshot(), { strict: true }).valid, true);
+});
+
+test("host failures expose actionable diagnostics without leaking review input", () => {
+  const readonly = safeHostFailureDetail("You are Auto Code Review\nBEGIN UNTRUSTED REVIEW SNAPSHOT\nsecret patch\nEND UNTRUSTED REVIEW SNAPSHOT\nError: failed to open state DB: attempt to write a readonly database");
+  assert.match(readonly, /normal terminal with write access to CODEX_HOME/);
+  assert.doesNotMatch(readonly, /secret patch|Auto Code Review/);
+
+  const generic = safeHostFailureDetail("debug noise\nError: upstream service unavailable\nmore noise");
+  assert.equal(generic, "Error: upstream service unavailable");
 });
 
 function fixtureSnapshot() {

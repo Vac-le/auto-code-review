@@ -111,6 +111,21 @@ function showError(message) {
   const result=document.querySelector('[data-result]');result.replaceChildren(element('div','error-box',message));setResultStatus('failed');
 }
 
+function localizedHostError(message) {
+  if(message?.startsWith('Codex cannot write to its runtime directory.')) {
+    return language==='zh'
+      ? 'Codex 无法写入自己的运行目录。请在普通 PowerShell 或终端中启动 auto-code-review ui，不要从受限的代理任务内启动。'
+      : 'Codex cannot write to its runtime directory. Start auto-code-review ui from a normal PowerShell or terminal, not from a restricted agent task.';
+  }
+  if(message?.startsWith('The Codex account or API key has reached its usage limit.')) {
+    return language==='zh'?'当前 Codex 账号或 API Key 已达到用量限制，请检查账号用量后重试。':message;
+  }
+  if(message?.startsWith('Codex authentication failed.')) {
+    return language==='zh'?'Codex 登录失效，请先运行 codex login status 检查登录状态。':message;
+  }
+  return message;
+}
+
 function renderReport(report) {
   const result=document.querySelector('[data-result]');result.replaceChildren();
   if(!report.findings.length){const clean=element('div','clean-report');clean.append(element('span','check','✓'),element('h3','',t('cleanTitle')),element('p','',report.summary||t('cleanBody')));result.append(clean);return;}
@@ -129,7 +144,7 @@ function renderJob(job) {
   document.querySelector('[data-cancel]').hidden=!running;
   document.querySelector('[data-run]').disabled=running||!selectedHost;
   if(job.state==='complete'&&job.report)renderReport(job.report);
-  else if(job.state==='failed'||job.state==='cancelled')showError(job.error||t(job.state));
+  else if(job.state==='failed'||job.state==='cancelled')showError(localizedHostError(job.error)||t(job.state));
 }
 
 async function pollJob() {

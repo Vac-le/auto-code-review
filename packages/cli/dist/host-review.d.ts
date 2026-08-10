@@ -9,6 +9,7 @@ export interface HostCommand {
     command: string;
     prefix: string[];
 }
+export declare function safeHostFailureDetail(value: string): string;
 export declare function safeHostPathDirectories(pathValue: string, excludedRoots?: string[]): string[];
 export declare function commandFromNpmWrapper(path: string): HostCommand | null;
 export declare function detectReviewHosts(excludedRoots?: string[]): HostAvailability[];

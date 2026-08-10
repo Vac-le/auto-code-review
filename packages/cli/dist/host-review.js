@@ -10,10 +10,23 @@ function cleanText(value, maximum = 1200) {
 function cleanTail(value, maximum = 1200) {
     return value.replace(/[\u0000-\u001f\u007f-\u009f]/g, " ").replace(/\s+/g, " ").trim().slice(-maximum);
 }
-function safeFailureDetail(value) {
-    if (/BEGIN UNTRUSTED REVIEW SNAPSHOT|You are Auto Code Review/i.test(value))
-        return "";
-    return cleanTail(value);
+export function safeHostFailureDetail(value) {
+    if (/attempt to write a readonly database|failed to open state db/i.test(value)
+        || (/failed to initialize in-process app-server client/i.test(value) && /(?:access is denied|拒绝访问|os error 5)/i.test(value))) {
+        return "Codex cannot write to its runtime directory. Start auto-code-review ui from a normal terminal with write access to CODEX_HOME, then retry.";
+    }
+    if (/insufficient_quota|quota exceeded|usage limit/i.test(value)) {
+        return "The Codex account or API key has reached its usage limit. Check the active Codex login and account usage, then retry.";
+    }
+    if (/not logged in|authentication required|invalid api key|incorrect api key/i.test(value)) {
+        return "Codex authentication failed. Run 'codex login status' and sign in again if needed.";
+    }
+    // Never return prompt or snapshot lines to the browser. Preserve only
+    // recognizable host diagnostics so operational failures remain actionable.
+    const diagnostics = value.split(/\r?\n/)
+        .filter((line) => !/BEGIN UNTRUSTED REVIEW SNAPSHOT|END UNTRUSTED REVIEW SNAPSHOT|You are Auto Code Review/i.test(line))
+        .filter((line) => /(?:^|\s)(?:error|warn(?:ing)?|failed|denied|refused|unavailable|timed? out)(?::|\s)/i.test(line));
+    return cleanTail(diagnostics.join("\n"));
 }
 function isInside(candidate, root) {
     const back = relative(resolve(root), resolve(candidate));
@@ -204,7 +217,7 @@ export async function runHostReview(input) {
             if (exceeded)
                 return reject(new Error("The model response exceeded the safe output limit."));
             if (code !== 0) {
-                const detail = safeFailureDetail(stderr);
+                const detail = safeHostFailureDetail(stderr);
                 return reject(new Error(`${input.host} review failed${detail ? `: ${detail}` : "."}`));
             }
             try {

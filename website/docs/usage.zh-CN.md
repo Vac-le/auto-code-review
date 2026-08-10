@@ -39,6 +39,8 @@ npm run ui -- --repo C:\path\to\your-project
 
 CLI 正式发布或全局安装后，也可以直接进入需要审查的仓库运行 `auto-code-review ui`。
 
+请在普通 PowerShell、Windows Terminal 或系统终端中启动，不要让 Codex/Claude 的受限代理任务代为执行该命令。审查过程对代码仓库保持只读，但 Codex/Claude CLI 仍需要写入自己的登录状态和运行目录。
+
 命令会在本机启动服务并自动打开浏览器，地址类似 `http://127.0.0.1:4387`。页面会显示当前仓库、Codex/Claude Code 可用状态、真实变更文件和经过验证的审查报告。关闭终端中的命令或按 `Ctrl+C` 即可停止本地界面。
 
 只使用指定平台或端口：
