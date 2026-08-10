@@ -10,6 +10,7 @@ export interface DashboardOptions {
 export interface DashboardDependencies {
     detectHosts?: typeof detectReviewHosts;
     review?: typeof runHostReview;
+    historyDirectory?: string;
 }
 export declare function resolveBrowserOpener(runtimePlatform?: NodeJS.Platform, pathValue?: string, excludedRoots?: string[]): string | null;
 export declare function launchBrowser(url: string, runtimePlatform?: NodeJS.Platform, spawnProcess?: typeof spawn, excludedRoots?: string[], pathValue?: string): boolean;
@@ -17,6 +18,7 @@ export declare function createDashboardServer(options: DashboardOptions, depende
     server: import("http").Server<typeof IncomingMessage, typeof ServerResponse>;
     token: string;
     repositoryRoot: string;
+    historyPath: string;
 };
 export declare function startDashboard(options: DashboardOptions): void;
 //# sourceMappingURL=ui.d.ts.map

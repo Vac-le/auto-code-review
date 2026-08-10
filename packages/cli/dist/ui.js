@@ -6,6 +6,7 @@ import { basename, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { CliError, errorMessage } from "./errors.js";
 import { findRepositoryRoot } from "./git.js";
+import { createReviewHistoryStore } from "./history.js";
 import { detectReviewHosts, runHostReview, safeHostPathDirectories } from "./host-review.js";
 import { createSnapshot } from "./snapshot.js";
 import { validateReport } from "./validate.js";
@@ -15,6 +16,7 @@ for (const [route, name, type] of [
     ["/index.html", "index.html", "text/html; charset=utf-8"],
     ["/app.js", "app.js", "text/javascript; charset=utf-8"],
     ["/styles.css", "styles.css", "text/css; charset=utf-8"],
+    ["/history.css", "history.css", "text/css; charset=utf-8"],
     ["/responsive.css", "responsive.css", "text/css; charset=utf-8"],
 ]) {
     assets.set(route, { type, body: readFileSync(fileURLToPath(new URL(`./dashboard/${name}`, import.meta.url))) });
@@ -79,7 +81,24 @@ function publicJob(job) {
             } } : {}),
         ...(job.report ? { report: job.report } : {}),
         ...(job.validation ? { validation: job.validation } : {}),
-        ...(job.error ? { error: job.error } : {}),
+        ...(job.error ? { error: job.error.replace(/[\u0000-\u001f\u007f-\u009f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 2_000) } : {}),
+    };
+}
+function historyRecord(job) {
+    if (!job.snapshot || (job.state !== "complete" && job.state !== "failed" && job.state !== "cancelled")) {
+        throw new Error("Only terminal review jobs with a snapshot can be persisted.");
+    }
+    const visible = publicJob(job);
+    return {
+        id: job.id,
+        state: job.state,
+        host: job.host,
+        createdAt: job.createdAt,
+        updatedAt: job.updatedAt,
+        scope: { mode: job.snapshot.repository.mode, base: job.snapshot.repository.base },
+        ...(visible.snapshot ? { snapshot: visible.snapshot } : {}),
+        ...(job.report ? { report: job.report } : {}),
+        ...(visible.error ? { error: visible.error } : {}),
     };
 }
 export function resolveBrowserOpener(runtimePlatform = process.platform, pathValue = process.env.PATH ?? "", excludedRoots = []) {
@@ -108,6 +127,7 @@ export function createDashboardServer(options, dependencies = {}) {
     const schemaPath = fileURLToPath(new URL("./schemas/review-host-output.schema.json", import.meta.url));
     const detectHosts = dependencies.detectHosts ?? detectReviewHosts;
     const review = dependencies.review ?? runHostReview;
+    const history = createReviewHistoryStore(repositoryRoot, dependencies.historyDirectory);
     const server = createServer(async (request, response) => {
         const address = server.address();
         const port = address && typeof address === "object" ? address.port : options.port ?? 4387;
@@ -148,6 +168,21 @@ export function createDashboardServer(options, dependencies = {}) {
                     activeReview: activeJob ? publicJob(activeJob) : null,
                 });
             }
+            if (request.method === "GET" && url.pathname === "/api/history") {
+                return send(response, 200, { records: history.list() });
+            }
+            if (request.method === "DELETE" && url.pathname === "/api/history") {
+                history.clear();
+                return send(response, 200, { ok: true });
+            }
+            const historyMatch = url.pathname.match(/^\/api\/history\/([0-9a-f-]{8,64})$/i);
+            if (request.method === "GET" && historyMatch) {
+                const record = history.get(historyMatch[1]);
+                return record ? send(response, 200, record) : send(response, 404, { error: "Review history record not found." });
+            }
+            if (request.method === "DELETE" && historyMatch) {
+                return history.delete(historyMatch[1]) ? send(response, 200, { ok: true }) : send(response, 404, { error: "Review history record not found." });
+            }
             if (request.method === "POST" && url.pathname === "/api/reviews") {
                 if (activeJob && !["complete", "failed", "cancelled"].includes(activeJob.state)) {
                     return send(response, 409, { error: "A review is already running." });
@@ -183,6 +218,12 @@ export function createDashboardServer(options, dependencies = {}) {
                     }
                     finally {
                         job.updatedAt = new Date().toISOString();
+                        if (job.snapshot && ["complete", "failed", "cancelled"].includes(job.state)) {
+                            try {
+                                history.save(historyRecord(job));
+                            }
+                            catch { /* Review success does not depend on optional local history persistence. */ }
+                        }
                     }
                 })();
                 return send(response, 202, { id: job.id, state: job.state });
@@ -208,7 +249,7 @@ export function createDashboardServer(options, dependencies = {}) {
             return send(response, status, { error: errorMessage(error) });
         }
     });
-    return { server, token, repositoryRoot };
+    return { server, token, repositoryRoot, historyPath: history.path };
 }
 export function startDashboard(options) {
     const { server, token, repositoryRoot } = createDashboardServer(options);

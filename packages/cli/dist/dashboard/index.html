@@ -6,6 +6,7 @@
     <meta name="description" content="Auto Code Review 本地代码审查面板" />
     <title>本地审查 — Auto Code Review</title>
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./history.css" />
     <link rel="stylesheet" href="./responsive.css" />
     <script src="./app.js" defer></script>
   </head>
@@ -96,8 +97,18 @@
         </div>
       </section>
 
+      <section class="history-panel" aria-labelledby="review-history">
+        <div class="history-heading">
+          <div class="section-label"><span class="step-number">04</span><h2 id="review-history" data-i18n="history">历史审查</h2></div>
+          <div class="history-actions"><span data-history-count></span><button type="button" class="clear-history" data-clear-history disabled data-i18n="clearHistory">清空记录</button></div>
+        </div>
+        <div class="history-list" data-history-list aria-live="polite">
+          <p class="history-empty" data-i18n="historyLoading">正在读取历史记录…</p>
+        </div>
+      </section>
+
       <section class="changes-panel" aria-labelledby="changed-files">
-        <div class="changes-heading"><div class="section-label"><span class="step-number">04</span><h2 id="changed-files" data-i18n="files">变更文件</h2></div><span data-change-summary></span></div>
+        <div class="changes-heading"><div class="section-label"><span class="step-number">05</span><h2 id="changed-files" data-i18n="files">变更文件</h2></div><span data-change-summary></span></div>
         <div class="file-list" data-files><p data-i18n="loading">正在读取 Git 变更…</p></div>
       </section>
     </main>

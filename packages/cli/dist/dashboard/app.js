@@ -1,24 +1,30 @@
 const copy = {
   zh: {
+    history:'历史审查',clearHistory:'清空记录',historyLoading:'正在读取历史记录…',historyEmpty:'还没有历史审查记录。',historyCount:'{count} 条记录',historyFindings:'{count} 个问题',historyFiles:'{count} 个文件',deleteHistory:'删除这条记录',historyDeleted:'历史记录已删除',historyCleared:'历史记录已清空',historyViewed:'历史记录',confirmClear:'确定清空当前仓库的全部历史审查记录吗？',scopeWorking:'未提交变更',scopeStaged:'暂存区变更',scopeBase:'基础分支对比',
     skip:'跳到主要内容',localOnly:'仅在本机运行',eyebrow:'真实本地审查',title:'检查当前代码变更',intro:'代码快照在本机生成，由你已登录的 Codex 或 Claude Code 审查；结果通过证据校验后才会显示。',repository:'当前仓库',settings:'设置审查',settingsHint:'选择平台和范围，然后开始一次只读审查。',platform:'审查平台',scope:'审查范围',working:'未提交变更',staged:'暂存区',base:'与基础分支对比',baseRevision:'基础分支',readonly:'只读运行，不会修改代码或 Git 状态',run:'开始真实审查',progress:'审查进度',stageSnapshot:'生成安全快照',stageSnapshotHint:'过滤密钥与无关文件',stageReview:'模型分析代码',stageReviewHint:'使用当前平台账号',stageValidate:'验证证据与行号',stageValidateHint:'淘汰不可靠问题',stageComplete:'生成审查报告',stageCompleteHint:'最多十条高置信度问题',cancel:'取消审查',result:'审查结果',waiting:'等待开始',restoring:'正在恢复审查状态',emptyTitle:'还没有审查报告',emptyBody:'选择上方设置并开始审查。模型完成分析后，经过验证的问题会显示在这里。',files:'变更文件',loading:'正在读取 Git 变更…',available:'可用',unavailable:'未安装',branch:'分支',changes:'{files} 个文件 · +{additions} −{deletions}',running:'审查中',complete:'审查完成',failed:'审查失败',cancelled:'已取消',cleanTitle:'没有发现可靠问题',cleanBody:'本次审查没有问题通过证据门槛。这不等同于形式化证明代码完全正确。',trigger:'触发条件与影响',evidence:'代码证据',repair:'修复方向',noRepair:'报告未提供修复方向',location:'位置',reviewStarted:'真实审查已开始',authError:'本地会话链接无效，请重新运行 auto-code-review ui。',noHost:'请先安装并登录 Codex 或 Claude Code。',statusError:'无法读取本地仓库状态。',unknownError:'发生未知错误。',statusModified:'修改',statusAdded:'新增',statusDeleted:'删除',statusRenamed:'重命名',statusCopied:'复制',statusTypeChanged:'类型变化',statusUnmerged:'冲突'
   },
   en: {
+    history:'Review history',clearHistory:'Clear history',historyLoading:'Loading review history…',historyEmpty:'No review history yet.',historyCount:'{count} records',historyFindings:'{count} findings',historyFiles:'{count} files',deleteHistory:'Delete this record',historyDeleted:'History record deleted',historyCleared:'Review history cleared',historyViewed:'History',confirmClear:'Clear all review history for this repository?',scopeWorking:'Uncommitted changes',scopeStaged:'Staged changes',scopeBase:'Base comparison',
     skip:'Skip to content',localOnly:'Runs on this computer only',eyebrow:'Real local review',title:'Review the current code change',intro:'A bounded snapshot is created locally, reviewed by your signed-in Codex or Claude Code, and shown only after evidence validation.',repository:'Current repository',settings:'Configure review',settingsHint:'Choose a platform and scope, then start a read-only review.',platform:'Review platform',scope:'Review scope',working:'Uncommitted changes',staged:'Staged changes',base:'Against a base branch',baseRevision:'Base revision',readonly:'Read-only: code and Git state will not be modified',run:'Start real review',progress:'Review progress',stageSnapshot:'Create safe snapshot',stageSnapshotHint:'Filter secrets and unrelated files',stageReview:'Analyze with the model',stageReviewHint:'Use the active platform account',stageValidate:'Validate evidence and lines',stageValidateHint:'Remove unreliable findings',stageComplete:'Create review report',stageCompleteHint:'At most ten high-confidence findings',cancel:'Cancel review',result:'Review result',waiting:'Waiting to start',restoring:'Restoring review state',emptyTitle:'No review report yet',emptyBody:'Choose the settings above and start. Verified findings will appear here after the model finishes.',files:'Changed files',loading:'Reading Git changes…',available:'Available',unavailable:'Not installed',branch:'Branch',changes:'{files} files · +{additions} −{deletions}',running:'Reviewing',complete:'Review complete',failed:'Review failed',cancelled:'Cancelled',cleanTitle:'No verified findings',cleanBody:'No issue passed the evidence threshold. This is not a formal proof that the code is perfect.',trigger:'Trigger and impact',evidence:'Code evidence',repair:'Repair direction',noRepair:'No repair direction was provided',location:'Location',reviewStarted:'Real review started',authError:'The local session link is invalid. Run auto-code-review ui again.',noHost:'Install and sign in to Codex or Claude Code first.',statusError:'Unable to read the local repository.',unknownError:'An unknown error occurred.',statusModified:'Modified',statusAdded:'Added',statusDeleted:'Deleted',statusRenamed:'Renamed',statusCopied:'Copied',statusTypeChanged:'Type changed',statusUnmerged:'Conflict'
   }
 };
 
 let language = localStorage.getItem('auto-code-review-language') === 'en' ? 'en' : 'zh';
-let token = new URLSearchParams(location.hash.slice(1)).get('token') || sessionStorage.getItem('auto-code-review-token');
-if (token) {
-  sessionStorage.setItem('auto-code-review-token', token);
-  history.replaceState(null, '', `${location.pathname}${location.search}`);
+let token = sessionStorage.getItem('auto-code-review-token');
+function acceptTokenFromHash() {
+  const next=new URLSearchParams(location.hash.slice(1)).get('token');
+  if(!next)return false;
+  token=next;sessionStorage.setItem('auto-code-review-token',token);history.replaceState(null,'',`${location.pathname}${location.search}`);return true;
 }
+acceptTokenFromHash();
+window.addEventListener('hashchange',()=>{if(acceptTokenFromHash()){currentJob=null;lastJob=null;showEmptyResult();start();}});
 let statusData = null;
 let selectedHost = null;
 let selectedScope = 'working';
 let currentJob = null;
 let pollTimer = null;
 let lastJob = null;
+let historyRecords = [];
 const t = (key) => copy[language][key] || key;
 const element = (tag, className, text) => { const node=document.createElement(tag); if(className)node.className=className;if(text!==undefined)node.textContent=text;return node; };
 
@@ -31,6 +37,7 @@ function applyLanguage(next) {
   document.querySelectorAll('[data-language]').forEach((button)=>button.setAttribute('aria-pressed',String(button.dataset.language===language)));
   if (statusData) renderStatus(statusData);
   if (lastJob) renderJob(lastJob);
+  renderHistory(historyRecords);
 }
 
 document.querySelectorAll('[data-language]').forEach((button)=>button.addEventListener('click',()=>applyLanguage(button.dataset.language)));
@@ -107,9 +114,66 @@ function setResultStatus(state) {
   if(terminal){badge.textContent=t(terminal[0]);badge.classList.add(terminal[1]);}else if(state&&state!=='queued'){badge.textContent=t('running');badge.classList.add('running');}else badge.textContent=t('waiting');
 }
 
-function showError(message) {
-  const result=document.querySelector('[data-result]');result.replaceChildren(element('div','error-box',message));setResultStatus('failed');
+function showError(message, state='failed') {
+  const result=document.querySelector('[data-result]');result.replaceChildren(element('div','error-box',message));setResultStatus(state);
 }
+
+function showEmptyResult() {
+  const result=document.querySelector('[data-result]');
+  const empty=element('div','empty-state');
+  empty.append(element('span','', '⌁'),element('h3','',t('emptyTitle')),element('p','',t('emptyBody')));
+  result.replaceChildren(empty);setResultStatus('queued');updateProgress('queued');
+}
+
+function historyScope(scope) {
+  return t({working:'scopeWorking',staged:'scopeStaged',base:'scopeBase'}[scope?.mode]||'scopeWorking');
+}
+
+function historyTime(value) {
+  try { return new Intl.DateTimeFormat(language==='zh'?'zh-CN':'en',{dateStyle:'medium',timeStyle:'short'}).format(new Date(value)); }
+  catch { return value; }
+}
+
+function renderHistory(records) {
+  historyRecords=records;
+  const list=document.querySelector('[data-history-list]');
+  if(!list)return;
+  list.replaceChildren();
+  document.querySelector('[data-history-count]').textContent=t('historyCount').replace('{count}',records.length);
+  document.querySelector('[data-clear-history]').disabled=records.length===0;
+  if(!records.length){list.append(element('p','history-empty',t('historyEmpty')));return;}
+  records.forEach((record)=>{
+    const row=element('article','history-row');
+    if(record.id===currentJob)row.classList.add('selected');
+    const open=element('button','history-open');open.type='button';
+    const title=element('span','history-title',record.summary||`${record.host==='codex'?'Codex':'Claude Code'} · ${historyScope(record.scope)}`);
+    const meta=element('span','history-meta');
+    meta.append(element('span',`history-state ${record.state}`,t(record.state)),element('span','',record.host==='codex'?'Codex':'Claude Code'),element('span','',historyScope(record.scope)),element('span','',historyTime(record.updatedAt)),element('span','',t('historyFiles').replace('{count}',record.files)),element('span','',t('historyFindings').replace('{count}',record.findings)));
+    open.append(title,meta);open.addEventListener('click',()=>openHistory(record.id));
+    const remove=element('button','history-delete','×');remove.type='button';remove.setAttribute('aria-label',t('deleteHistory'));remove.title=t('deleteHistory');remove.addEventListener('click',()=>deleteHistory(record.id));
+    row.append(open,remove);list.append(row);
+  });
+}
+
+async function loadHistory() {
+  const data=await api('/api/history');renderHistory(data.records||[]);
+}
+
+async function openHistory(id) {
+  try { clearTimeout(pollTimer);const record=await api(`/api/history/${id}`);currentJob=id;renderJob(record);setResultStatus(record.state);renderHistory(historyRecords);showToast(t('historyViewed')); }
+  catch(error){showError(error.message);}
+}
+
+async function deleteHistory(id) {
+  try { await api(`/api/history/${id}`,{method:'DELETE'});if(currentJob===id){currentJob=null;lastJob=null;showEmptyResult();}await loadHistory();showToast(t('historyDeleted')); }
+  catch(error){showError(error.message);}
+}
+
+document.querySelector('[data-clear-history]').addEventListener('click',async()=>{
+  if(!confirm(t('confirmClear')))return;
+  try { await api('/api/history',{method:'DELETE'});if(lastJob&&['complete','failed','cancelled'].includes(lastJob.state)){currentJob=null;lastJob=null;showEmptyResult();}await loadHistory();showToast(t('historyCleared')); }
+  catch(error){showError(error.message);}
+});
 
 function localizedHostError(message) {
   if(message?.startsWith('Codex cannot write to its runtime directory.')) {
@@ -138,17 +202,17 @@ function renderReport(report) {
 }
 
 function renderJob(job) {
-  lastJob=job;if(job.host)selectHost(job.host);updateProgress(job.state);setResultStatus(job.state);
+  lastJob=job;if(job.host)selectHost(job.host);if(job.scope?.mode)selectScope(job.scope.mode);updateProgress(job.state);setResultStatus(job.state);
   if(job.snapshot)renderFiles(job.snapshot);
   const running=!['complete','failed','cancelled'].includes(job.state);
   document.querySelector('[data-cancel]').hidden=!running;
   document.querySelector('[data-run]').disabled=running||!selectedHost;
   if(job.state==='complete'&&job.report)renderReport(job.report);
-  else if(job.state==='failed'||job.state==='cancelled')showError(localizedHostError(job.error)||t(job.state));
+  else if(job.state==='failed'||job.state==='cancelled')showError(job.state==='cancelled'?t('cancelled'):(localizedHostError(job.error)||t('failed')),job.state);
 }
 
 async function pollJob() {
-  try { const job=await api(`/api/reviews/${currentJob}`);renderJob(job);if(!['complete','failed','cancelled'].includes(job.state))pollTimer=setTimeout(pollJob,900); }
+  try { const job=await api(`/api/reviews/${currentJob}`);renderJob(job);if(!['complete','failed','cancelled'].includes(job.state))pollTimer=setTimeout(pollJob,900);else await loadHistory(); }
   catch(error){showError(error.message);}
 }
 
@@ -172,6 +236,6 @@ document.querySelector('[data-cancel]').addEventListener('click',async()=>{
 async function start(){
   if(!token){showError(t('authError'));return;}
   setResultStatus('restoring');
-  try{const data=await api('/api/status');renderStatus(data);if(data.activeReview)restoreJob(data.activeReview);else setResultStatus('queued');}catch(error){showError(`${t('statusError')} ${error.message}`);}
+  try{const [data,history]=await Promise.all([api('/api/status'),api('/api/history')]);renderStatus(data);renderHistory(history.records||[]);if(data.activeReview)restoreJob(data.activeReview);else setResultStatus('queued');}catch(error){showError(`${t('statusError')} ${error.message}`);}
 }
 start();

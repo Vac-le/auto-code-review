@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
 import { once } from "node:events";
+import { mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import { createDashboardServer } from "../dist/ui.js";
 import { seedRepository, write } from "./helpers.mjs";
 
-async function setup(reviewOverride) {
-  const root = seedRepository();
-  write(root, "src/dashboard.ts", "export const enabled = true;\n");
+async function setup(reviewOverride, options = {}) {
+  const root = options.root ?? seedRepository();
+  if (!options.root) write(root, "src/dashboard.ts", "export const enabled = true;\n");
+  const historyDirectory = options.historyDirectory ?? mkdtempSync(join(tmpdir(), "acr-history-"));
   const review = async ({ snapshot }) => {
     const file = snapshot.files[0];
     const line = file.hunks.find((hunk) => hunk.newRange)?.newRange.start ?? 1;
@@ -35,12 +39,26 @@ async function setup(reviewOverride) {
       { host: "claude", available: false, version: null },
     ],
     review: reviewOverride ?? review,
+    historyDirectory,
   });
   dashboard.server.listen(0, "127.0.0.1");
   await once(dashboard.server, "listening");
   const address = dashboard.server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
-  return { ...dashboard, baseUrl };
+  return { ...dashboard, baseUrl, historyDirectory };
+}
+
+async function waitForTerminal(dashboard, id) {
+  let job;
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    const response = await fetch(`${dashboard.baseUrl}/api/reviews/${id}`, {
+      headers: { "x-auto-code-review-token": dashboard.token },
+    });
+    job = await response.json();
+    if (["complete", "failed", "cancelled"].includes(job.state)) return job;
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  return job;
 }
 
 test("local dashboard requires its session token and never exposes patch bodies", async () => {
@@ -87,15 +105,7 @@ test("local dashboard runs a review and returns only a validated report", async 
     });
     assert.equal(start.status, 202);
     const { id } = await start.json();
-    let job;
-    for (let attempt = 0; attempt < 40; attempt += 1) {
-      const response = await fetch(`${dashboard.baseUrl}/api/reviews/${id}`, {
-        headers: { "x-auto-code-review-token": dashboard.token },
-      });
-      job = await response.json();
-      if (["complete", "failed"].includes(job.state)) break;
-      await new Promise((resolve) => setTimeout(resolve, 25));
-    }
+    const job = await waitForTerminal(dashboard, id);
     assert.equal(job.state, "complete", job.error);
     assert.equal(job.validation.valid, true);
     assert.equal(job.report.findings[0].id, "ACR-DASHBOARD-1");
@@ -109,9 +119,90 @@ test("local dashboard runs a review and returns only a validated report", async 
     assert.equal(restoredBody.activeReview.id, id);
     assert.equal(restoredBody.activeReview.state, "complete");
     assert.equal(restoredBody.activeReview.report.findings[0].id, "ACR-DASHBOARD-1");
+
+    const history = await fetch(`${dashboard.baseUrl}/api/history`, {
+      headers: { "x-auto-code-review-token": dashboard.token },
+    });
+    const historyBody = await history.json();
+    assert.equal(history.status, 200);
+    assert.equal(historyBody.records.length, 1);
+    assert.equal(historyBody.records[0].findings, 1);
+    assert.equal(Object.hasOwn(historyBody.records[0], "report"), false);
+
+    const detail = await fetch(`${dashboard.baseUrl}/api/history/${id}`, {
+      headers: { "x-auto-code-review-token": dashboard.token },
+    });
+    const detailBody = await detail.json();
+    assert.equal(detail.status, 200);
+    assert.equal(detailBody.report.findings[0].id, "ACR-DASHBOARD-1");
+    assert.equal(Object.hasOwn(detailBody.snapshot.filesList[0], "patch"), false);
+
+    const persisted = readFileSync(dashboard.historyPath, "utf8");
+    assert.doesNotMatch(persisted, /@@|return user|export const enabled/);
+    assert.equal(persisted.includes(dashboard.repositoryRoot), false);
   } finally {
     dashboard.server.close();
     await once(dashboard.server, "close");
+  }
+});
+
+test("review history survives a server restart and supports protected deletion", async () => {
+  const first = await setup();
+  let id;
+  try {
+    const headers = {
+      "x-auto-code-review-token": first.token,
+      "content-type": "application/json",
+      origin: first.baseUrl,
+    };
+    const start = await fetch(`${first.baseUrl}/api/reviews`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ host: "codex", scope: "working" }),
+    });
+    ({ id } = await start.json());
+    assert.equal((await waitForTerminal(first, id)).state, "complete");
+  } finally {
+    first.server.close();
+    await once(first.server, "close");
+  }
+
+  const second = await setup(undefined, { root: first.repositoryRoot, historyDirectory: first.historyDirectory });
+  try {
+    const auth = { "x-auto-code-review-token": second.token };
+    const history = await fetch(`${second.baseUrl}/api/history`, { headers: auth });
+    const body = await history.json();
+    assert.equal(body.records.length, 1);
+    assert.equal(body.records[0].id, id);
+
+    const rejected = await fetch(`${second.baseUrl}/api/history/${id}`, { method: "DELETE", headers: auth });
+    assert.equal(rejected.status, 403);
+
+    const removed = await fetch(`${second.baseUrl}/api/history/${id}`, {
+      method: "DELETE",
+      headers: { ...auth, origin: second.baseUrl },
+    });
+    assert.equal(removed.status, 200);
+    const empty = await fetch(`${second.baseUrl}/api/history`, { headers: auth });
+    assert.deepEqual((await empty.json()).records, []);
+
+    const startAgain = await fetch(`${second.baseUrl}/api/reviews`, {
+      method: "POST",
+      headers: { ...auth, "content-type": "application/json", origin: second.baseUrl },
+      body: JSON.stringify({ host: "codex", scope: "working" }),
+    });
+    const next = await startAgain.json();
+    assert.equal((await waitForTerminal(second, next.id)).state, "complete");
+    const cleared = await fetch(`${second.baseUrl}/api/history`, {
+      method: "DELETE",
+      headers: { ...auth, origin: second.baseUrl },
+    });
+    assert.equal(cleared.status, 200);
+    const clearedHistory = await fetch(`${second.baseUrl}/api/history`, { headers: auth });
+    assert.deepEqual((await clearedHistory.json()).records, []);
+  } finally {
+    second.server.close();
+    await once(second.server, "close");
   }
 });
 

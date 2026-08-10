@@ -6,6 +6,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { findExecutable, probeTool } from "../dist/doctor.js";
 import { formatMarkdown } from "../dist/format.js";
+import { createReviewHistoryStore } from "../dist/history.js";
 import { classifyIgnoredPath, detectLanguage, isBinary, looksGenerated } from "../dist/ignore.js";
 import { redactSecrets } from "../dist/redact.js";
 import { parseHunks, parseNameStatus } from "../dist/snapshot.js";
@@ -29,6 +30,29 @@ test("host reports receive deterministic canonical finding ids", () => {
   assert.match(first.findings[0].id, /^ACR-[A-F0-9]{12}$/);
   assert.equal(first.findings[0].id, second.findings[0].id);
   assert.equal(validateReport(first, fixtureSnapshot(), { strict: true }).valid, true);
+});
+
+test("review history is bounded, ordered, and reloadable", () => {
+  const directory = mkdtempSync(join(tmpdir(), "acr-history-store-"));
+  const store = createReviewHistoryStore("C:/example/repository", directory);
+  for (let index = 0; index < 51; index += 1) {
+    const timestamp = new Date(Date.UTC(2026, 0, 1, 0, 0, index)).toISOString();
+    store.save({
+      id: `00000000-0000-4000-8000-${index.toString(16).padStart(12, "0")}`,
+      state: "complete",
+      host: "codex",
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      scope: { mode: "working", base: null },
+      report: fixtureReport(),
+    });
+  }
+  assert.equal(store.list().length, 50);
+  assert.match(store.list()[0].id, /000000000032$/);
+  const reloaded = createReviewHistoryStore("C:/example/repository", directory);
+  assert.equal(reloaded.list().length, 50);
+  reloaded.clear();
+  assert.deepEqual(createReviewHistoryStore("C:/example/repository", directory).list(), []);
 });
 
 test("host failures expose actionable diagnostics without leaking review input", () => {

@@ -52,6 +52,10 @@ npm run ui -- --repo C:\path\to\your-project --host claude --port 4390
 
 本地界面只监听 `127.0.0.1`，每次启动使用新的随机会话令牌。它不会把代码发送到 Auto Code Review 自建服务器；模型调用仍通过你选择并已登录的 Codex 或 Claude Code 账号完成。
 
+### 历史审查记录
+
+本地界面会为每个仓库保留最近 50 条审查记录，完成、失败和取消的报告在重启服务后仍可查看。记录存放在仓库外：Windows 为 `%LOCALAPPDATA%\auto-code-review\history`，macOS 为 `~/Library/Application Support/auto-code-review/history`，Linux 为 `$XDG_STATE_HOME/auto-code-review/history`。记录仅包含经过验证的报告、状态、审查范围和变更文件摘要；不会保存源码快照、原始补丁、仓库绝对路径或会话令牌。可在“历史审查”中重新打开报告、删除单条记录或清空本地历史。
+
 ## 4. 在 Codex 中使用
 
 用 Codex 打开需要审查的 Git 项目，然后在新任务中输入：

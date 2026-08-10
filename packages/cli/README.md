@@ -30,6 +30,8 @@ Run `auto-code-review --help` for every option. Snapshot and validation output i
 
 The CLI is local and read-only apart from an explicitly selected output file. It invokes Git with argument arrays rather than a shell, never executes project code, and never follows worktree symbolic links. Deterministic commands do not contact a network service. The `ui` command sends only its bounded, redacted snapshot through the Codex or Claude Code account the user explicitly selects; it does not contact an Auto Code Review server. Review snapshots are deterministic for the same Git state.
 
+The dashboard keeps up to 50 recent review records per repository outside the repository itself: `%LOCALAPPDATA%\auto-code-review\history` on Windows, `~/Library/Application Support/auto-code-review/history` on macOS, and `$XDG_STATE_HOME/auto-code-review/history` on Linux. Records contain the validated report, status, scope, and file summary so they can be reopened after a restart. They never contain the original patch, source snapshot, repository absolute path, or live session token. You can delete one record or clear the local history from the dashboard.
+
 The published report and snapshot JSON Schemas are included under `dist/schemas/`.
 
 Licensed under Apache-2.0.
