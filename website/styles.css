@@ -31,18 +31,18 @@ a { color: inherit; text-decoration: none; }
 .skip-link:focus { top: 1rem; }
 
 .nav-shell { position: sticky; top: 0; z-index: 20; background: rgba(243,241,235,.94); border-bottom: 1px solid var(--line); }
-.nav { max-width: var(--content); min-height: 72px; margin: auto; padding: 0 24px; display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: clamp(1.5rem,4vw,4rem); }
-.brand { display: flex; align-items: center; gap: .72rem; white-space: nowrap; font-weight: 780; letter-spacing: -.03em; }
+.nav { width: 100%; min-height: 72px; margin: 0; padding: 0 clamp(24px,2.5vw,52px); display: grid; grid-template-columns: minmax(250px,1fr) auto minmax(250px,1fr); align-items: center; gap: clamp(2rem,4vw,5rem); }
+.brand { display: flex; align-items: center; gap: .72rem; white-space: nowrap; font-weight: 780; letter-spacing: 0; }
 .brand-mark { position: relative; width: 34px; height: 34px; flex: 0 0 34px; }
 .brand-mark::before,.brand-mark::after { content: ""; position: absolute; left: 15px; top: 2px; width: 4px; height: 29px; background: var(--ink); border-radius: 3px; transform-origin: 2px 2px; }
 .brand-mark::before { transform: rotate(24deg); }
 .brand-mark::after { transform: rotate(-24deg); }
 .brand-mark > span { position: absolute; z-index: 1; left: 7px; top: 17px; width: 20px; height: 4px; background: var(--violet); border-radius: 3px; transform: rotate(-23deg); }
 .brand-mark > span::after { content: ""; position: absolute; right: -2px; top: 9px; width: 7px; height: 7px; background: var(--green); border: 2px solid var(--bg); border-radius: 50%; }
-.nav-menu { justify-self: center; display: flex; align-items: center; gap: clamp(1rem,2.4vw,2rem); color: #625f58; font-size: .88rem; }
+.nav-menu { justify-self: center; display: flex; align-items: center; gap: clamp(2.25rem,3.6vw,4.75rem); color: #625f58; font-size: .88rem; }
 .nav-menu a { padding-block: .3rem; border-bottom: 1px solid transparent; white-space: nowrap; }
 .nav-menu a:hover, .nav-menu a:focus-visible, .nav-menu a.active { color: var(--ink); border-bottom-color: var(--ink); }
-.nav-actions { display: flex; align-items: center; gap: .75rem; }
+.nav-actions { justify-self: end; display: flex; align-items: center; gap: .75rem; }
 .github-link { padding: .35rem 0 .35rem .8rem; color: #595750; border-left: 1px solid var(--line); font-size: .78rem; white-space: nowrap; }
 .github-link:hover, .github-link:focus-visible { color: var(--ink); }
 .language-switch { display: inline-flex; align-items: center; padding: 2px; background: #ebe8e0; border: 1px solid transparent; border-radius: 999px; }
@@ -110,7 +110,7 @@ footer { max-width:var(--content); margin:30px auto 0; padding:32px 24px 54px; d
 .toast { position:fixed; right:20px; bottom:20px; z-index:30; padding:.65rem .85rem; color:#fff; background:var(--ink); border-radius:.3rem; box-shadow:4px 4px 0 #aaa69d; opacity:0; transform:translateY(8px); pointer-events:none; transition:.2s ease; }.toast.show { opacity:1; transform:none; }
 
 @media (max-width:900px) {
-  .nav { gap:1.25rem; }.nav-menu { gap:.85rem; font-size:.8rem; }.hero { grid-template-columns:1fr; padding-top:70px; gap:50px; }.proof { grid-template-columns:1fr 1fr; }.proof div:nth-child(2) { border-right:1px solid var(--line); border-radius:0 4px 0 0; }.proof div:nth-child(3) { border-top:0; border-radius:0 0 0 4px; }.proof div:nth-child(4) { border-top:0; border-radius:0 0 4px 0; }.workflow-grid { grid-template-columns:1fr 1fr; }.workflow-grid li:nth-child(2) { border-right:0; }.workflow-grid li:nth-child(n+3) { border-top:1px solid var(--line); }.benchmark-grid { grid-template-columns:1fr; }
+  .nav { grid-template-columns:auto minmax(0,1fr) auto; gap:1.25rem; }.nav-menu { gap:1.25rem; font-size:.8rem; }.hero { grid-template-columns:1fr; padding-top:70px; gap:50px; }.proof { grid-template-columns:1fr 1fr; }.proof div:nth-child(2) { border-right:1px solid var(--line); border-radius:0 4px 0 0; }.proof div:nth-child(3) { border-top:0; border-radius:0 0 0 4px; }.proof div:nth-child(4) { border-top:0; border-radius:0 0 4px 0; }.workflow-grid { grid-template-columns:1fr 1fr; }.workflow-grid li:nth-child(2) { border-right:0; }.workflow-grid li:nth-child(n+3) { border-top:1px solid var(--line); }.benchmark-grid { grid-template-columns:1fr; }
 }
 
 @media (max-width:620px) {

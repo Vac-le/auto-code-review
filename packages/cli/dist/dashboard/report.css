@@ -1,0 +1,273 @@
+/* Shared product navigation and a calmer report hierarchy. */
+.topbar {
+  min-height: 72px;
+  padding-inline: clamp(24px, 2.5vw, 52px);
+  background: rgba(243, 241, 235, .94);
+  border-bottom-color: var(--line);
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  gap: .72rem;
+  letter-spacing: 0;
+}
+
+.brand-mark {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: block;
+  flex: 0 0 34px;
+  color: transparent;
+  background: transparent;
+  border-radius: 0;
+  font-size: 0;
+}
+
+.brand-mark::before,
+.brand-mark::after {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 2px;
+  width: 4px;
+  height: 29px;
+  background: var(--ink);
+  border-radius: 3px;
+  transform-origin: 2px 2px;
+}
+
+.brand-mark::before { transform: rotate(24deg); }
+.brand-mark::after { transform: rotate(-24deg); }
+
+.brand-mark > span {
+  position: absolute;
+  z-index: 1;
+  left: 7px;
+  top: 17px;
+  width: 20px;
+  height: 4px;
+  background: var(--violet);
+  border-radius: 3px;
+  transform: rotate(-23deg);
+}
+
+.brand-mark > span::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: 9px;
+  width: 7px;
+  height: 7px;
+  background: var(--green);
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+}
+
+.report-overview {
+  margin: -2px -2px 22px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: #efede6;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.report-copy { min-width: 0; }
+
+.report-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--violet);
+  font: 750 .64rem ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.report-summary {
+  margin: 0;
+  padding: 0;
+  color: #4f4f48;
+  background: transparent;
+  border: 0;
+  font-size: .86rem;
+  line-height: 1.6;
+}
+
+.report-count {
+  flex: 0 0 auto;
+  color: var(--ink);
+  font: 500 1.8rem/1 Georgia, serif;
+}
+
+.finding-card {
+  padding: 0;
+  overflow: hidden;
+  background: #fffdfa;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--violet);
+  border-radius: 4px;
+  box-shadow: 0 2px 7px rgba(25, 25, 22, .045);
+}
+
+.finding-card + .finding-card { margin-top: 16px; }
+.finding-card.priority-p0 { border-left-color: #8e2635; }
+.finding-card.priority-p1 { border-left-color: var(--red); }
+.finding-card.priority-p2 { border-left-color: var(--amber); }
+.finding-card.priority-p3 { border-left-color: var(--violet); }
+
+.finding-header {
+  padding: 16px 18px 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-bottom: 1px solid #e8e4db;
+}
+
+.finding-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.finding-number {
+  color: #96938b;
+  font: 750 .66rem ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.finding-heading { min-width: 0; }
+
+.finding-heading h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.finding-meta {
+  margin-top: 7px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+.category {
+  padding: 2px 7px;
+  color: #4e47aa;
+  background: var(--violet-soft);
+  border: 1px solid #d7d2ff;
+  border-radius: 999px;
+}
+
+.confidence {
+  margin-left: 0;
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+.finding-location {
+  margin: 0;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  background: #f8f6f0;
+  border-bottom: 1px solid #e8e4db;
+  font-size: .7rem;
+}
+
+.location-label {
+  font-size: .63rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.finding-location code {
+  overflow: hidden;
+  color: #4e47aa;
+  font: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.finding-grid {
+  padding: 14px 18px 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.finding-detail {
+  padding: 12px 13px;
+  background: #fbfaf6;
+  border: 1px solid #e5e1d8;
+  border-radius: 3px;
+}
+
+.finding-detail.repair {
+  grid-column: 1 / -1;
+  background: #f3f1fb;
+  border-color: #ddd8fa;
+}
+
+.finding-detail h4 {
+  margin: 0 0 6px;
+  color: #77736b;
+  font-size: .65rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.finding-detail p {
+  margin: 0;
+  color: #575750;
+  font-size: .77rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 620px) {
+  .topbar {
+    min-height: 62px;
+    padding-inline: 18px;
+  }
+
+  .brand { gap: .42rem; }
+
+  .brand-mark {
+    width: 29px;
+    height: 29px;
+    flex-basis: 29px;
+    margin-right: -4px;
+    transform: scale(.86);
+    transform-origin: left center;
+  }
+
+  .brand > span:last-child { font-size: .82rem; }
+
+  .report-overview {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .report-count { font-size: 1.5rem; }
+  .finding-header { padding: 14px; }
+  .finding-heading h3 { font-size: .91rem; }
+  .finding-location { padding-inline: 14px; }
+
+  .finding-grid {
+    padding: 12px 14px 14px;
+    grid-template-columns: 1fr;
+  }
+
+  .finding-detail.repair { grid-column: auto; }
+}

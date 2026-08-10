@@ -64,9 +64,12 @@ test('serves static assets with correct content types', async () => {
   assert.match(script.headers.get('content-type'), /^text\/javascript/);
   assert.match(preview.headers.get('content-type'), /^image\/png/);
   const source = await script.text();
+  const stylesheet = await css.text();
   assert.match(source, /localStorage\.getItem\('auto-code-review-language'\)/);
   assert.match(source, /One review standard, every coding agent/);
   assert.match(source, /一套标准，审查每一次代码变更/);
+  assert.match(stylesheet, /grid-template-columns:\s*minmax\(250px,1fr\) auto minmax\(250px,1fr\)/);
+  assert.match(stylesheet, /gap:\s*clamp\(2\.25rem,3\.6vw,4\.75rem\)/);
 });
 
 test('serves the Markdown-backed documentation page in both languages', async () => {

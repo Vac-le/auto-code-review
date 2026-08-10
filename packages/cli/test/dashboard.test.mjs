@@ -73,6 +73,14 @@ test("local dashboard requires its session token and never exposes patch bodies"
     assert.equal(responsive.status, 200);
     assert.match(await responsive.text(), /overflow-wrap:\s*anywhere/);
 
+    const reportStyles = await fetch(`${dashboard.baseUrl}/report.css`);
+    assert.equal(reportStyles.status, 200);
+    assert.match(await reportStyles.text(), /\.report-overview/);
+
+    const dashboardHtml = await (await fetch(`${dashboard.baseUrl}/`)).text();
+    assert.match(dashboardHtml, /class="brand-mark"[^>]*><span><\/span>/);
+    assert.match(dashboardHtml, /href="\.\/report\.css"/);
+
     const unauthorized = await fetch(`${dashboard.baseUrl}/api/status`);
     assert.equal(unauthorized.status, 401);
 

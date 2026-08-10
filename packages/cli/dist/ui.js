@@ -18,6 +18,7 @@ for (const [route, name, type] of [
     ["/styles.css", "styles.css", "text/css; charset=utf-8"],
     ["/history.css", "history.css", "text/css; charset=utf-8"],
     ["/responsive.css", "responsive.css", "text/css; charset=utf-8"],
+    ["/report.css", "report.css", "text/css; charset=utf-8"],
 ]) {
     assets.set(route, { type, body: readFileSync(fileURLToPath(new URL(`./dashboard/${name}`, import.meta.url))) });
 }
