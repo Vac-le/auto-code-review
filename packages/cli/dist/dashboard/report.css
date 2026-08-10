@@ -1,7 +1,7 @@
 /* Shared product navigation and a calmer report hierarchy. */
 .topbar {
   min-height: 72px;
-  padding-inline: clamp(24px, 2.5vw, 52px);
+  padding-inline: 24px;
   background: rgba(243, 241, 235, .94);
   border-bottom-color: var(--line);
   backdrop-filter: blur(10px);
