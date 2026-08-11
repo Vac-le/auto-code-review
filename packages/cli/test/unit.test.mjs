@@ -32,7 +32,7 @@ test("host reports receive deterministic canonical finding ids", () => {
   assert.equal(validateReport(first, fixtureSnapshot(), { strict: true }).valid, true);
 });
 
-test("review history is bounded, ordered, and reloadable", () => {
+test("review history retains enough records for annual activity and is reloadable", () => {
   const directory = mkdtempSync(join(tmpdir(), "acr-history-store-"));
   const store = createReviewHistoryStore("C:/example/repository", directory);
   for (let index = 0; index < 51; index += 1) {
@@ -43,14 +43,15 @@ test("review history is bounded, ordered, and reloadable", () => {
       host: "codex",
       createdAt: timestamp,
       updatedAt: timestamp,
-      scope: { mode: "working", base: null },
+      scope: { mode: "working", base: null, branch: "main" },
       report: fixtureReport(),
     });
   }
-  assert.equal(store.list().length, 50);
+  assert.equal(store.list().length, 51);
   assert.match(store.list()[0].id, /000000000032$/);
+  assert.equal(store.list()[0].scope.branch, "main");
   const reloaded = createReviewHistoryStore("C:/example/repository", directory);
-  assert.equal(reloaded.list().length, 50);
+  assert.equal(reloaded.list().length, 51);
   reloaded.clear();
   assert.deepEqual(createReviewHistoryStore("C:/example/repository", directory).list(), []);
 });

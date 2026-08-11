@@ -23,7 +23,7 @@ export interface HistoryRecord {
   host: "codex" | "claude";
   createdAt: string;
   updatedAt: string;
-  scope: { mode: SnapshotMode; base: string | null };
+  scope: { mode: SnapshotMode; base: string | null; branch: string | null };
   snapshot?: HistorySnapshot;
   report?: ReviewReport;
   error?: string;
@@ -50,8 +50,8 @@ export interface ReviewHistoryStore {
   clear(): void;
 }
 
-const MAX_HISTORY_RECORDS = 50;
-const MAX_HISTORY_BYTES = 5 * 1024 * 1024;
+const MAX_HISTORY_RECORDS = 1_000;
+const MAX_HISTORY_BYTES = 64 * 1024 * 1024;
 const SAFE_ID = /^[0-9a-f-]{8,64}$/i;
 
 function stateDirectory(platform = process.platform, env = process.env, home = homedir()): string {
@@ -114,6 +114,8 @@ function parseRecord(value: unknown): HistoryRecord | null {
   if (scope.mode !== "working" && scope.mode !== "staged" && scope.mode !== "base") return null;
   const base = scope.base === null ? null : safeString(scope.base, 1_024);
   if (scope.base !== null && !base) return null;
+  const branch = scope.branch === undefined || scope.branch === null ? null : safeString(scope.branch, 1_024);
+  if (scope.branch !== undefined && scope.branch !== null && !branch) return null;
 
   const snapshot = parseSnapshot(raw.snapshot);
   const reportValidation = raw.report === undefined ? null : validateReport(raw.report);
@@ -126,7 +128,7 @@ function parseRecord(value: unknown): HistoryRecord | null {
     host: raw.host,
     createdAt,
     updatedAt,
-    scope: { mode: scope.mode, base },
+    scope: { mode: scope.mode, base, branch },
     ...(snapshot ? { snapshot } : {}),
     ...(report ? { report } : {}),
     ...(error ? { error } : {}),

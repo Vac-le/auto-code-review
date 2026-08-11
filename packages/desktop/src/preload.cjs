@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld("autoCodeReviewDesktop", Object.freeze({
   selectRepository: () => ipcRenderer.invoke("desktop:select-repository"),
   openRecentRepository: (path) => ipcRenderer.invoke("desktop:open-recent-repository", path),
   showProjectPicker: () => ipcRenderer.invoke("desktop:show-project-picker"),
+  openRepository: () => ipcRenderer.invoke("desktop:open-repository"),
   openLogs: () => ipcRenderer.invoke("desktop:open-logs"),
   quit: () => ipcRenderer.invoke("desktop:quit"),
 }));

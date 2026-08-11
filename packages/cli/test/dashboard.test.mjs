@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { createDashboardServer } from "../dist/ui.js";
-import { seedRepository, write } from "./helpers.mjs";
+import { git, seedRepository, write } from "./helpers.mjs";
 
 async function setup(reviewOverride, options = {}) {
   const root = options.root ?? seedRepository();
@@ -83,10 +83,14 @@ test("local dashboard requires its session token and never exposes patch bodies"
     assert.match(dashboardHtml, /href="\.\/report\.css"/);
     assert.match(dashboardHtml, /href="\.\/desktop\.css"/);
     assert.match(dashboardHtml, /data-i18n="filesLoading"/);
+    assert.match(dashboardHtml, /data-desktop-sidebar/);
+    assert.match(dashboardHtml, /data-branch-select/);
+    assert.match(dashboardHtml, /data-activity-calendar/);
 
     const dashboardScript = await (await fetch(`${dashboard.baseUrl}/app.js`)).text();
     assert.match(dashboardScript, /filesLoading:'Reading Git changes…'/);
     assert.match(dashboardScript, /reviewLoading:'Reviewing the current code change…'/);
+    assert.match(dashboardScript, /api\/activity/);
     assert.doesNotMatch(dashboardScript, /loading:'(?:Reading Git changes|Reviewing the current code change)/);
 
     const unauthorized = await fetch(`${dashboard.baseUrl}/api/status`);
@@ -156,6 +160,51 @@ test("local dashboard runs a review and returns only a validated report", async 
     const persisted = readFileSync(dashboard.historyPath, "utf8");
     assert.doesNotMatch(persisted, /@@|return user|export const enabled/);
     assert.equal(persisted.includes(dashboard.repositoryRoot), false);
+  } finally {
+    dashboard.server.close();
+    await once(dashboard.server, "close");
+  }
+});
+
+test("dashboard exposes annual activity and safely switches allowlisted local branches", async () => {
+  const dashboard = await setup();
+  try {
+    const auth = { "x-auto-code-review-token": dashboard.token };
+    const mutation = { ...auth, "content-type": "application/json", origin: dashboard.baseUrl };
+    const start = await fetch(`${dashboard.baseUrl}/api/reviews`, {
+      method: "POST",
+      headers: mutation,
+      body: JSON.stringify({ host: "codex", scope: "working" }),
+    });
+    const { id } = await start.json();
+    assert.equal((await waitForTerminal(dashboard, id)).state, "complete");
+
+    const activity = await (await fetch(`${dashboard.baseUrl}/api/activity`, { headers: auth })).json();
+    assert.equal(activity.records.length, 1);
+    assert.equal(activity.records[0].state, "complete");
+    assert.equal(activity.records[0].branch, "main");
+
+    git(dashboard.repositoryRoot, ["branch", "feature/dashboard"]);
+    const listed = await (await fetch(`${dashboard.baseUrl}/api/branches`, { headers: auth })).json();
+    assert.equal(listed.current, "main");
+    assert.deepEqual(listed.branches.map(({ name }) => name), ["main", "feature/dashboard"]);
+
+    const dirtyRejected = await fetch(`${dashboard.baseUrl}/api/branches/switch`, {
+      method: "POST",
+      headers: mutation,
+      body: JSON.stringify({ branch: "feature/dashboard" }),
+    });
+    assert.equal(dirtyRejected.status, 409);
+
+    git(dashboard.repositoryRoot, ["add", "."]);
+    git(dashboard.repositoryRoot, ["commit", "-m", "prepare branches"]);
+    const switched = await fetch(`${dashboard.baseUrl}/api/branches/switch`, {
+      method: "POST",
+      headers: mutation,
+      body: JSON.stringify({ branch: "feature/dashboard" }),
+    });
+    assert.equal(switched.status, 200);
+    assert.equal((await switched.json()).current, "feature/dashboard");
   } finally {
     dashboard.server.close();
     await once(dashboard.server, "close");

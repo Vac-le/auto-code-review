@@ -3,8 +3,8 @@ import { existsSync, mkdirSync, readFileSync, renameSync, statSync, unlinkSync, 
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { validateReport } from "./validate.js";
-const MAX_HISTORY_RECORDS = 50;
-const MAX_HISTORY_BYTES = 5 * 1024 * 1024;
+const MAX_HISTORY_RECORDS = 1_000;
+const MAX_HISTORY_BYTES = 64 * 1024 * 1024;
 const SAFE_ID = /^[0-9a-f-]{8,64}$/i;
 function stateDirectory(platform = process.platform, env = process.env, home = homedir()) {
     if (platform === "win32")
@@ -73,6 +73,9 @@ function parseRecord(value) {
     const base = scope.base === null ? null : safeString(scope.base, 1_024);
     if (scope.base !== null && !base)
         return null;
+    const branch = scope.branch === undefined || scope.branch === null ? null : safeString(scope.branch, 1_024);
+    if (scope.branch !== undefined && scope.branch !== null && !branch)
+        return null;
     const snapshot = parseSnapshot(raw.snapshot);
     const reportValidation = raw.report === undefined ? null : validateReport(raw.report);
     const report = reportValidation?.valid ? raw.report : undefined;
@@ -85,7 +88,7 @@ function parseRecord(value) {
         host: raw.host,
         createdAt,
         updatedAt,
-        scope: { mode: scope.mode, base },
+        scope: { mode: scope.mode, base, branch },
         ...(snapshot ? { snapshot } : {}),
         ...(report ? { report } : {}),
         ...(error ? { error } : {}),

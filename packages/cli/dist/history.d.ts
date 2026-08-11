@@ -23,6 +23,7 @@ export interface HistoryRecord {
     scope: {
         mode: SnapshotMode;
         base: string | null;
+        branch: string | null;
     };
     snapshot?: HistorySnapshot;
     report?: ReviewReport;

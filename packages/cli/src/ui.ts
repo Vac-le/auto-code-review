@@ -5,7 +5,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { basename, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { CliError, errorMessage } from "./errors.ts";
-import { findRepositoryRoot } from "./git.ts";
+import { findRepositoryRoot, gitText, runGit } from "./git.ts";
 import { createReviewHistoryStore, type HistoryRecord, type TerminalReviewState } from "./history.ts";
 import { detectReviewHosts, runHostReview, safeHostPathDirectories, type ReviewHost } from "./host-review.ts";
 import { createSnapshot } from "./snapshot.ts";
@@ -127,7 +127,7 @@ function historyRecord(job: ReviewJob): HistoryRecord {
     host: job.host,
     createdAt: job.createdAt,
     updatedAt: job.updatedAt,
-    scope: { mode: job.snapshot.repository.mode, base: job.snapshot.repository.base },
+    scope: { mode: job.snapshot.repository.mode, base: job.snapshot.repository.base, branch: job.snapshot.repository.branch },
     ...(visible.snapshot ? { snapshot: visible.snapshot } : {}),
     ...(job.report ? { report: job.report } : {}),
     ...(visible.error ? { error: visible.error } : {}),
@@ -165,6 +165,21 @@ export function createDashboardServer(options: DashboardOptions, dependencies: D
     try { dependencies.onEvent?.(event, detail); } catch { /* Optional observers cannot affect a review. */ }
   };
   const history = createReviewHistoryStore(repositoryRoot, dependencies.historyDirectory);
+  const currentBranch = (): string | null => {
+    const result = runGit(repositoryRoot, ["symbolic-ref", "--quiet", "--short", "HEAD"], { allowFailure: true });
+    return result.status === 0 ? result.stdout.toString("utf8").trim() || null : null;
+  };
+  const branches = () => {
+    const active = currentBranch();
+    return gitText(repositoryRoot, ["for-each-ref", "--format=%(refname:short)%00%(objectname:short)", "refs/heads"])
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .flatMap((line) => {
+        const [name, commit] = line.split("\0");
+        return name && commit ? [{ name, commit, current: name === active }] : [];
+      })
+      .sort((left, right) => Number(right.current) - Number(left.current) || left.name.localeCompare(right.name));
+  };
 
   const server = createServer(async (request, response) => {
     const address = server.address();
@@ -205,6 +220,36 @@ export function createDashboardServer(options: DashboardOptions, dependencies: D
       }
       if (request.method === "GET" && url.pathname === "/api/history") {
         return send(response, 200, { records: history.list() });
+      }
+      if (request.method === "GET" && url.pathname === "/api/activity") {
+        const records = history.list();
+        return send(response, 200, {
+          records: records.map(({ updatedAt, state, findings, files, host, scope }) => ({ updatedAt, state, findings, files, host, branch: scope.branch })),
+        });
+      }
+      if (request.method === "GET" && url.pathname === "/api/branches") {
+        return send(response, 200, { current: currentBranch(), branches: branches() });
+      }
+      if (request.method === "POST" && url.pathname === "/api/branches/switch") {
+        if (activeJob && !["complete", "failed", "cancelled"].includes(activeJob.state)) {
+          return send(response, 409, { error: "A branch cannot be switched while a review is running." });
+        }
+        const body = await readJson(request);
+        if (typeof body.branch !== "string" || body.branch.length < 1 || body.branch.length > 1_024) {
+          throw new CliError("Select a valid local branch.", { code: "INVALID_BRANCH" });
+        }
+        const available = branches();
+        if (!available.some((branch) => branch.name === body.branch)) {
+          throw new CliError("The selected local branch no longer exists.", { code: "UNKNOWN_BRANCH" });
+        }
+        if (body.branch !== currentBranch()) {
+          const dirty = gitText(repositoryRoot, ["status", "--porcelain=v1", "--untracked-files=normal"]);
+          if (dirty.trim()) return send(response, 409, { error: "Commit, stash, or discard local changes before switching branches." });
+          runGit(repositoryRoot, ["switch", body.branch]);
+          activeJob = null;
+          emitEvent("branch-switched", { branch: body.branch });
+        }
+        return send(response, 200, { current: currentBranch(), branches: branches() });
       }
       if (request.method === "DELETE" && url.pathname === "/api/history") {
         history.clear();

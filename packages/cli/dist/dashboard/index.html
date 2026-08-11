@@ -21,6 +21,7 @@
       </a>
       <div class="top-actions">
         <div class="desktop-actions" data-desktop-actions hidden>
+          <button type="button" data-desktop-folder>打开目录</button>
           <button type="button" data-desktop-project>切换仓库</button>
           <button type="button" data-desktop-logs>日志</button>
         </div>
@@ -31,6 +32,27 @@
         </div>
       </div>
     </header>
+
+    <div class="desktop-layout">
+      <aside class="desktop-sidebar" data-desktop-sidebar hidden>
+        <div class="sidebar-project">
+          <div class="sidebar-project-mark" data-sidebar-project-mark>A</div>
+          <div><strong data-sidebar-project-name>项目</strong><span data-sidebar-project-branch>—</span></div>
+          <button type="button" class="sidebar-collapse" data-sidebar-collapse aria-label="收起侧栏" title="收起侧栏">‹</button>
+        </div>
+        <nav class="sidebar-nav" aria-label="桌面导航">
+          <button type="button" data-scroll-target="activity" class="active"><span>▦</span><span data-i18n="overview">审查概览</span></button>
+          <button type="button" data-scroll-target="settings"><span>◈</span><span data-i18n="newReview">发起审查</span></button>
+          <button type="button" data-scroll-target="files"><span>⌘</span><span data-i18n="files">变更文件</span></button>
+        </nav>
+        <div class="sidebar-history-heading"><span data-i18n="projectHistory">项目审查记录</span><div><small data-sidebar-history-count>0</small><button type="button" data-sidebar-clear-history data-i18n="clearHistory">清空记录</button></div></div>
+        <div class="sidebar-history" data-sidebar-history aria-live="polite"></div>
+        <div class="sidebar-projects" data-sidebar-projects>
+          <span data-i18n="recentProjects">最近项目</span>
+          <div data-sidebar-project-list></div>
+        </div>
+      </aside>
+      <button type="button" class="sidebar-restore" data-sidebar-restore hidden aria-label="展开侧栏" title="展开侧栏">›</button>
 
     <main id="main" class="shell">
       <header class="page-heading">
@@ -44,10 +66,30 @@
           <strong data-repository-name>正在读取…</strong>
           <code data-repository-path></code>
           <small data-repository-branch></small>
+          <div class="branch-picker" data-desktop-branch hidden>
+            <label for="branch-select" data-i18n="selectBranch">选择分支</label>
+            <div><select id="branch-select" data-branch-select aria-label="选择分支"></select><button type="button" data-branch-switch disabled data-i18n="switchBranch">切换</button></div>
+            <p data-branch-help data-i18n="branchSafety">切换前需要保持工作区干净。</p>
+          </div>
         </div>
       </header>
 
-      <section class="control-panel" aria-labelledby="review-settings">
+      <section class="activity-panel" id="activity" data-desktop-activity hidden aria-labelledby="activity-title">
+        <div class="activity-heading">
+          <div><span class="step-number">●</span><div><h2 id="activity-title" data-i18n="activity">Review 活跃度</h2><p data-i18n="activityHint">过去一年每天完成的代码审查</p></div></div>
+          <span data-activity-period data-i18n="pastYear">过去 365 天</span>
+        </div>
+        <div class="activity-stats">
+          <div><strong data-stat-reviews>0</strong><span data-i18n="totalReviews">审查次数</span></div>
+          <div><strong data-stat-days>0</strong><span data-i18n="activeDays">活跃天数</span></div>
+          <div><strong data-stat-findings>0</strong><span data-i18n="totalFindings">发现问题</span></div>
+          <div><strong data-stat-streak>0</strong><span data-i18n="currentStreak">连续天数</span></div>
+        </div>
+        <div class="activity-scroll"><div class="activity-calendar" data-activity-calendar></div></div>
+        <div class="activity-legend"><span data-i18n="less">少</span><i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i><span data-i18n="more">多</span></div>
+      </section>
+
+      <section class="control-panel" id="settings" aria-labelledby="review-settings">
         <div class="control-heading">
           <div><span class="step-number">01</span><h2 id="review-settings" data-i18n="settings">设置审查</h2></div>
           <p data-i18n="settingsHint">选择平台和范围，然后开始一次只读审查。</p>
@@ -113,11 +155,12 @@
         </div>
       </section>
 
-      <section class="changes-panel" aria-labelledby="changed-files">
+      <section class="changes-panel" id="files" aria-labelledby="changed-files">
         <div class="changes-heading"><div class="section-label"><span class="step-number">05</span><h2 id="changed-files" data-i18n="files">变更文件</h2></div><span data-change-summary></span></div>
         <div class="file-list" data-files><p data-i18n="filesLoading">正在读取 Git 变更…</p></div>
       </section>
     </main>
+    </div>
     <div class="toast" role="status" aria-live="polite" data-toast></div>
   </body>
 </html>

@@ -181,6 +181,11 @@ function registerIpc() {
     }
   });
   ipcMain.handle("desktop:show-project-picker", async (event) => { requireTrustedSender(event); return showProjectPicker(); });
+  ipcMain.handle("desktop:open-repository", async (event) => {
+    requireTrustedSender(event);
+    if (!dashboard?.repositoryRoot) return "No repository is open.";
+    return shell.openPath(dashboard.repositoryRoot);
+  });
   ipcMain.handle("desktop:open-logs", async (event) => { requireTrustedSender(event); return shell.openPath(logsDirectory); });
   ipcMain.handle("desktop:quit", (event) => { requireTrustedSender(event); quitting = true; app.quit(); });
 }
