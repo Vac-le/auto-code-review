@@ -10,7 +10,7 @@
     "icon": "node scripts/render-icon.mjs",
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist:win": "electron-builder --win nsis",
+    "dist:win": "electron-builder --win nsis --publish never",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
@@ -25,7 +25,6 @@
     "appId": "dev.autocodereview.desktop",
     "productName": "Auto Code Review",
     "artifactName": "Auto-Code-Review-${version}-${arch}.${ext}",
-    "electronDist": "../../node_modules/electron/dist",
     "asar": true,
     "directories": {
       "output": "release"
