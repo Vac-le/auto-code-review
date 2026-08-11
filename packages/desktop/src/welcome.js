@@ -20,8 +20,13 @@ async function render() {
     const strong = document.createElement('strong');
     strong.textContent = nameOf(path);
     const detail = document.createElement('span');
+    detail.className = 'path';
     detail.textContent = path;
-    button.append(strong, detail);
+    const arrow = document.createElement('span');
+    arrow.className = 'recent-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '→';
+    button.append(strong, detail, arrow);
     button.addEventListener('click', () => api.openRecentRepository(path));
     recent.append(button);
   }
