@@ -33,6 +33,48 @@ async function render() {
 }
 
 document.querySelector('[data-select]').addEventListener('click', () => api.selectRepository());
-document.querySelector('[data-logs]').addEventListener('click', () => api.openLogs());
+function closeLogViewer() {
+  const viewer = document.querySelector('[data-log-viewer]');
+  if (viewer.hidden) return;
+  viewer.hidden = true;
+  document.body.classList.remove('log-viewer-open');
+  document.querySelector('.app-frame').inert = false;
+  document.querySelector('[data-logs]').focus();
+}
+
+async function refreshLogViewer() {
+  const content = document.querySelector('[data-log-content]');
+  const meta = document.querySelector('[data-log-meta]');
+  const refresh = document.querySelector('[data-log-refresh]');
+  content.textContent = '正在读取日志…';
+  refresh.disabled = true;
+  try {
+    const snapshot = await api.getLogs();
+    content.textContent = snapshot.content || '暂无运行日志。';
+    meta.textContent = snapshot.updatedAt
+      ? `${snapshot.fileName} · ${new Date(snapshot.updatedAt).toLocaleString('zh-CN')}`
+      : '查看桌面端运行与审查事件';
+    content.scrollTop = content.scrollHeight;
+  } catch (error) {
+    content.textContent = error instanceof Error ? error.message : '无法读取日志。';
+  } finally {
+    refresh.disabled = false;
+  }
+}
+
+function showLogViewer() {
+  const viewer = document.querySelector('[data-log-viewer]');
+  viewer.hidden = false;
+  document.body.classList.add('log-viewer-open');
+  document.querySelector('.app-frame').inert = true;
+  document.querySelector('.log-viewer-close').focus();
+  refreshLogViewer();
+}
+
+document.querySelector('[data-logs]').addEventListener('click', showLogViewer);
+document.querySelectorAll('[data-log-close]').forEach((button) => button.addEventListener('click', closeLogViewer));
+document.querySelector('[data-log-refresh]').addEventListener('click', refreshLogViewer);
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeLogViewer(); });
+api.onShowLogs?.(showLogViewer);
 document.querySelector('[data-quit]').addEventListener('click', () => api.quit());
 render();

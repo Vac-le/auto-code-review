@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, Tray } from "electron";
 import { createDashboardServer } from "@auto-code-review/cli/dist/ui.js";
 import { createLogger } from "./logger.mjs";
+import { readLogSnapshot } from "./log-viewer.mjs";
 import { isAllowedDesktopPage } from "./security.mjs";
 import { readSettings, rememberRepository, writeSettings } from "./settings.mjs";
 
@@ -22,6 +23,7 @@ let dashboard = null;
 let quitting = false;
 let settingsPath = "";
 let logsDirectory = "";
+let logPath = "";
 let settings = { lastRepository: null, recentRepositories: [] };
 let log = () => {};
 
@@ -157,7 +159,7 @@ function updateTrayMenu() {
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: "显示 Auto Code Review", click: () => { mainWindow.show(); mainWindow.focus(); } },
     { label: "选择仓库…", click: async () => { mainWindow.show(); await selectRepository(); } },
-    { label: "打开日志目录", click: () => void shell.openPath(logsDirectory) },
+    { label: "查看运行日志", click: () => { mainWindow.show(); mainWindow.focus(); mainWindow.webContents.send("desktop:show-logs"); } },
     { type: "separator" },
     { label: "退出", click: () => { quitting = true; app.quit(); } },
   ]));
@@ -186,14 +188,15 @@ function registerIpc() {
     if (!dashboard?.repositoryRoot) return "No repository is open.";
     return shell.openPath(dashboard.repositoryRoot);
   });
-  ipcMain.handle("desktop:open-logs", async (event) => { requireTrustedSender(event); return shell.openPath(logsDirectory); });
+  ipcMain.handle("desktop:get-logs", (event) => { requireTrustedSender(event); return readLogSnapshot(logPath); });
   ipcMain.handle("desktop:quit", (event) => { requireTrustedSender(event); quitting = true; app.quit(); });
 }
 
 async function boot() {
   settingsPath = join(app.getPath("userData"), "desktop-settings.json");
   logsDirectory = join(app.getPath("userData"), "logs");
-  log = createLogger(join(logsDirectory, "desktop.log"));
+  logPath = join(logsDirectory, "desktop.log");
+  log = createLogger(logPath);
   settings = readSettings(settingsPath);
   log("app.started", app.getVersion());
   createWindow();

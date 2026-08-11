@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
@@ -35,4 +35,15 @@ test("desktop navigation accepts only the welcome page or exact dashboard origin
   assert.equal(isAllowedDesktopPage(`${dashboard}@example.com/`, welcome, dashboard), false);
   assert.equal(isAllowedDesktopPage("https://example.com/", welcome, dashboard), false);
   assert.equal(isAllowedDesktopPage("not a url", welcome, dashboard), false);
+});
+
+test("desktop renderer exposes an in-app log viewer instead of an open-directory action", () => {
+  const preload = readFileSync(new URL("../src/preload.cjs", import.meta.url), "utf8");
+  const welcome = readFileSync(new URL("../src/welcome.html", import.meta.url), "utf8");
+  const script = readFileSync(new URL("../src/welcome.js", import.meta.url), "utf8");
+  assert.match(preload, /desktop:get-logs/);
+  assert.doesNotMatch(preload, /desktop:open-logs/);
+  assert.match(welcome, /data-log-viewer/);
+  assert.match(script, /api\.getLogs\(\)/);
+  assert.match(script, /\.inert = true/);
 });

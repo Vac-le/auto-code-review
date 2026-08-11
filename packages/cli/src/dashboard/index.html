@@ -68,7 +68,7 @@
           <small data-repository-branch></small>
           <div class="branch-picker" data-desktop-branch hidden>
             <label for="branch-select" data-i18n="selectBranch">选择分支</label>
-            <div><select id="branch-select" data-branch-select aria-label="选择分支"></select><button type="button" data-branch-switch disabled data-i18n="switchBranch">切换</button></div>
+            <div><div class="branch-select"><button id="branch-select" type="button" data-branch-select aria-label="选择分支" aria-haspopup="listbox" aria-expanded="false"><span data-branch-value>正在读取…</span><i aria-hidden="true"></i></button><div class="branch-options" data-branch-options role="listbox" aria-label="本地分支" hidden></div></div><button type="button" data-branch-switch disabled data-i18n="switchBranch">切换</button></div>
             <p data-branch-help data-i18n="branchSafety">切换前需要保持工作区干净。</p>
           </div>
         </div>
@@ -160,6 +160,17 @@
         <div class="file-list" data-files><p data-i18n="filesLoading">正在读取 Git 变更…</p></div>
       </section>
     </main>
+    </div>
+    <div class="log-viewer" data-log-viewer hidden>
+      <button class="log-viewer-backdrop" type="button" data-log-close aria-label="关闭日志"></button>
+      <section class="log-viewer-panel" role="dialog" aria-modal="true" aria-labelledby="log-viewer-title">
+        <header>
+          <div><span class="log-viewer-mark" aria-hidden="true">$_</span><div><h2 id="log-viewer-title" data-i18n="logsTitle">运行日志</h2><p data-log-meta data-i18n="logsDescription">查看桌面端运行与审查事件</p></div></div>
+          <button class="log-viewer-close" type="button" data-log-close aria-label="关闭" title="关闭">×</button>
+        </header>
+        <pre data-log-content tabindex="0"></pre>
+        <footer><span data-i18n="logsLocalOnly">日志仅保存在本机</span><button type="button" data-log-refresh data-i18n="logsRefresh">刷新日志</button></footer>
+      </section>
     </div>
     <div class="toast" role="status" aria-live="polite" data-toast></div>
   </body>

@@ -1,6 +1,6 @@
 {
   "name": "@auto-code-review/desktop",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "Native desktop shell for the local Auto Code Review dashboard",
   "author": "Auto Code Review contributors",

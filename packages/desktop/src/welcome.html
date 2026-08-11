@@ -65,5 +65,16 @@
         <div><button type="button" data-logs>打开日志</button><button type="button" data-quit>退出应用</button></div>
       </footer>
     </div>
+    <div class="log-viewer" data-log-viewer hidden>
+      <button class="log-viewer-backdrop" type="button" data-log-close aria-label="关闭日志"></button>
+      <section class="log-viewer-panel" role="dialog" aria-modal="true" aria-labelledby="log-viewer-title">
+        <header>
+          <div><span class="log-viewer-mark" aria-hidden="true">$_</span><div><h2 id="log-viewer-title">运行日志</h2><p data-log-meta>查看桌面端运行与审查事件</p></div></div>
+          <button class="log-viewer-close" type="button" data-log-close aria-label="关闭" title="关闭">×</button>
+        </header>
+        <pre data-log-content tabindex="0"></pre>
+        <footer><span>日志仅保存在本机</span><button type="button" data-log-refresh>刷新日志</button></footer>
+      </section>
+    </div>
   </body>
 </html>

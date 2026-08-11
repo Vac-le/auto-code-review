@@ -85,12 +85,17 @@ test("local dashboard requires its session token and never exposes patch bodies"
     assert.match(dashboardHtml, /data-i18n="filesLoading"/);
     assert.match(dashboardHtml, /data-desktop-sidebar/);
     assert.match(dashboardHtml, /data-branch-select/);
+    assert.match(dashboardHtml, /data-branch-options[^>]*role="listbox"/);
     assert.match(dashboardHtml, /data-activity-calendar/);
+    assert.match(dashboardHtml, /data-log-viewer/);
+    assert.match(dashboardHtml, /data-log-content/);
 
     const dashboardScript = await (await fetch(`${dashboard.baseUrl}/app.js`)).text();
     assert.match(dashboardScript, /filesLoading:'Reading Git changes…'/);
     assert.match(dashboardScript, /reviewLoading:'Reviewing the current code change…'/);
     assert.match(dashboardScript, /api\/activity/);
+    assert.match(dashboardScript, /desktopApi\.getLogs\(\)/);
+    assert.match(dashboardScript, /node\.inert=true/);
     assert.doesNotMatch(dashboardScript, /loading:'(?:Reading Git changes|Reviewing the current code change)/);
 
     const unauthorized = await fetch(`${dashboard.baseUrl}/api/status`);

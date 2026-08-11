@@ -6,6 +6,12 @@ contextBridge.exposeInMainWorld("autoCodeReviewDesktop", Object.freeze({
   openRecentRepository: (path) => ipcRenderer.invoke("desktop:open-recent-repository", path),
   showProjectPicker: () => ipcRenderer.invoke("desktop:show-project-picker"),
   openRepository: () => ipcRenderer.invoke("desktop:open-repository"),
-  openLogs: () => ipcRenderer.invoke("desktop:open-logs"),
+  getLogs: () => ipcRenderer.invoke("desktop:get-logs"),
+  onShowLogs: (callback) => {
+    if (typeof callback !== "function") return () => {};
+    const listener = () => callback();
+    ipcRenderer.on("desktop:show-logs", listener);
+    return () => ipcRenderer.removeListener("desktop:show-logs", listener);
+  },
   quit: () => ipcRenderer.invoke("desktop:quit"),
 }));
