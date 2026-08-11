@@ -1,0 +1,57 @@
+{
+  "name": "@auto-code-review/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Native desktop shell for the local Auto Code Review dashboard",
+  "author": "Auto Code Review contributors",
+  "type": "module",
+  "main": "src/main.mjs",
+  "scripts": {
+    "icon": "node scripts/render-icon.mjs",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist:win": "electron-builder --win nsis",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@auto-code-review/cli": "0.1.0"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "electron": "43.3.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "dev.autocodereview.desktop",
+    "productName": "Auto Code Review",
+    "artifactName": "Auto-Code-Review-${version}-${arch}.${ext}",
+    "electronDist": "../../node_modules/electron/dist",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Auto Code Review"
+    }
+  }
+}

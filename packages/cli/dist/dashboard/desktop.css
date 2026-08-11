@@ -1,0 +1,44 @@
+.desktop-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-right: 0.65rem;
+  border-right: 1px solid var(--line);
+}
+
+.brand-mark {
+  color: inherit;
+  background: transparent;
+  border-radius: 0;
+}
+
+.brand-mark img {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+.desktop-actions button {
+  padding: 0.38rem 0.58rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.74rem;
+}
+
+.desktop-actions button:hover {
+  color: var(--ink);
+  background: #e7e4dc;
+  border-color: #d8d4ca;
+}
+
+.desktop-actions button:focus-visible {
+  outline: 3px solid #cbc5ff;
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .desktop-actions button[data-desktop-logs] { display: none; }
+}

@@ -2,6 +2,7 @@ node_modules/
 .npm-cache/
 .package-smoke/
 artifacts/
+packages/desktop/release/
 .venv/
 dist/
 coverage/

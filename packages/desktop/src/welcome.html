@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'" />
+    <title>Auto Code Review</title>
+    <link rel="stylesheet" href="./welcome.css" />
+    <link rel="stylesheet" href="./welcome-extra.css" />
+    <script src="./welcome.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"><img src="../assets/logo.svg" alt="" /></span><strong>Auto Code Review</strong></div>
+      <span class="desktop-badge">DESKTOP</span>
+    </header>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">本地 AI 代码审查</p>
+        <h1>选择一个仓库，<br />开始可靠审查。</h1>
+        <p class="intro">代码快照留在本机，通过你已经登录的 Codex 或 Claude Code 完成审查。桌面端会在后台保留当前会话与历史记录。</p>
+        <button class="primary" type="button" data-select><span>选择 Git 仓库</span><span aria-hidden="true">→</span></button>
+      </section>
+      <aside class="recent-card">
+        <div class="card-heading"><span>最近项目</span><small data-version></small></div>
+        <div class="recent-list" data-recent><p class="empty">还没有打开过仓库。</p></div>
+        <div class="privacy"><span></span><p><strong>本地优先</strong><br />不需要额外的模型密钥或云端网关。</p></div>
+      </aside>
+    </main>
+    <footer><button type="button" data-logs>打开日志目录</button><button type="button" data-quit>退出应用</button></footer>
+  </body>
+</html>

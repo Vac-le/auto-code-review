@@ -40,6 +40,7 @@ async function setup(reviewOverride, options = {}) {
     ],
     review: reviewOverride ?? review,
     historyDirectory,
+    onEvent: options.onEvent,
   });
   dashboard.server.listen(0, "127.0.0.1");
   await once(dashboard.server, "listening");
@@ -78,8 +79,15 @@ test("local dashboard requires its session token and never exposes patch bodies"
     assert.match(await reportStyles.text(), /\.report-overview/);
 
     const dashboardHtml = await (await fetch(`${dashboard.baseUrl}/`)).text();
-    assert.match(dashboardHtml, /class="brand-mark"[^>]*><span><\/span>/);
+    assert.match(dashboardHtml, /class="brand-mark"[^>]*><img src="\.\/logo\.svg"/);
     assert.match(dashboardHtml, /href="\.\/report\.css"/);
+    assert.match(dashboardHtml, /href="\.\/desktop\.css"/);
+    assert.match(dashboardHtml, /data-i18n="filesLoading"/);
+
+    const dashboardScript = await (await fetch(`${dashboard.baseUrl}/app.js`)).text();
+    assert.match(dashboardScript, /filesLoading:'Reading Git changes…'/);
+    assert.match(dashboardScript, /reviewLoading:'Reviewing the current code change…'/);
+    assert.doesNotMatch(dashboardScript, /loading:'(?:Reading Git changes|Reviewing the current code change)/);
 
     const unauthorized = await fetch(`${dashboard.baseUrl}/api/status`);
     assert.equal(unauthorized.status, 401);
@@ -243,4 +251,28 @@ test("status exposes the active review so a refreshed page can reconnect", async
     dashboard.server.close();
     await once(dashboard.server, "close");
   }
+});
+
+test("dashboard shutdown cancels an active host review before closing", async () => {
+  const events = [];
+  const dashboard = await setup(({ signal }) => new Promise((_, reject) => {
+    signal.addEventListener("abort", () => reject(new Error("review aborted")), { once: true });
+  }), { onEvent: (event, detail) => events.push({ event, detail }) });
+  const headers = {
+    "x-auto-code-review-token": dashboard.token,
+    "content-type": "application/json",
+    origin: dashboard.baseUrl,
+  };
+  const start = await fetch(`${dashboard.baseUrl}/api/reviews`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ host: "codex", scope: "working" }),
+  });
+  assert.equal(start.status, 202);
+  await dashboard.shutdown();
+  for (let attempt = 0; attempt < 20 && !events.some(({ event }) => event === "finished"); attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  assert.equal(dashboard.server.listening, false);
+  assert.equal(events.find(({ event }) => event === "finished")?.detail.state, "cancelled");
 });

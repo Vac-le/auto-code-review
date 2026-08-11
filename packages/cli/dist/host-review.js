@@ -42,7 +42,7 @@ function pathCandidates(name, excludedRoots) {
     const extensions = process.platform === "win32" ? [".exe", ".cmd", ".bat", ""] : [""];
     return safeHostPathDirectories(process.env.PATH ?? "", excludedRoots).flatMap((directory) => extensions.map((extension) => join(directory, `${name}${extension}`)));
 }
-export function commandFromNpmWrapper(path) {
+export function commandFromNpmWrapper(path, pathValue = process.env.PATH ?? "", excludedRoots = []) {
     if (!path.toLowerCase().endsWith(".cmd"))
         return null;
     try {
@@ -56,8 +56,14 @@ export function commandFromNpmWrapper(path) {
         const script = source.match(/"(%~?dp0%?\\[^"\r\n]+\.js)"/i)?.[1];
         if (script) {
             const resolved = join(dirname(path), script.replace(/^%~?dp0%?\\/i, ""));
-            if (existsSync(resolved))
-                return { command: process.execPath, prefix: [resolved] };
+            const localNode = join(dirname(path), "node.exe");
+            const node = existsSync(localNode)
+                ? localNode
+                : safeHostPathDirectories(pathValue, excludedRoots)
+                    .map((directory) => join(directory, "node.exe"))
+                    .find((candidate) => existsSync(candidate));
+            if (existsSync(resolved) && node)
+                return { command: node, prefix: [resolved] };
         }
         return null;
     }
@@ -73,7 +79,7 @@ function resolveHostCommand(host, excludedRoots = []) {
             if (candidate.toLowerCase().endsWith(".exe"))
                 return { command: candidate, prefix: [] };
             if (candidate.toLowerCase().endsWith(".cmd")) {
-                const command = commandFromNpmWrapper(candidate);
+                const command = commandFromNpmWrapper(candidate, process.env.PATH ?? "", excludedRoots);
                 if (command)
                     return command;
             }

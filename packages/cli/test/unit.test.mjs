@@ -138,9 +138,21 @@ test("review host discovery never searches the repository through relative PATH 
 test("Windows npm wrapper discovery supports the standard percent-tilde-dp0 form", (context) => {
   if (process.platform !== "win32") return context.skip("Windows wrapper syntax");
   const root = mkdtempSync(join(tmpdir(), "acr-wrapper-"));
+  const node = write(root, "node.exe", "");
   const script = write(root, "node_modules/reviewer/bin/reviewer.js", "console.log('reviewer 1.0');\n");
   const wrapper = write(root, "codex.cmd", '@ECHO off\r\n"%~dp0\\node_modules\\reviewer\\bin\\reviewer.js" %*\r\n');
-  assert.equal(commandFromNpmWrapper(wrapper)?.prefix[0], script);
+  assert.deepEqual(commandFromNpmWrapper(wrapper), { command: node, prefix: [script] });
+});
+
+test("Windows npm wrapper discovery never substitutes the packaged desktop executable for Node", (context) => {
+  if (process.platform !== "win32") return context.skip("Windows wrapper syntax");
+  const root = mkdtempSync(join(tmpdir(), "acr-wrapper-path-"));
+  const wrapperRoot = join(root, "wrapper");
+  const runtimeRoot = join(root, "runtime");
+  const node = write(runtimeRoot, "node.exe", "");
+  const script = write(wrapperRoot, "node_modules/reviewer/bin/reviewer.js", "console.log('reviewer 1.0');\n");
+  const wrapper = write(wrapperRoot, "codex.cmd", '@ECHO off\r\n"%dp0%\\node_modules\\reviewer\\bin\\reviewer.js" %*\r\n');
+  assert.deepEqual(commandFromNpmWrapper(wrapper, runtimeRoot), { command: node, prefix: [script] });
 });
 
 test("a missing browser opener cannot crash the local dashboard", () => {

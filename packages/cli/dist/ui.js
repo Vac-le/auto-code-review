@@ -19,6 +19,8 @@ for (const [route, name, type] of [
     ["/history.css", "history.css", "text/css; charset=utf-8"],
     ["/responsive.css", "responsive.css", "text/css; charset=utf-8"],
     ["/report.css", "report.css", "text/css; charset=utf-8"],
+    ["/desktop.css", "desktop.css", "text/css; charset=utf-8"],
+    ["/logo.svg", "logo.svg", "image/svg+xml"],
 ]) {
     assets.set(route, { type, body: readFileSync(fileURLToPath(new URL(`./dashboard/${name}`, import.meta.url))) });
 }
@@ -128,6 +130,12 @@ export function createDashboardServer(options, dependencies = {}) {
     const schemaPath = fileURLToPath(new URL("./schemas/review-host-output.schema.json", import.meta.url));
     const detectHosts = dependencies.detectHosts ?? detectReviewHosts;
     const review = dependencies.review ?? runHostReview;
+    const emitEvent = (event, detail) => {
+        try {
+            dependencies.onEvent?.(event, detail);
+        }
+        catch { /* Optional observers cannot affect a review. */ }
+    };
     const history = createReviewHistoryStore(repositoryRoot, dependencies.historyDirectory);
     const server = createServer(async (request, response) => {
         const address = server.address();
@@ -196,6 +204,7 @@ export function createDashboardServer(options, dependencies = {}) {
                 const job = { id: randomUUID(), state: "queued", host: input.host, createdAt: now, updatedAt: now, controller: new AbortController() };
                 jobs.set(job.id, job);
                 activeJob = job;
+                emitEvent("started", { id: job.id, host: job.host, scope: input.mode });
                 void (async () => {
                     try {
                         job.state = "snapshot";
@@ -219,6 +228,7 @@ export function createDashboardServer(options, dependencies = {}) {
                     }
                     finally {
                         job.updatedAt = new Date().toISOString();
+                        emitEvent("finished", { id: job.id, host: job.host, state: job.state, findings: job.report?.findings.length ?? 0 });
                         if (job.snapshot && ["complete", "failed", "cancelled"].includes(job.state)) {
                             try {
                                 history.save(historyRecord(job));
@@ -250,7 +260,13 @@ export function createDashboardServer(options, dependencies = {}) {
             return send(response, status, { error: errorMessage(error) });
         }
     });
-    return { server, token, repositoryRoot, historyPath: history.path };
+    const shutdown = async () => {
+        if (activeJob && !["complete", "failed", "cancelled"].includes(activeJob.state))
+            activeJob.controller.abort();
+        if (server.listening)
+            await new Promise((resolveClose) => server.close(() => resolveClose()));
+    };
+    return { server, token, repositoryRoot, historyPath: history.path, shutdown };
 }
 export function startDashboard(options) {
     const { server, token, repositoryRoot } = createDashboardServer(options);

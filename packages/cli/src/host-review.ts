@@ -66,7 +66,7 @@ function pathCandidates(name: string, excludedRoots: string[]): string[] {
     extensions.map((extension) => join(directory, `${name}${extension}`)));
 }
 
-export function commandFromNpmWrapper(path: string): HostCommand | null {
+export function commandFromNpmWrapper(path: string, pathValue = process.env.PATH ?? "", excludedRoots: string[] = []): HostCommand | null {
   if (!path.toLowerCase().endsWith(".cmd")) return null;
   try {
     const source = readFileSync(path, "utf8");
@@ -78,7 +78,13 @@ export function commandFromNpmWrapper(path: string): HostCommand | null {
     const script = source.match(/"(%~?dp0%?\\[^"\r\n]+\.js)"/i)?.[1];
     if (script) {
       const resolved = join(dirname(path), script.replace(/^%~?dp0%?\\/i, ""));
-      if (existsSync(resolved)) return { command: process.execPath, prefix: [resolved] };
+      const localNode = join(dirname(path), "node.exe");
+      const node = existsSync(localNode)
+        ? localNode
+        : safeHostPathDirectories(pathValue, excludedRoots)
+          .map((directory) => join(directory, "node.exe"))
+          .find((candidate) => existsSync(candidate));
+      if (existsSync(resolved) && node) return { command: node, prefix: [resolved] };
     }
     return null;
   } catch {
@@ -92,7 +98,7 @@ function resolveHostCommand(host: ReviewHost, excludedRoots: string[] = []): Hos
       if (!existsSync(candidate)) continue;
       if (candidate.toLowerCase().endsWith(".exe")) return { command: candidate, prefix: [] };
       if (candidate.toLowerCase().endsWith(".cmd")) {
-        const command = commandFromNpmWrapper(candidate);
+        const command = commandFromNpmWrapper(candidate, process.env.PATH ?? "", excludedRoots);
         if (command) return command;
       }
     }

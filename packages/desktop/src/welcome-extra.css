@@ -1,0 +1,3 @@
+.brand-mark { position: relative; background: transparent; }
+.brand-mark::before,.brand-mark::after,.brand-mark span { display: none; }
+.brand-mark img { width: 34px; height: 34px; display: block; }

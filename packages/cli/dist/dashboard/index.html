@@ -9,16 +9,21 @@
     <link rel="stylesheet" href="./history.css" />
     <link rel="stylesheet" href="./responsive.css" />
     <link rel="stylesheet" href="./report.css" />
+    <link rel="stylesheet" href="./desktop.css" />
     <script src="./app.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main" data-i18n="skip">跳到主要内容</a>
     <header class="topbar">
       <a class="brand" href="/" aria-label="Auto Code Review">
-        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span class="brand-mark" aria-hidden="true"><img src="./logo.svg" alt="" /></span>
         <span>Auto Code Review</span>
       </a>
       <div class="top-actions">
+        <div class="desktop-actions" data-desktop-actions hidden>
+          <button type="button" data-desktop-project>切换仓库</button>
+          <button type="button" data-desktop-logs>日志</button>
+        </div>
         <span class="local-badge"><span></span><span data-i18n="localOnly">仅在本机运行</span></span>
         <div class="language-switch" role="group" aria-label="语言">
           <button type="button" data-language="zh" aria-pressed="true">中文</button>
@@ -110,7 +115,7 @@
 
       <section class="changes-panel" aria-labelledby="changed-files">
         <div class="changes-heading"><div class="section-label"><span class="step-number">05</span><h2 id="changed-files" data-i18n="files">变更文件</h2></div><span data-change-summary></span></div>
-        <div class="file-list" data-files><p data-i18n="loading">正在读取 Git 变更…</p></div>
+        <div class="file-list" data-files><p data-i18n="filesLoading">正在读取 Git 变更…</p></div>
       </section>
     </main>
     <div class="toast" role="status" aria-live="polite" data-toast></div>
