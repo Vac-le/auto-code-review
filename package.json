@@ -4,6 +4,10 @@
   "private": true,
   "description": "One review standard for every coding agent.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vac-le/auto-code-review.git"
+  },
   "type": "module",
   "workspaces": [
     "packages/*"

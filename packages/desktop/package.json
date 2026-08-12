@@ -30,6 +30,7 @@
     "productName": "Auto Code Review",
     "artifactName": "Auto-Code-Review-${version}-${arch}.${ext}",
     "asar": true,
+    "publish": null,
     "directories": {
       "output": "release"
     },
