@@ -4,14 +4,14 @@
     "name": "Auto Code Review Contributors"
   },
   "description": "Self-hosted Claude Code plugins for high-signal AI code review.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "plugins": [
     {
       "name": "auto-code-review",
       "displayName": "Auto Code Review",
       "source": "./",
       "description": "Review Git changes with an isolated, read-only AI reviewer that reports only evidence-backed findings.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "Auto Code Review Contributors"
       },
