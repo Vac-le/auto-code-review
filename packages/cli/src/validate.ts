@@ -153,7 +153,7 @@ function validateSnapshot(input: unknown, issues: ValidationIssue[]): ReviewSnap
   if (
     !isRecord(input.repository)
     || input.repository.root !== "."
-    || !["working", "staged", "base"].includes(String(input.repository.mode))
+    || !["working", "staged", "base", "commit", "branch", "pull-request"].includes(String(input.repository.mode))
   ) {
     snapshotError(issues, "$snapshot.repository", "Snapshot repository metadata is missing or invalid.");
     valid = false;
@@ -394,13 +394,9 @@ export function validateReport(input: unknown, snapshotInput?: unknown, options:
         }
       }
       if (scopeKindValid && snapshot) {
-        const expectedMode = input.scope.kind === "staged"
-          ? "staged"
-          : input.scope.kind === "working-tree" || input.scope.kind === "path"
-            ? "working"
-            : input.scope.kind === "base" || input.scope.kind === "commit" || input.scope.kind === "branch"
-              ? "base"
-              : null;
+        const expectedMode = input.scope.kind === "staged" ? "staged"
+          : input.scope.kind === "working-tree" || input.scope.kind === "path" ? "working"
+            : input.scope.kind;
         if (expectedMode && snapshot.repository.mode !== expectedMode) {
           allIssues.push({ level: "error", code: "SCOPE_MISMATCH", path: "$.scope.kind", message: `Report scope '${input.scope.kind}' does not match snapshot mode '${snapshot.repository.mode}'.` });
         }

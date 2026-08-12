@@ -54,7 +54,11 @@ npm run ui -- --repo C:\path\to\your-project --host claude --port 4390
 
 ### 历史审查记录
 
-本地界面会为每个仓库保留最近 50 条审查记录，完成、失败和取消的报告在重启服务后仍可查看。记录存放在仓库外：Windows 为 `%LOCALAPPDATA%\auto-code-review\history`，macOS 为 `~/Library/Application Support/auto-code-review/history`，Linux 为 `$XDG_STATE_HOME/auto-code-review/history`。记录仅包含经过验证的报告、状态、审查范围和变更文件摘要；不会保存源码快照、原始补丁、仓库绝对路径或会话令牌。可在“历史审查”中重新打开报告、删除单条记录或清空本地历史。
+本地界面会为每个仓库保留最近 1,000 条审查记录，用于支持年度 Review 活跃度展示；完成、失败和取消的报告在重启服务后仍可查看。记录存放在仓库外：Windows 为 `%LOCALAPPDATA%\auto-code-review\history`，macOS 为 `~/Library/Application Support/auto-code-review/history`，Linux 为 `$XDG_STATE_HOME/auto-code-review/history`。记录仅包含经过验证的报告、问题处置状态、审查状态、范围和变更文件摘要；不会保存源码快照、原始补丁、仓库绝对路径或会话令牌。可在“历史审查”中重新打开报告、删除单条记录或清空本地历史。
+
+### 项目配置
+
+可在仓库根目录添加 `.auto-code-review.json`，设置 `defaultHost`、`defaultScope`、`baseRevision`、`minimumConfidence`、`maxFindings`、`ignorePaths` 和审查 `instructions`。配置采用严格校验，项目指令不能覆盖只读、安全与证据规则。完整示例见项目 README。
 
 ## 4. 在 Codex 中使用
 

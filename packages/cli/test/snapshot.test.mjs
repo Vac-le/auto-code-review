@@ -133,6 +133,47 @@ test("base snapshot uses committed HEAD content rather than dirty worktree conte
   assert.match(snapshot.repository.base ?? "", /^[a-f0-9]{40,64}$/);
 });
 
+test("commit snapshot reviews the requested commit instead of the current worktree", () => {
+  const root = seedRepository();
+  write(root, "src/app.ts", "export const state = 'first-commit';\n");
+  commitAll(root, "first feature change");
+  const reviewed = git(root, ["rev-parse", "HEAD"]).trim();
+  write(root, "src/app.ts", "export const state = 'later-commit';\n");
+  commitAll(root, "later change");
+  write(root, "src/app.ts", "export const state = 'dirty-worktree';\n");
+
+  const snapshot = createSnapshot({ cwd: root, mode: "commit", head: reviewed });
+  assert.equal(snapshot.repository.mode, "commit");
+  assert.equal(snapshot.repository.head, reviewed);
+  assert.match(snapshot.files[0].patch, /first-commit/);
+  assert.doesNotMatch(snapshot.files[0].patch, /later-commit|dirty-worktree/);
+});
+
+test("pull-request snapshot compares explicit revisions independent of checkout", () => {
+  const root = seedRepository();
+  const base = git(root, ["rev-parse", "HEAD"]).trim();
+  git(root, ["checkout", "-b", "feature/pr-review"]);
+  write(root, "src/pr.ts", "export const reviewed = true;\n");
+  commitAll(root, "pull request change");
+  const head = git(root, ["rev-parse", "HEAD"]).trim();
+  git(root, ["checkout", "main"]);
+
+  const snapshot = createSnapshot({ cwd: root, mode: "pull-request", base, head });
+  assert.equal(snapshot.repository.mode, "pull-request");
+  assert.equal(snapshot.repository.head, head);
+  assert.deepEqual(snapshot.files.map((file) => file.path), ["src/pr.ts"]);
+  assert.match(snapshot.files[0].patch, /reviewed = true/);
+});
+
+test("configured ignore paths are excluded before snapshot processing", () => {
+  const root = seedRepository();
+  write(root, "generated/ignored.ts", "export const generated = true;\n");
+  write(root, "src/reviewed.ts", "export const reviewed = true;\n");
+  const snapshot = createSnapshot({ cwd: root, ignorePaths: ["generated"] });
+  assert.deepEqual(snapshot.files.map((file) => file.path), ["src/reviewed.ts"]);
+  assert.equal(snapshot.omitted.some((file) => file.path === "generated/ignored.ts"), false);
+});
+
 test("deleted lines are reviewable only on the old side", () => {
   const root = seedRepository();
   unlinkSync(`${root}/src/delete-me.ts`);

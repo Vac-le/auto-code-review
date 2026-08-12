@@ -54,7 +54,11 @@ The dashboard listens only on `127.0.0.1` and creates a fresh random session tok
 
 ### Review history
 
-The dashboard saves up to 50 recent reviews for each repository, so completed, failed, and cancelled reports remain available after restarting the local service. The records are stored outside the repository at `%LOCALAPPDATA%\auto-code-review\history` on Windows, `~/Library/Application Support/auto-code-review/history` on macOS, or `$XDG_STATE_HOME/auto-code-review/history` on Linux. They contain the validated report, status, scope, and changed-file summary only: no source snapshot, original patch, repository absolute path, or session token is stored. Open a record from **Review history**, delete one record, or clear the local history at any time.
+The dashboard saves up to 1,000 recent reviews for each repository, so completed, failed, and cancelled reports remain available after restarting the local service and can power the annual activity view. The records are stored outside the repository at `%LOCALAPPDATA%\auto-code-review\history` on Windows, `~/Library/Application Support/auto-code-review/history` on macOS, or `$XDG_STATE_HOME/auto-code-review/history` on Linux. They contain the validated report, finding triage state, status, scope, and changed-file summary only: no source snapshot, original patch, repository absolute path, or session token is stored. Open a record from **Review history**, delete one record, or clear the local history at any time.
+
+### Project configuration
+
+Add an optional `.auto-code-review.json` at the repository root to define `defaultHost`, `defaultScope`, `baseRevision`, `minimumConfidence`, `maxFindings`, `ignorePaths`, and review `instructions`. Configuration is parsed strictly and instructions cannot override safety or evidence rules. See the repository README for a complete example.
 
 ## 4. Use with Codex
 

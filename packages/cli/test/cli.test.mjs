@@ -89,7 +89,7 @@ test("workspace bin and npm exec invoke the CLI through package links", () => {
   const bin = join(workspaceRoot, "node_modules", ".bin", process.platform === "win32" ? "auto-code-review.cmd" : "auto-code-review");
   const linked = runCommand(bin, ["--version"]);
   assert.equal(linked.status, 0, linked.stderr);
-  assert.equal(linked.stdout.trim(), "0.1.0");
+  assert.equal(linked.stdout.trim(), "0.2.0");
 
   assert.ok(process.env.npm_execpath, "npm_execpath must be available under npm test");
   const executed = spawnSync(process.execPath, [process.env.npm_execpath, "exec", "--", "auto-code-review", "--version"], {
@@ -99,7 +99,7 @@ test("workspace bin and npm exec invoke the CLI through package links", () => {
     timeout: 20_000,
   });
   assert.equal(executed.status, 0, executed.stderr);
-  assert.equal(executed.stdout.trim(), "0.1.0");
+  assert.equal(executed.stdout.trim(), "0.2.0");
 });
 
 test("snapshot, validate, and format form a complete CLI workflow", () => {

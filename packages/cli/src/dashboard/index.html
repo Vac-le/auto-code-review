@@ -23,6 +23,7 @@
         <div class="desktop-actions" data-desktop-actions hidden>
           <button type="button" data-desktop-folder>打开目录</button>
           <button type="button" data-desktop-project>切换仓库</button>
+          <button type="button" data-diagnostics>诊断</button>
           <button type="button" data-desktop-logs>日志</button>
         </div>
         <span class="local-badge"><span></span><span data-i18n="localOnly">仅在本机运行</span></span>
@@ -108,8 +109,14 @@
               <button type="button" class="choice" data-scope="working" aria-pressed="true" data-i18n="working">未提交变更</button>
               <button type="button" class="choice" data-scope="staged" aria-pressed="false" data-i18n="staged">暂存区</button>
               <button type="button" class="choice" data-scope="base" aria-pressed="false" data-i18n="base">与基础分支对比</button>
+              <button type="button" class="choice" data-scope="commit" aria-pressed="false" data-i18n="commitScope">指定 Commit</button>
+              <button type="button" class="choice" data-scope="branch" aria-pressed="false" data-i18n="branchScope">分支对比</button>
+              <button type="button" class="choice" data-scope="pull-request" aria-pressed="false" data-i18n="prScope">Pull Request</button>
             </div>
-            <label class="base-field" data-base-field hidden><span data-i18n="baseRevision">基础分支</span><input type="text" value="main" maxlength="1024" data-base-input /></label>
+            <div class="revision-fields" data-revision-fields hidden>
+              <label class="base-field" data-base-field><span data-i18n="baseRevision">基础分支</span><input type="text" value="main" maxlength="1024" data-base-input /></label>
+              <label class="base-field" data-head-field hidden><span data-i18n="headRevision">目标 Commit</span><input type="text" value="HEAD" maxlength="1024" data-head-input /></label>
+            </div>
           </fieldset>
         </div>
         <div class="run-row">
@@ -170,6 +177,14 @@
         </header>
         <pre data-log-content tabindex="0"></pre>
         <footer><span data-i18n="logsLocalOnly">日志仅保存在本机</span><button type="button" data-log-refresh data-i18n="logsRefresh">刷新日志</button></footer>
+      </section>
+    </div>
+    <div class="diagnostics-viewer" data-diagnostics-viewer hidden>
+      <button class="log-viewer-backdrop" type="button" data-diagnostics-close aria-label="关闭诊断"></button>
+      <section class="diagnostics-panel" role="dialog" aria-modal="true" aria-labelledby="diagnostics-title">
+        <header><div><span class="diagnostics-mark" aria-hidden="true">✓</span><div><h2 id="diagnostics-title" data-i18n="diagnosticsTitle">环境诊断</h2><p data-i18n="diagnosticsDescription">检查 Git、审查平台、项目配置和本地存储</p></div></div><button class="log-viewer-close" type="button" data-diagnostics-close aria-label="关闭" title="关闭">×</button></header>
+        <div class="diagnostics-content" data-diagnostics-content></div>
+        <footer><span data-i18n="diagnosticsLocalOnly">诊断仅执行本机只读检查</span><div><button type="button" data-update-check hidden data-i18n="checkUpdates">检查更新</button><button type="button" data-diagnostics-refresh data-i18n="refresh">刷新</button></div></footer>
       </section>
     </div>
     <div class="toast" role="status" aria-live="polite" data-toast></div>

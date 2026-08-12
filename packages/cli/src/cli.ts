@@ -3,15 +3,17 @@ import { readFileSync, readSync, realpathSync, statSync, writeFileSync } from "n
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import { runDoctor } from "./doctor.ts";
+import { loadProjectConfig } from "./config.ts";
 import { CliError, errorMessage } from "./errors.ts";
 import { formatMarkdown } from "./format.ts";
 import type { ReviewHost } from "./host-review.ts";
 import { createSnapshot } from "./snapshot.ts";
+import { findRepositoryRoot } from "./git.ts";
 import type { ReviewReport, SnapshotMode } from "./types.ts";
 import { startDashboard } from "./ui.ts";
 import { validateReport } from "./validate.ts";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 const MAX_JSON_INPUT = 16 * 1024 * 1024;
 
 const HELP = `Auto Code Review deterministic local CLI
@@ -27,6 +29,10 @@ Snapshot options:
   --repo <path>                Repository directory (default: current directory)
   --staged                     Review only staged changes
   --base <revision>            Review HEAD since its merge base with revision
+  --commit <revision>          Review one commit against its first parent
+  --branch <revision>          Review the current branch against a base branch
+  --pr-base <revision>         Pull-request base revision (requires --pr-head)
+  --pr-head <revision>         Pull-request head revision (requires --pr-base)
   --context <lines>            Context radius around changes (default: 8)
   --max-context-lines <count>  Maximum context lines per file (default: 400)
   --max-files <count>          Maximum included files (default: 80)
@@ -178,7 +184,7 @@ function requireNoPositionals(options: ParsedOptions): void {
 function snapshotCommand(args: string[]): number {
   const options = parseOptions(
     args,
-    new Set(["--repo", "--base", "--context", "--max-context-lines", "--max-files", "--max-file-bytes", "--max-patch-bytes", "--max-total-bytes", "--output"]),
+    new Set(["--repo", "--base", "--commit", "--branch", "--pr-base", "--pr-head", "--context", "--max-context-lines", "--max-files", "--max-file-bytes", "--max-patch-bytes", "--max-total-bytes", "--output"]),
     new Set(["--staged", "--pretty", "--help"]),
   );
   if (options.flags.has("--help")) {
@@ -186,20 +192,24 @@ function snapshotCommand(args: string[]): number {
     return 0;
   }
   requireNoPositionals(options);
-  if (options.flags.has("--staged") && options.values.has("--base")) {
-    throw new CliError("--staged and --base are mutually exclusive.", { code: "CONFLICTING_OPTIONS" });
-  }
-  const mode: SnapshotMode = options.flags.has("--staged") ? "staged" : options.values.has("--base") ? "base" : "working";
+  const selectedScopes = [options.flags.has("--staged"), options.values.has("--base"), options.values.has("--commit"), options.values.has("--branch"), options.values.has("--pr-base") || options.values.has("--pr-head")].filter(Boolean).length;
+  if (selectedScopes > 1) throw new CliError("Snapshot scope options are mutually exclusive.", { code: "CONFLICTING_OPTIONS" });
+  if (options.values.has("--pr-base") !== options.values.has("--pr-head")) throw new CliError("--pr-base and --pr-head must be provided together.", { code: "CONFLICTING_OPTIONS" });
+  const mode: SnapshotMode = options.flags.has("--staged") ? "staged" : options.values.has("--base") ? "base" : options.values.has("--commit") ? "commit" : options.values.has("--branch") ? "branch" : options.values.has("--pr-base") ? "pull-request" : "working";
+  const cwd = resolve(options.values.get("--repo") ?? process.cwd());
+  const config = loadProjectConfig(findRepositoryRoot(cwd)).config;
   const snapshot = createSnapshot({
-    cwd: resolve(options.values.get("--repo") ?? process.cwd()),
+    cwd,
     mode,
-    base: options.values.get("--base"),
+    base: options.values.get("--base") ?? options.values.get("--branch") ?? options.values.get("--pr-base"),
+    head: options.values.get("--commit") ?? options.values.get("--pr-head"),
     contextLines: integerOption(options, "--context"),
     maxContextLines: integerOption(options, "--max-context-lines"),
     maxFiles: integerOption(options, "--max-files"),
     maxFileBytes: integerOption(options, "--max-file-bytes"),
     maxPatchBytes: integerOption(options, "--max-patch-bytes"),
     maxTotalBytes: integerOption(options, "--max-total-bytes"),
+    ignorePaths: config.ignorePaths,
   });
   output(json(snapshot, options.flags.has("--pretty")), options.values.get("--output"));
   return 0;

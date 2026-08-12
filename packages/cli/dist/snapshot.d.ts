@@ -3,6 +3,8 @@ export interface SnapshotOptions {
     cwd: string;
     mode?: SnapshotMode;
     base?: string;
+    head?: string;
+    ignorePaths?: string[];
     contextLines?: number;
     maxContextLines?: number;
     maxFiles?: number;

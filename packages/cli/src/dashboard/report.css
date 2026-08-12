@@ -103,6 +103,10 @@
   font: 500 1.8rem/1 Georgia, serif;
 }
 
+.report-overview-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; }
+.report-rerun { padding: 7px 10px; color: #4037a2; background: #fff; border: 1px solid #d9d5f5; border-radius: 8px; cursor: pointer; font-size: .68rem; font-weight: 700; }
+.report-rerun:hover { background: #f3f1ff; }
+
 .finding-card {
   padding: 0;
   overflow: hidden;
@@ -140,6 +144,12 @@
 }
 
 .finding-heading { min-width: 0; }
+.finding-actions { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.finding-actions button { padding: 5px 8px; color: #575951; background: #f6f7f4; border: 1px solid #dfe2db; border-radius: 7px; cursor: pointer; font-size: .61rem; font-weight: 650; }
+.finding-actions button:hover { color: #4037a2; background: #f0eeff; border-color: #d7d2ff; }
+.finding-card[data-finding-state="resolved"] { opacity: .68; border-left-color: var(--green); }
+.finding-card[data-finding-state="false-positive"] { opacity: .58; border-left-color: #92958e; }
+.finding-card[data-finding-state="resolved"] .finding-heading h3 { text-decoration: line-through; }
 
 .finding-heading h3 {
   margin: 0;
@@ -197,6 +207,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.finding-open-source { margin-left: auto; padding: 5px 8px; color: #4037a2; background: #fff; border: 1px solid #ddd8fa; border-radius: 7px; cursor: pointer; font-size: .62rem; font-weight: 700; }
+.finding-open-source:hover { background: #f0eeff; }
 
 .finding-grid {
   padding: 14px 18px 18px;
@@ -260,6 +273,7 @@
   }
 
   .report-count { font-size: 1.5rem; }
+  .report-overview-actions { width: 100%; justify-content: space-between; }
   .finding-header { padding: 14px; }
   .finding-heading h3 { font-size: .91rem; }
   .finding-location { padding-inline: 14px; }

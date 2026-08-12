@@ -8,7 +8,9 @@ The local CLI runs read-only Git commands and reads bounded repository context. 
 
 ## Local review history
 
-The local dashboard can retain up to 50 terminal review records for each repository. These records live in the user's application-state directory, never in the repository, and contain the validated report, status, review scope, and changed-file summary. They exclude source snapshots, original patches, repository absolute paths, and dashboard session tokens. A user can delete individual records or clear all local history from the dashboard.
+The local dashboard can retain up to 1,000 terminal review records for each repository so the annual activity view remains useful. These records live in the user's application-state directory, never in the repository, and contain the validated report, finding triage state, status, review scope, and changed-file summary. They exclude source snapshots, original patches, repository absolute paths, and dashboard session tokens. A user can delete individual records or clear all local history from the dashboard.
+
+The desktop application does not check for updates automatically. When the user selects **Check for updates**, it makes a bounded request to the public GitHub Releases API and sends only the application version in the user-agent string.
 
 ## Excluded inputs
 

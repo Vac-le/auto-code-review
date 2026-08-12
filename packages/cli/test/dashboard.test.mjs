@@ -95,7 +95,9 @@ test("local dashboard requires its session token and never exposes patch bodies"
     assert.match(dashboardScript, /reviewLoading:'Reviewing the current code change…'/);
     assert.match(dashboardScript, /api\/activity/);
     assert.match(dashboardScript, /desktopApi\.getLogs\(\)/);
-    assert.match(dashboardScript, /node\.inert=true/);
+    assert.match(dashboardScript, /function setMainInert\(value\)/);
+    assert.match(dashboardScript, /setMainInert\(true\)/);
+    assert.match(dashboardScript, /selectedScope==='working'&&!workingHasChanges/);
     assert.doesNotMatch(dashboardScript, /loading:'(?:Reading Git changes|Reviewing the current code change)/);
 
     const unauthorized = await fetch(`${dashboard.baseUrl}/api/status`);
@@ -109,6 +111,15 @@ test("local dashboard requires its session token and never exposes patch bodies"
     assert.equal(body.hosts[0].available, true);
     assert.equal(body.snapshot.files, 1);
     assert.equal(Object.hasOwn(body.snapshot.filesList[0], "patch"), false);
+
+    const diagnostics = await fetch(`${dashboard.baseUrl}/api/diagnostics`, {
+      headers: { "x-auto-code-review-token": dashboard.token },
+    });
+    const diagnosticsBody = await diagnostics.json();
+    assert.equal(diagnostics.status, 200);
+    assert.equal(typeof diagnosticsBody.doctor.ok, "boolean");
+    assert.equal(diagnosticsBody.config.path, ".auto-code-review.json");
+    assert.equal(diagnosticsBody.history.path, dashboard.historyPath);
   } finally {
     dashboard.server.close();
     await once(dashboard.server, "close");
@@ -161,6 +172,16 @@ test("local dashboard runs a review and returns only a validated report", async 
     assert.equal(detail.status, 200);
     assert.equal(detailBody.report.findings[0].id, "ACR-DASHBOARD-1");
     assert.equal(Object.hasOwn(detailBody.snapshot.filesList[0], "patch"), false);
+
+    const triaged = await fetch(`${dashboard.baseUrl}/api/history/${id}/findings/ACR-DASHBOARD-1`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ state: "resolved" }),
+    });
+    const triagedBody = await triaged.json();
+    assert.equal(triaged.status, 200);
+    assert.equal(triagedBody.findingStates["ACR-DASHBOARD-1"], "resolved");
+    assert.equal(triagedBody.updatedAt, detailBody.updatedAt);
 
     const persisted = readFileSync(dashboard.historyPath, "utf8");
     assert.doesNotMatch(persisted, /@@|return user|export const enabled/);

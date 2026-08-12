@@ -19,6 +19,8 @@ export declare function runHostReview(input: {
     repositoryRoot: string;
     snapshot: ReviewSnapshot;
     schemaPath: string;
+    projectInstructions?: string;
+    maxFindings?: number;
     signal?: AbortSignal;
 }): Promise<ReviewReport>;
 //# sourceMappingURL=host-review.d.ts.map

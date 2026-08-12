@@ -23,10 +23,11 @@ export interface HistoryRecord {
   host: "codex" | "claude";
   createdAt: string;
   updatedAt: string;
-  scope: { mode: SnapshotMode; base: string | null; branch: string | null };
+  scope: { mode: SnapshotMode; base: string | null; head: string | null; branch: string | null };
   snapshot?: HistorySnapshot;
   report?: ReviewReport;
   error?: string;
+  findingStates?: Record<string, "open" | "resolved" | "false-positive">;
 }
 
 export interface HistorySummary {
@@ -48,6 +49,7 @@ export interface ReviewHistoryStore {
   save(record: HistoryRecord): void;
   delete(id: string): boolean;
   clear(): void;
+  setFindingState(id: string, findingId: string, state: "open" | "resolved" | "false-positive"): HistoryRecord | null;
 }
 
 const MAX_HISTORY_RECORDS = 1_000;
@@ -111,27 +113,36 @@ function parseRecord(value: unknown): HistoryRecord | null {
   if (!createdAt || !updatedAt || !Number.isFinite(Date.parse(createdAt)) || !Number.isFinite(Date.parse(updatedAt))) return null;
   if (!raw.scope || typeof raw.scope !== "object" || Array.isArray(raw.scope)) return null;
   const scope = raw.scope as Record<string, unknown>;
-  if (scope.mode !== "working" && scope.mode !== "staged" && scope.mode !== "base") return null;
+  if (!["working", "staged", "base", "commit", "branch", "pull-request"].includes(scope.mode as string)) return null;
   const base = scope.base === null ? null : safeString(scope.base, 1_024);
   if (scope.base !== null && !base) return null;
   const branch = scope.branch === undefined || scope.branch === null ? null : safeString(scope.branch, 1_024);
   if (scope.branch !== undefined && scope.branch !== null && !branch) return null;
+  const head = scope.head === undefined || scope.head === null ? null : safeString(scope.head, 1_024);
+  if (scope.head !== undefined && scope.head !== null && !head) return null;
 
   const snapshot = parseSnapshot(raw.snapshot);
   const reportValidation = raw.report === undefined ? null : validateReport(raw.report);
   const report = reportValidation?.valid ? raw.report as ReviewReport : undefined;
   if (raw.state === "complete" && !report) return null;
   const error = raw.error === undefined ? undefined : safeString(raw.error, 2_000) ?? undefined;
+  const findingStates: Record<string, "open" | "resolved" | "false-positive"> = {};
+  if (raw.findingStates && typeof raw.findingStates === "object" && !Array.isArray(raw.findingStates)) {
+    for (const [id, state] of Object.entries(raw.findingStates as Record<string, unknown>)) {
+      if (/^ACR-[A-Za-z0-9._-]+$/.test(id) && (state === "open" || state === "resolved" || state === "false-positive")) findingStates[id] = state;
+    }
+  }
   return {
     id: raw.id,
     state: raw.state,
     host: raw.host,
     createdAt,
     updatedAt,
-    scope: { mode: scope.mode, base, branch },
+    scope: { mode: scope.mode as SnapshotMode, base, head, branch },
     ...(snapshot ? { snapshot } : {}),
     ...(report ? { report } : {}),
     ...(error ? { error } : {}),
+    ...(Object.keys(findingStates).length ? { findingStates } : {}),
   };
 }
 
@@ -157,10 +168,30 @@ function writeRecords(path: string, records: HistoryRecord[]): void {
   }
 }
 
+export function fitWithinHistoryLimit(records: HistoryRecord[]): HistoryRecord[] {
+  const bounded = records.slice(0, MAX_HISTORY_RECORDS);
+  if (Buffer.byteLength(JSON.stringify({ schemaVersion: 1, records: bounded }), "utf8") <= MAX_HISTORY_BYTES) return bounded;
+  let low = 1;
+  let high = bounded.length - 1;
+  let accepted = 1;
+  while (low <= high) {
+    const middle = Math.floor((low + high) / 2);
+    const size = Buffer.byteLength(JSON.stringify({ schemaVersion: 1, records: bounded.slice(0, middle) }), "utf8");
+    if (size <= MAX_HISTORY_BYTES) {
+      accepted = middle;
+      low = middle + 1;
+    } else high = middle - 1;
+  }
+  return bounded.slice(0, accepted);
+}
+
 export function createReviewHistoryStore(repositoryRoot: string, directory = defaultHistoryDirectory()): ReviewHistoryStore {
   const path = join(directory, `${repositoryKey(repositoryRoot)}.json`);
   let records = readRecords(path);
-  const persist = () => writeRecords(path, records);
+  const persist = () => {
+    records = fitWithinHistoryLimit(records);
+    writeRecords(path, records);
+  };
   return {
     path,
     list: () => records.map((record) => ({
@@ -193,6 +224,18 @@ export function createReviewHistoryStore(repositoryRoot: string, directory = def
     clear: () => {
       records = [];
       persist();
+    },
+    setFindingState: (id, findingId, state) => {
+      const index = records.findIndex((record) => record.id === id);
+      if (index < 0 || !records[index].report?.findings.some((finding) => finding.id === findingId)) return null;
+      const record = records[index];
+      // Finding triage is metadata on an existing review. Keep the review's
+      // completion timestamp stable so activity charts and ordering remain true.
+      const updated = parseRecord({ ...record, findingStates: { ...(record.findingStates ?? {}), [findingId]: state } });
+      if (!updated) return null;
+      records[index] = updated;
+      persist();
+      return updated;
     },
   };
 }

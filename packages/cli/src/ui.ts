@@ -5,10 +5,12 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { basename, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { CliError, errorMessage } from "./errors.ts";
+import { loadProjectConfig } from "./config.ts";
 import { findRepositoryRoot, gitText, runGit } from "./git.ts";
 import { createReviewHistoryStore, type HistoryRecord, type TerminalReviewState } from "./history.ts";
 import { detectReviewHosts, runHostReview, safeHostPathDirectories, type ReviewHost } from "./host-review.ts";
 import { createSnapshot } from "./snapshot.ts";
+import { runDoctor } from "./doctor.ts";
 import type { ReviewReport, ReviewSnapshot, SnapshotMode, ValidationResult } from "./types.ts";
 import { validateReport } from "./validate.ts";
 
@@ -87,25 +89,36 @@ async function readJson(request: IncomingMessage): Promise<Record<string, unknow
   }
 }
 
-function parseReviewRequest(body: Record<string, unknown>, preferred?: ReviewHost): { host: ReviewHost; mode: SnapshotMode; base?: string } {
+function parseReviewRequest(body: Record<string, unknown>, preferred?: ReviewHost): { host: ReviewHost; mode: SnapshotMode; base?: string; head?: string } {
   const host = body.host ?? preferred;
   if (host !== "codex" && host !== "claude") throw new CliError("Select Codex or Claude Code.", { code: "INVALID_HOST" });
   const scope = body.scope ?? "working";
-  if (scope !== "working" && scope !== "staged" && scope !== "base") throw new CliError("Unknown review scope.", { code: "INVALID_SCOPE" });
+  if (!["working", "staged", "base", "commit", "branch", "pull-request"].includes(scope as string)) throw new CliError("Unknown review scope.", { code: "INVALID_SCOPE" });
   const base = body.base;
-  if (scope === "base" && (typeof base !== "string" || base.length < 1 || base.length > 1024)) {
+  const head = body.head;
+  if (["base", "branch", "pull-request"].includes(scope as string) && (typeof base !== "string" || base.length < 1 || base.length > 1024)) {
     throw new CliError("Base review requires a valid revision.", { code: "INVALID_BASE" });
   }
-  return { host, mode: scope, ...(scope === "base" ? { base: base as string } : {}) };
+  if (["commit", "pull-request"].includes(scope as string) && (typeof head !== "string" || head.length < 1 || head.length > 1024)) throw new CliError("This review scope requires a valid head revision.", { code: "INVALID_HEAD" });
+  return { host, mode: scope as SnapshotMode, ...(["base", "branch", "pull-request"].includes(scope as string) ? { base: base as string } : {}), ...(["commit", "pull-request"].includes(scope as string) ? { head: head as string } : {}) };
 }
 
-function publicJob(job: ReviewJob): Omit<ReviewJob, "controller" | "snapshot"> & { snapshot?: ReviewSnapshot["summary"] & { filesList: Array<{ path: string; status: string; additions: number; deletions: number }> } } {
+function publicJob(job: ReviewJob): Omit<ReviewJob, "controller" | "snapshot"> & {
+  scope?: { mode: SnapshotMode; base: string | null; head: string | null; branch: string | null };
+  snapshot?: ReviewSnapshot["summary"] & { filesList: Array<{ path: string; status: string; additions: number; deletions: number }> };
+} {
   return {
     id: job.id,
     state: job.state,
     host: job.host,
     createdAt: job.createdAt,
     updatedAt: job.updatedAt,
+    ...(job.snapshot ? { scope: {
+      mode: job.snapshot.repository.mode,
+      base: job.snapshot.repository.base,
+      head: job.snapshot.repository.head,
+      branch: job.snapshot.repository.branch,
+    } } : {}),
     ...(job.snapshot ? { snapshot: {
       ...job.snapshot.summary,
       filesList: job.snapshot.files.map(({ path, status, additions, deletions }) => ({ path, status, additions, deletions })),
@@ -127,7 +140,7 @@ function historyRecord(job: ReviewJob): HistoryRecord {
     host: job.host,
     createdAt: job.createdAt,
     updatedAt: job.updatedAt,
-    scope: { mode: job.snapshot.repository.mode, base: job.snapshot.repository.base, branch: job.snapshot.repository.branch },
+    scope: { mode: job.snapshot.repository.mode, base: job.snapshot.repository.base, head: job.snapshot.repository.head, branch: job.snapshot.repository.branch },
     ...(visible.snapshot ? { snapshot: visible.snapshot } : {}),
     ...(job.report ? { report: job.report } : {}),
     ...(visible.error ? { error: visible.error } : {}),
@@ -155,6 +168,7 @@ export function launchBrowser(url: string, runtimePlatform = process.platform, s
 
 export function createDashboardServer(options: DashboardOptions, dependencies: DashboardDependencies = {}) {
   const repositoryRoot = findRepositoryRoot(resolve(options.cwd));
+  const projectConfig = loadProjectConfig(repositoryRoot);
   const token = randomBytes(24).toString("hex");
   const jobs = new Map<string, ReviewJob>();
   let activeJob: ReviewJob | null = null;
@@ -209,13 +223,21 @@ export function createDashboardServer(options: DashboardOptions, dependencies: D
     try {
       if (request.method === "GET" && url.pathname === "/api/status") {
         const hosts = detectHosts([repositoryRoot]);
-        const snapshot = createSnapshot({ cwd: repositoryRoot, mode: "working" });
+        const snapshot = createSnapshot({ cwd: repositoryRoot, mode: "working", ignorePaths: projectConfig.config.ignorePaths });
         return send(response, 200, {
           repository: { name: basename(repositoryRoot), path: repositoryRoot, branch: snapshot.repository.branch },
           hosts,
-          preferredHost: options.preferredHost ?? hosts.find((item) => item.available)?.host ?? null,
+          preferredHost: options.preferredHost ?? projectConfig.config.defaultHost ?? hosts.find((item) => item.available)?.host ?? null,
+          config: { ...projectConfig.config, path: ".auto-code-review.json", exists: projectConfig.exists },
           snapshot: { ...snapshot.summary, filesList: snapshot.files.map(({ path, status, additions, deletions }) => ({ path, status, additions, deletions })) },
           activeReview: activeJob ? publicJob(activeJob) : null,
+        });
+      }
+      if (request.method === "GET" && url.pathname === "/api/diagnostics") {
+        return send(response, 200, {
+          doctor: runDoctor(repositoryRoot),
+          config: { ...projectConfig.config, path: ".auto-code-review.json", exists: projectConfig.exists },
+          history: { path: history.path },
         });
       }
       if (request.method === "GET" && url.pathname === "/api/history") {
@@ -263,6 +285,13 @@ export function createDashboardServer(options: DashboardOptions, dependencies: D
       if (request.method === "DELETE" && historyMatch) {
         return history.delete(historyMatch[1]) ? send(response, 200, { ok: true }) : send(response, 404, { error: "Review history record not found." });
       }
+      const findingStateMatch = url.pathname.match(/^\/api\/history\/([0-9a-f-]{8,64})\/findings\/(ACR-[A-Za-z0-9._-]+)$/);
+      if (request.method === "PATCH" && findingStateMatch) {
+        const body = await readJson(request);const state = body.state;
+        if (state !== "open" && state !== "resolved" && state !== "false-positive") throw new CliError("Unknown finding state.", { code: "INVALID_FINDING_STATE" });
+        const record = history.setFindingState(findingStateMatch[1], findingStateMatch[2], state);
+        return record ? send(response, 200, record) : send(response, 404, { error: "Finding not found." });
+      }
       if (request.method === "POST" && url.pathname === "/api/reviews") {
         if (activeJob && !["complete", "failed", "cancelled"].includes(activeJob.state)) {
           return send(response, 409, { error: "A review is already running." });
@@ -279,13 +308,16 @@ export function createDashboardServer(options: DashboardOptions, dependencies: D
           try {
             job.state = "snapshot";
             job.updatedAt = new Date().toISOString();
-            job.snapshot = createSnapshot({ cwd: repositoryRoot, mode: input.mode, base: input.base });
+            job.snapshot = createSnapshot({ cwd: repositoryRoot, mode: input.mode, base: input.base, head: input.head, ignorePaths: projectConfig.config.ignorePaths });
             job.state = "reviewing";
             job.updatedAt = new Date().toISOString();
-            job.report = await review({ host: input.host, repositoryRoot, snapshot: job.snapshot, schemaPath, signal: job.controller.signal });
+            job.report = await review({ host: input.host, repositoryRoot, snapshot: job.snapshot, schemaPath, signal: job.controller.signal, projectInstructions: projectConfig.config.instructions, maxFindings: projectConfig.config.maxFindings });
+            if (projectConfig.config.maxFindings !== undefined && job.report.findings.length > projectConfig.config.maxFindings) {
+              throw new Error(`The model returned ${job.report.findings.length} findings, exceeding the configured maximum of ${projectConfig.config.maxFindings}.`);
+            }
             job.state = "validating";
             job.updatedAt = new Date().toISOString();
-            job.validation = validateReport(job.report, job.snapshot, { strict: true });
+            job.validation = validateReport(job.report, job.snapshot, { strict: true, minimumConfidence: projectConfig.config.minimumConfidence });
             if (!job.validation.valid) {
               const messages = job.validation.errors.slice(0, 3).map((issue) => issue.message).join("; ");
               throw new Error(`The model report failed evidence validation: ${messages}`);

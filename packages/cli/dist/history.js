@@ -68,7 +68,7 @@ function parseRecord(value) {
     if (!raw.scope || typeof raw.scope !== "object" || Array.isArray(raw.scope))
         return null;
     const scope = raw.scope;
-    if (scope.mode !== "working" && scope.mode !== "staged" && scope.mode !== "base")
+    if (!["working", "staged", "base", "commit", "branch", "pull-request"].includes(scope.mode))
         return null;
     const base = scope.base === null ? null : safeString(scope.base, 1_024);
     if (scope.base !== null && !base)
@@ -76,22 +76,33 @@ function parseRecord(value) {
     const branch = scope.branch === undefined || scope.branch === null ? null : safeString(scope.branch, 1_024);
     if (scope.branch !== undefined && scope.branch !== null && !branch)
         return null;
+    const head = scope.head === undefined || scope.head === null ? null : safeString(scope.head, 1_024);
+    if (scope.head !== undefined && scope.head !== null && !head)
+        return null;
     const snapshot = parseSnapshot(raw.snapshot);
     const reportValidation = raw.report === undefined ? null : validateReport(raw.report);
     const report = reportValidation?.valid ? raw.report : undefined;
     if (raw.state === "complete" && !report)
         return null;
     const error = raw.error === undefined ? undefined : safeString(raw.error, 2_000) ?? undefined;
+    const findingStates = {};
+    if (raw.findingStates && typeof raw.findingStates === "object" && !Array.isArray(raw.findingStates)) {
+        for (const [id, state] of Object.entries(raw.findingStates)) {
+            if (/^ACR-[A-Za-z0-9._-]+$/.test(id) && (state === "open" || state === "resolved" || state === "false-positive"))
+                findingStates[id] = state;
+        }
+    }
     return {
         id: raw.id,
         state: raw.state,
         host: raw.host,
         createdAt,
         updatedAt,
-        scope: { mode: scope.mode, base, branch },
+        scope: { mode: scope.mode, base, head, branch },
         ...(snapshot ? { snapshot } : {}),
         ...(report ? { report } : {}),
         ...(error ? { error } : {}),
+        ...(Object.keys(findingStates).length ? { findingStates } : {}),
     };
 }
 function readRecords(path) {
@@ -119,10 +130,32 @@ function writeRecords(path, records) {
             unlinkSync(temporary);
     }
 }
+export function fitWithinHistoryLimit(records) {
+    const bounded = records.slice(0, MAX_HISTORY_RECORDS);
+    if (Buffer.byteLength(JSON.stringify({ schemaVersion: 1, records: bounded }), "utf8") <= MAX_HISTORY_BYTES)
+        return bounded;
+    let low = 1;
+    let high = bounded.length - 1;
+    let accepted = 1;
+    while (low <= high) {
+        const middle = Math.floor((low + high) / 2);
+        const size = Buffer.byteLength(JSON.stringify({ schemaVersion: 1, records: bounded.slice(0, middle) }), "utf8");
+        if (size <= MAX_HISTORY_BYTES) {
+            accepted = middle;
+            low = middle + 1;
+        }
+        else
+            high = middle - 1;
+    }
+    return bounded.slice(0, accepted);
+}
 export function createReviewHistoryStore(repositoryRoot, directory = defaultHistoryDirectory()) {
     const path = join(directory, `${repositoryKey(repositoryRoot)}.json`);
     let records = readRecords(path);
-    const persist = () => writeRecords(path, records);
+    const persist = () => {
+        records = fitWithinHistoryLimit(records);
+        writeRecords(path, records);
+    };
     return {
         path,
         list: () => records.map((record) => ({
@@ -157,6 +190,20 @@ export function createReviewHistoryStore(repositoryRoot, directory = defaultHist
         clear: () => {
             records = [];
             persist();
+        },
+        setFindingState: (id, findingId, state) => {
+            const index = records.findIndex((record) => record.id === id);
+            if (index < 0 || !records[index].report?.findings.some((finding) => finding.id === findingId))
+                return null;
+            const record = records[index];
+            // Finding triage is metadata on an existing review. Keep the review's
+            // completion timestamp stable so activity charts and ordering remain true.
+            const updated = parseRecord({ ...record, findingStates: { ...(record.findingStates ?? {}), [findingId]: state } });
+            if (!updated)
+                return null;
+            records[index] = updated;
+            persist();
+            return updated;
         },
     };
 }

@@ -60,7 +60,7 @@ jobs:
       - run: mkdir artifacts
       - run: npm pack --workspace @auto-code-review/cli --pack-destination artifacts
       - run: npm pack --workspace @auto-code-review/install --pack-destination artifacts
-      - run: npm install --global ./artifacts/auto-code-review-cli-0.1.0.tgz ./artifacts/auto-code-review-install-0.1.0.tgz
+      - run: npm install --global ./artifacts/auto-code-review-cli-*.tgz ./artifacts/auto-code-review-install-*.tgz
       - run: auto-code-review --version
       - run: auto-code-review-install --help
       - run: npm run install:agents -- --dry-run

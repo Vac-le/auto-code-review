@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
-import { normalizeSettings, readSettings, rememberRepository, writeSettings } from "../src/settings.mjs";
+import { normalizeSettings, readSettings, rememberRepository, toggleFavorite, writeSettings } from "../src/settings.mjs";
 import { isAllowedDesktopPage } from "../src/security.mjs";
 
 test("desktop settings retain eight unique recent repositories", () => {
@@ -14,6 +14,7 @@ test("desktop settings retain eight unique recent repositories", () => {
   settings = rememberRepository(settings, join("repositories", "4"));
   assert.equal(settings.recentRepositories[0], resolve(join("repositories", "4")));
   assert.equal(new Set(settings.recentRepositories).size, 8);
+  assert.deepEqual(settings.favoriteRepositories, []);
 });
 
 test("desktop settings persist atomically and reject malformed content", () => {
@@ -24,7 +25,16 @@ test("desktop settings persist atomically and reject malformed content", () => {
   assert.deepEqual(normalizeSettings({ recentRepositories: [1, null, "valid"], lastRepository: "missing" }), {
     lastRepository: null,
     recentRepositories: ["valid"],
+    favoriteRepositories: [],
   });
+});
+
+test("desktop settings retain favorites only for known recent repositories", () => {
+  const settings = normalizeSettings({ recentRepositories: ["one", "two"], favoriteRepositories: ["two", "missing"] });
+  assert.deepEqual(settings.favoriteRepositories, ["two"]);
+  const added = toggleFavorite(settings, "one");
+  assert.deepEqual(added.favoriteRepositories, ["one", "two"]);
+  assert.deepEqual(toggleFavorite(added, "two").favoriteRepositories, ["one"]);
 });
 
 test("desktop navigation accepts only the welcome page or exact dashboard origin", () => {

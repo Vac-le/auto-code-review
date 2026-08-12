@@ -6,7 +6,8 @@ import { join } from "node:path";
 import test from "node:test";
 import { findExecutable, probeTool } from "../dist/doctor.js";
 import { formatMarkdown } from "../dist/format.js";
-import { createReviewHistoryStore } from "../dist/history.js";
+import { createReviewHistoryStore, fitWithinHistoryLimit } from "../dist/history.js";
+import { loadProjectConfig, pathIgnoredByConfig } from "../dist/config.js";
 import { classifyIgnoredPath, detectLanguage, isBinary, looksGenerated } from "../dist/ignore.js";
 import { redactSecrets } from "../dist/redact.js";
 import { parseHunks, parseNameStatus } from "../dist/snapshot.js";
@@ -43,7 +44,7 @@ test("review history retains enough records for annual activity and is reloadabl
       host: "codex",
       createdAt: timestamp,
       updatedAt: timestamp,
-      scope: { mode: "working", base: null, branch: "main" },
+      scope: { mode: "working", base: null, head: "a".repeat(40), branch: "main" },
       report: fixtureReport(),
     });
   }
@@ -54,6 +55,61 @@ test("review history retains enough records for annual activity and is reloadabl
   assert.equal(reloaded.list().length, 51);
   reloaded.clear();
   assert.deepEqual(createReviewHistoryStore("C:/example/repository", directory).list(), []);
+});
+
+test("finding triage persists without changing review activity time", () => {
+  const directory = mkdtempSync(join(tmpdir(), "acr-finding-state-"));
+  const store = createReviewHistoryStore("C:/example/triage", directory);
+  const timestamp = "2026-01-01T00:00:00.000Z";
+  store.save({
+    id: "00000000-0000-4000-8000-000000000001",
+    state: "complete",
+    host: "codex",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    scope: { mode: "working", base: null, head: "a".repeat(40), branch: "main" },
+    report: fixtureReport(),
+  });
+  const updated = store.setFindingState("00000000-0000-4000-8000-000000000001", "ACR-001", "resolved");
+  assert.equal(updated.updatedAt, timestamp);
+  assert.equal(updated.findingStates["ACR-001"], "resolved");
+  assert.equal(createReviewHistoryStore("C:/example/triage", directory).get(updated.id).findingStates["ACR-001"], "resolved");
+});
+
+test("history persistence remains readable when reports approach the global size cap", () => {
+  const evidence = "Concrete evidence for the changed branch. ".repeat(95);
+  const records = [];
+  for (let index = 0; index < 1_000; index += 1) {
+    const timestamp = new Date(Date.UTC(2026, 0, 1, 0, 0, index)).toISOString();
+    const report = fixtureReport({ evidence, failureScenario: evidence, suggestedFix: evidence });
+    report.findings = Array.from({ length: 10 }, (_, finding) => ({ ...report.findings[0], id: `ACR-${index}-${finding}`, startLine: 4 + finding, endLine: 4 + finding }));
+    records.push({ id: `10000000-0000-4000-8000-${index.toString(16).padStart(12, "0")}`, state: "complete", host: "codex", createdAt: timestamp, updatedAt: timestamp, scope: { mode: "working", base: null, head: "a".repeat(40), branch: "main" }, report });
+  }
+  const fitted = fitWithinHistoryLimit(records);
+  assert.ok(fitted.length > 0);
+  assert.ok(fitted.length < records.length);
+  assert.ok(Buffer.byteLength(JSON.stringify({ schemaVersion: 1, records: fitted }), "utf8") <= 64 * 1024 * 1024);
+});
+
+test("project configuration is strict and path-prefix matching is bounded", () => {
+  const root = mkdtempSync(join(tmpdir(), "acr-project-config-"));
+  write(root, ".auto-code-review.json", JSON.stringify({
+    defaultHost: "claude",
+    defaultScope: "pull-request",
+    baseRevision: "origin/main",
+    minimumConfidence: 0.9,
+    maxFindings: 4,
+    ignorePaths: ["vendor/generated"],
+    instructions: "Prioritize compatibility regressions.",
+  }));
+  const loaded = loadProjectConfig(root);
+  assert.equal(loaded.exists, true);
+  assert.equal(loaded.config.defaultScope, "pull-request");
+  assert.equal(loaded.config.maxFindings, 4);
+  assert.equal(pathIgnoredByConfig("vendor/generated/file.ts", loaded.config.ignorePaths), true);
+  assert.equal(pathIgnoredByConfig("vendor/generated-extra/file.ts", loaded.config.ignorePaths), false);
+  write(root, ".auto-code-review.json", JSON.stringify({ unknownOption: true }));
+  assert.throws(() => loadProjectConfig(root), /Unknown .auto-code-review.json property/);
 });
 
 test("host failures expose actionable diagnostics without leaking review input", () => {

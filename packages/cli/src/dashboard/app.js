@@ -1,13 +1,13 @@
 const copy = {
   zh: {
     history:'历史审查',clearHistory:'清空记录',historyLoading:'正在读取历史记录…',historyEmpty:'还没有历史审查记录。',historyCount:'{count} 条记录',historyFindings:'{count} 个问题',historyFiles:'{count} 个文件',deleteHistory:'删除这条记录',historyDeleted:'历史记录已删除',historyCleared:'历史记录已清空',historyViewed:'历史记录',confirmClear:'确定清空当前仓库的全部历史审查记录吗？',scopeWorking:'未提交变更',scopeStaged:'暂存区变更',scopeBase:'基础分支对比',
-    overview:'审查概览',newReview:'发起审查',projectHistory:'项目审查记录',recentProjects:'最近项目',loadMore:'显示更多',selectBranch:'选择分支',switchBranch:'切换',branchSafety:'切换前需要保持工作区干净。',branchSwitched:'已切换到分支 {branch}',branchSwitching:'正在切换…',openFolder:'打开目录',refresh:'刷新',activity:'Review 活跃度',activityHint:'过去一年每天完成的代码审查',pastYear:'过去 365 天',totalReviews:'审查次数',activeDays:'活跃天数',totalFindings:'发现问题',currentStreak:'连续天数',less:'少',more:'多',collapseSidebar:'收起侧栏',expandSidebar:'展开侧栏',logsTitle:'运行日志',logsDescription:'查看桌面端运行与审查事件',logsLocalOnly:'日志仅保存在本机',logsRefresh:'刷新日志',logsLoading:'正在读取日志…',logsEmpty:'暂无运行日志。',
-    skip:'跳到主要内容',localOnly:'仅在本机运行',eyebrow:'真实本地审查',title:'检查当前代码变更',intro:'代码快照在本机生成，由你已登录的 Codex 或 Claude Code 审查；结果通过证据校验后才会显示。',repository:'当前仓库',settings:'设置审查',settingsHint:'选择平台和范围，然后开始一次只读审查。',platform:'审查平台',scope:'审查范围',working:'未提交变更',staged:'暂存区',base:'与基础分支对比',baseRevision:'基础分支',readonly:'只读运行，不会修改代码或 Git 状态',run:'开始真实审查',progress:'审查进度',stageSnapshot:'生成安全快照',stageSnapshotHint:'过滤密钥与无关文件',stageReview:'模型分析代码',stageReviewHint:'使用当前平台账号',stageValidate:'验证证据与行号',stageValidateHint:'淘汰不可靠问题',stageComplete:'生成审查报告',stageCompleteHint:'最多十条高置信度问题',cancel:'取消审查',result:'审查结果',waiting:'等待开始',restoring:'正在恢复审查状态',emptyTitle:'还没有审查报告',emptyBody:'选择上方设置并开始审查。模型完成分析后，经过验证的问题会显示在这里。',files:'变更文件',filesLoading:'正在读取 Git 变更…',available:'可用',unavailable:'未安装',branch:'分支',changes:'{files} 个文件 · +{additions} −{deletions}',running:'审查中',reviewLoading:'正在审查当前代码变更…',complete:'审查完成',failed:'审查失败',cancelled:'已取消',cleanTitle:'没有发现可靠问题',cleanBody:'本次审查没有问题通过证据门槛。这不等同于形式化证明代码完全正确。',verifiedFindings:'已验证问题',findingCount:'{count} 个',confidenceLabel:'置信度',trigger:'触发条件与影响',evidence:'代码证据',repair:'修复方向',noRepair:'报告未提供修复方向',location:'位置',categoryCorrectness:'正确性',categorySecurity:'安全',categoryDataIntegrity:'数据完整性',categoryConcurrency:'并发',categoryPerformance:'性能',categoryCompatibility:'兼容性',categoryTesting:'测试',reviewStarted:'真实审查已开始',authError:'本地会话链接无效，请重新运行 auto-code-review ui。',noHost:'请先安装并登录 Codex 或 Claude Code。',statusError:'无法读取本地仓库状态。',unknownError:'发生未知错误。',statusModified:'修改',statusAdded:'新增',statusDeleted:'删除',statusRenamed:'重命名',statusCopied:'复制',statusTypeChanged:'类型变化',statusUnmerged:'冲突'
+    overview:'审查概览',newReview:'发起审查',projectHistory:'项目审查记录',recentProjects:'最近项目',loadMore:'显示更多',selectBranch:'选择分支',switchBranch:'切换',branchSafety:'切换前需要保持工作区干净。',branchSwitched:'已切换到分支 {branch}',branchSwitching:'正在切换…',openFolder:'打开目录',refresh:'刷新',activity:'Review 活跃度',activityHint:'过去一年每天完成的代码审查',pastYear:'过去 365 天',totalReviews:'审查次数',activeDays:'活跃天数',totalFindings:'发现问题',currentStreak:'连续天数',less:'少',more:'多',collapseSidebar:'收起侧栏',expandSidebar:'展开侧栏',logsTitle:'运行日志',logsDescription:'查看桌面端运行与审查事件',logsLocalOnly:'日志仅保存在本机',logsRefresh:'刷新日志',logsLoading:'正在读取日志…',logsEmpty:'暂无运行日志。',diagnostics:'诊断',diagnosticsTitle:'环境诊断',diagnosticsDescription:'检查 Git、审查平台、项目配置和本地存储',diagnosticsLocalOnly:'诊断仅执行本机只读检查',diagnosticsLoading:'正在执行只读诊断…',diagnosticsHealthy:'环境可用',diagnosticsNeedsAttention:'需要处理',configured:'已配置',notConfigured:'使用默认配置',openSource:'打开文件',rerun:'重新审查',checkUpdates:'检查更新',updateCurrent:'当前已是最新版本',updateAvailable:'发现新版本 {version}',
+    skip:'跳到主要内容',localOnly:'仅在本机运行',eyebrow:'真实本地审查',title:'检查当前代码变更',intro:'代码快照在本机生成，由你已登录的 Codex 或 Claude Code 审查；结果通过证据校验后才会显示。',repository:'当前仓库',settings:'设置审查',settingsHint:'选择平台和范围，然后开始一次只读审查。',platform:'审查平台',scope:'审查范围',working:'未提交变更',staged:'暂存区',base:'与基础分支对比',commitScope:'指定 Commit',branchScope:'分支对比',prScope:'Pull Request',baseRevision:'基础分支',headRevision:'目标 Commit',readonly:'只读运行，不会修改代码或 Git 状态',run:'开始真实审查',progress:'审查进度',stageSnapshot:'生成安全快照',stageSnapshotHint:'过滤密钥与无关文件',stageReview:'模型分析代码',stageReviewHint:'使用当前平台账号',stageValidate:'验证证据与行号',stageValidateHint:'淘汰不可靠问题',stageComplete:'生成审查报告',stageCompleteHint:'最多十条高置信度问题',cancel:'取消审查',result:'审查结果',waiting:'等待开始',restoring:'正在恢复审查状态',emptyTitle:'还没有审查报告',emptyBody:'选择上方设置并开始审查。模型完成分析后，经过验证的问题会显示在这里。',files:'变更文件',filesLoading:'正在读取 Git 变更…',available:'可用',unavailable:'未安装',branch:'分支',changes:'{files} 个文件 · +{additions} −{deletions}',running:'审查中',reviewLoading:'正在审查当前代码变更…',complete:'审查完成',failed:'审查失败',cancelled:'已取消',cleanTitle:'没有发现可靠问题',cleanBody:'本次审查没有问题通过证据门槛。这不等同于形式化证明代码完全正确。',verifiedFindings:'已验证问题',findingCount:'{count} 个',confidenceLabel:'置信度',trigger:'触发条件与影响',evidence:'代码证据',repair:'修复方向',noRepair:'报告未提供修复方向',location:'位置',copyFix:'复制修复提示',resolved:'标记已解决',falsePositive:'误报',reopen:'重新打开',copied:'修复提示已复制',categoryCorrectness:'正确性',categorySecurity:'安全',categoryDataIntegrity:'数据完整性',categoryConcurrency:'并发',categoryPerformance:'性能',categoryCompatibility:'兼容性',categoryTesting:'测试',reviewStarted:'真实审查已开始',authError:'本地会话链接无效，请重新运行 auto-code-review ui。',noHost:'请先安装并登录 Codex 或 Claude Code。',statusError:'无法读取本地仓库状态。',unknownError:'发生未知错误。',statusModified:'修改',statusAdded:'新增',statusDeleted:'删除',statusRenamed:'重命名',statusCopied:'复制',statusTypeChanged:'类型变化',statusUnmerged:'冲突'
   },
   en: {
     history:'Review history',clearHistory:'Clear history',historyLoading:'Loading review history…',historyEmpty:'No review history yet.',historyCount:'{count} records',historyFindings:'{count} findings',historyFiles:'{count} files',deleteHistory:'Delete this record',historyDeleted:'History record deleted',historyCleared:'Review history cleared',historyViewed:'History',confirmClear:'Clear all review history for this repository?',scopeWorking:'Uncommitted changes',scopeStaged:'Staged changes',scopeBase:'Base comparison',
-    overview:'Overview',newReview:'New review',projectHistory:'Project review history',recentProjects:'Recent projects',loadMore:'Show more',selectBranch:'Select branch',switchBranch:'Switch',branchSafety:'Keep the working tree clean before switching.',branchSwitched:'Switched to {branch}',branchSwitching:'Switching…',openFolder:'Open folder',refresh:'Refresh',activity:'Review activity',activityHint:'Daily code reviews during the past year',pastYear:'Past 365 days',totalReviews:'Reviews',activeDays:'Active days',totalFindings:'Findings',currentStreak:'Day streak',less:'Less',more:'More',collapseSidebar:'Collapse sidebar',expandSidebar:'Expand sidebar',logsTitle:'Runtime logs',logsDescription:'Desktop runtime and review events',logsLocalOnly:'Logs are stored on this computer only',logsRefresh:'Refresh logs',logsLoading:'Loading logs…',logsEmpty:'No runtime logs yet.',
-    skip:'Skip to content',localOnly:'Runs on this computer only',eyebrow:'Real local review',title:'Review the current code change',intro:'A bounded snapshot is created locally, reviewed by your signed-in Codex or Claude Code, and shown only after evidence validation.',repository:'Current repository',settings:'Configure review',settingsHint:'Choose a platform and scope, then start a read-only review.',platform:'Review platform',scope:'Review scope',working:'Uncommitted changes',staged:'Staged changes',base:'Against a base branch',baseRevision:'Base revision',readonly:'Read-only: code and Git state will not be modified',run:'Start real review',progress:'Review progress',stageSnapshot:'Create safe snapshot',stageSnapshotHint:'Filter secrets and unrelated files',stageReview:'Analyze with the model',stageReviewHint:'Use the active platform account',stageValidate:'Validate evidence and lines',stageValidateHint:'Remove unreliable findings',stageComplete:'Create review report',stageCompleteHint:'At most ten high-confidence findings',cancel:'Cancel review',result:'Review result',waiting:'Waiting to start',restoring:'Restoring review state',emptyTitle:'No review report yet',emptyBody:'Choose the settings above and start. Verified findings will appear here after the model finishes.',files:'Changed files',filesLoading:'Reading Git changes…',available:'Available',unavailable:'Not installed',branch:'Branch',changes:'{files} files · +{additions} −{deletions}',running:'Reviewing',reviewLoading:'Reviewing the current code change…',complete:'Review complete',failed:'Review failed',cancelled:'Cancelled',cleanTitle:'No verified findings',cleanBody:'No issue passed the evidence threshold. This is not a formal proof that the code is perfect.',verifiedFindings:'Verified findings',findingCount:'{count}',confidenceLabel:'Confidence',trigger:'Trigger and impact',evidence:'Code evidence',repair:'Repair direction',noRepair:'No repair direction was provided',location:'Location',categoryCorrectness:'Correctness',categorySecurity:'Security',categoryDataIntegrity:'Data integrity',categoryConcurrency:'Concurrency',categoryPerformance:'Performance',categoryCompatibility:'Compatibility',categoryTesting:'Testing',reviewStarted:'Real review started',authError:'The local session link is invalid. Run auto-code-review ui again.',noHost:'Install and sign in to Codex or Claude Code first.',statusError:'Unable to read the local repository.',unknownError:'An unknown error occurred.',statusModified:'Modified',statusAdded:'Added',statusDeleted:'Deleted',statusRenamed:'Renamed',statusCopied:'Copied',statusTypeChanged:'Type changed',statusUnmerged:'Conflict'
+    overview:'Overview',newReview:'New review',projectHistory:'Project review history',recentProjects:'Recent projects',loadMore:'Show more',selectBranch:'Select branch',switchBranch:'Switch',branchSafety:'Keep the working tree clean before switching.',branchSwitched:'Switched to {branch}',branchSwitching:'Switching…',openFolder:'Open folder',refresh:'Refresh',activity:'Review activity',activityHint:'Daily code reviews during the past year',pastYear:'Past 365 days',totalReviews:'Reviews',activeDays:'Active days',totalFindings:'Findings',currentStreak:'Day streak',less:'Less',more:'More',collapseSidebar:'Collapse sidebar',expandSidebar:'Expand sidebar',logsTitle:'Runtime logs',logsDescription:'Desktop runtime and review events',logsLocalOnly:'Logs are stored on this computer only',logsRefresh:'Refresh logs',logsLoading:'Loading logs…',logsEmpty:'No runtime logs yet.',diagnostics:'Diagnostics',diagnosticsTitle:'Environment diagnostics',diagnosticsDescription:'Check Git, review hosts, project configuration, and local storage',diagnosticsLocalOnly:'Diagnostics run read-only checks on this computer',diagnosticsLoading:'Running read-only diagnostics…',diagnosticsHealthy:'Environment ready',diagnosticsNeedsAttention:'Needs attention',configured:'Configured',notConfigured:'Using defaults',openSource:'Open file',rerun:'Review again',checkUpdates:'Check for updates',updateCurrent:'You are on the latest version',updateAvailable:'Version {version} is available',
+    skip:'Skip to content',localOnly:'Runs on this computer only',eyebrow:'Real local review',title:'Review the current code change',intro:'A bounded snapshot is created locally, reviewed by your signed-in Codex or Claude Code, and shown only after evidence validation.',repository:'Current repository',settings:'Configure review',settingsHint:'Choose a platform and scope, then start a read-only review.',platform:'Review platform',scope:'Review scope',working:'Uncommitted changes',staged:'Staged changes',base:'Against a base branch',commitScope:'Specific commit',branchScope:'Branch comparison',prScope:'Pull Request',baseRevision:'Base revision',headRevision:'Head commit',readonly:'Read-only: code and Git state will not be modified',run:'Start real review',progress:'Review progress',stageSnapshot:'Create safe snapshot',stageSnapshotHint:'Filter secrets and unrelated files',stageReview:'Analyze with the model',stageReviewHint:'Use the active platform account',stageValidate:'Validate evidence and lines',stageValidateHint:'Remove unreliable findings',stageComplete:'Create review report',stageCompleteHint:'At most ten high-confidence findings',cancel:'Cancel review',result:'Review result',waiting:'Waiting to start',restoring:'Restoring review state',emptyTitle:'No review report yet',emptyBody:'Choose the settings above and start. Verified findings will appear here after the model finishes.',files:'Changed files',filesLoading:'Reading Git changes…',available:'Available',unavailable:'Not installed',branch:'Branch',changes:'{files} files · +{additions} −{deletions}',running:'Reviewing',reviewLoading:'Reviewing the current code change…',complete:'Review complete',failed:'Review failed',cancelled:'Cancelled',cleanTitle:'No verified findings',cleanBody:'No issue passed the evidence threshold. This is not a formal proof that the code is perfect.',verifiedFindings:'Verified findings',findingCount:'{count}',confidenceLabel:'Confidence',trigger:'Trigger and impact',evidence:'Code evidence',repair:'Repair direction',noRepair:'No repair direction was provided',location:'Location',copyFix:'Copy fix prompt',resolved:'Mark resolved',falsePositive:'False positive',reopen:'Reopen',copied:'Fix prompt copied',categoryCorrectness:'Correctness',categorySecurity:'Security',categoryDataIntegrity:'Data integrity',categoryConcurrency:'Concurrency',categoryPerformance:'Performance',categoryCompatibility:'Compatibility',categoryTesting:'Testing',reviewStarted:'Real review started',authError:'The local session link is invalid. Run auto-code-review ui again.',noHost:'Install and sign in to Codex or Claude Code first.',statusError:'Unable to read the local repository.',unknownError:'An unknown error occurred.',statusModified:'Modified',statusAdded:'Added',statusDeleted:'Deleted',statusRenamed:'Renamed',statusCopied:'Copied',statusTypeChanged:'Type changed',statusUnmerged:'Conflict'
   }
 };
 
@@ -32,6 +32,7 @@ let branchData = { current: null, branches: [] };
 let selectedBranch = null;
 let desktopState = null;
 let sidebarHistoryLimit = 60;
+let projectDefaultsApplied = false;
 const t = (key) => copy[language][key] || key;
 const element = (tag, className, text) => { const node=document.createElement(tag); if(className)node.className=className;if(text!==undefined)node.textContent=text;return node; };
 
@@ -44,9 +45,11 @@ function applyLanguage(next) {
   document.querySelectorAll('[data-language]').forEach((button)=>button.setAttribute('aria-pressed',String(button.dataset.language===language)));
   const projectButton=document.querySelector('[data-desktop-project]');
   const logsButton=document.querySelector('[data-desktop-logs]');
+  const diagnosticsButton=document.querySelector('[data-diagnostics]');
   const folderButton=document.querySelector('[data-desktop-folder]');
   if(projectButton)projectButton.textContent=language==='zh'?'切换仓库':'Switch repository';
   if(logsButton)logsButton.textContent=language==='zh'?'日志':'Logs';
+  if(diagnosticsButton)diagnosticsButton.textContent=t('diagnostics');
   if(folderButton)folderButton.textContent=t('openFolder');
   const collapse=document.querySelector('[data-sidebar-collapse]');
   const restore=document.querySelector('[data-sidebar-restore]');
@@ -72,15 +75,18 @@ if (desktopApi) {
   document.querySelector('[data-desktop-folder]').addEventListener('click',()=>desktopApi.openRepository());
   document.querySelector('[data-desktop-project]').addEventListener('click',()=>desktopApi.showProjectPicker());
   document.querySelector('[data-desktop-logs]').addEventListener('click',()=>showLogViewer());
+  document.querySelector('[data-update-check]').hidden=false;
   desktopApi.onShowLogs?.(()=>showLogViewer());
   desktopApi.getState().then((state)=>{desktopState=state;renderDesktopProjects();}).catch(()=>{});
 }
+
+function setMainInert(value){document.querySelectorAll('body > .topbar,body > .desktop-layout').forEach((node)=>{node.inert=value;});}
 
 function closeLogViewer() {
   const viewer=document.querySelector('[data-log-viewer]');
   if(!viewer||viewer.hidden)return;
   viewer.hidden=true;document.body.classList.remove('log-viewer-open');
-  document.querySelectorAll('body > .topbar,body > .desktop-layout').forEach((node)=>{node.inert=false;});
+  setMainInert(false);
   document.querySelector('[data-desktop-logs]')?.focus();
 }
 
@@ -102,13 +108,22 @@ async function refreshLogViewer() {
 function showLogViewer() {
   const viewer=document.querySelector('[data-log-viewer]');if(!viewer||!desktopApi)return;
   viewer.hidden=false;document.body.classList.add('log-viewer-open');
-  document.querySelectorAll('body > .topbar,body > .desktop-layout').forEach((node)=>{node.inert=true;});
+  setMainInert(true);
   document.querySelector('.log-viewer-close')?.focus();
   refreshLogViewer();
 }
 
 document.querySelectorAll('[data-log-close]').forEach((button)=>button.addEventListener('click',closeLogViewer));
 document.querySelector('[data-log-refresh]')?.addEventListener('click',refreshLogViewer);
+
+function closeDiagnostics(){const viewer=document.querySelector('[data-diagnostics-viewer]');if(!viewer||viewer.hidden)return;viewer.hidden=true;document.body.classList.remove('diagnostics-open');setMainInert(false);document.querySelector('[data-diagnostics]')?.focus();}
+function diagnosticsRow(label,ok,detail){const row=element('article',`diagnostics-row ${ok?'ok':'warning'}`);row.append(element('span','diagnostics-state',ok?'✓':'!'));const body=element('div','');body.append(element('strong','',label),element('p','',detail||'—'));row.append(body);return row;}
+async function refreshDiagnostics(){const content=document.querySelector('[data-diagnostics-content]');const refresh=document.querySelector('[data-diagnostics-refresh]');if(!content)return;content.replaceChildren(element('p','diagnostics-loading',t('diagnosticsLoading')));if(refresh)refresh.disabled=true;try{const data=await api('/api/diagnostics');const tools=data.doctor?.tools||[];content.replaceChildren();content.append(...tools.map((tool)=>diagnosticsRow(tool.name==='git'?'Git':tool.name==='codex'?'Codex':'Claude Code',tool.available,tool.version||tool.detail||t('unavailable'))),diagnosticsRow(data.config.path,true,data.config.exists?t('configured'):t('notConfigured')),diagnosticsRow(language==='zh'?'历史记录':'History storage',true,data.history.path));}catch(error){content.replaceChildren(diagnosticsRow(t('diagnosticsNeedsAttention'),false,error.message));}finally{if(refresh)refresh.disabled=false;}}
+function showDiagnostics(){const viewer=document.querySelector('[data-diagnostics-viewer]');if(!viewer)return;viewer.hidden=false;document.body.classList.add('diagnostics-open');setMainInert(true);viewer.querySelector('.log-viewer-close')?.focus();refreshDiagnostics();}
+document.querySelector('[data-diagnostics]')?.addEventListener('click',showDiagnostics);
+document.querySelectorAll('[data-diagnostics-close]').forEach((button)=>button.addEventListener('click',closeDiagnostics));
+document.querySelector('[data-diagnostics-refresh]')?.addEventListener('click',refreshDiagnostics);
+document.querySelector('[data-update-check]')?.addEventListener('click',async()=>{const button=document.querySelector('[data-update-check]');button.disabled=true;try{const update=await desktopApi.checkUpdates();if(update.updateAvailable){showToast(t('updateAvailable').replace('{version}',update.latest));await desktopApi.openReleases();}else showToast(t('updateCurrent'));}catch(error){showError(error.message);}finally{button.disabled=false;}});
 document.addEventListener('keydown',(event)=>{if(event.key==='Escape')closeLogViewer();});
 
 async function api(path, options={}) {
@@ -245,22 +260,29 @@ function renderStatus(data) {
   });
   const preferred=data.hosts.find((host)=>host.host===data.preferredHost&&host.available)||data.hosts.find((host)=>host.available);
   if(preferred) selectHost(preferred.host); else showError(t('noHost'));
+  if(!projectDefaultsApplied){projectDefaultsApplied=true;if(data.config?.defaultScope)selectScope(data.config.defaultScope);if(data.config?.baseRevision)document.querySelector('[data-base-input]').value=data.config.baseRevision;}
   renderFiles(data.snapshot);
-  document.querySelector('[data-run]').disabled=!preferred||data.snapshot.files===0;
+  updateRunAvailability();
 }
 
 function selectHost(host) {
   selectedHost=host;
   document.querySelectorAll('[data-host]').forEach((button)=>button.setAttribute('aria-pressed',String(button.dataset.host===host)));
+  updateRunAvailability();
 }
 document.querySelectorAll('[data-host]').forEach((button)=>button.addEventListener('click',()=>{if(!button.disabled)selectHost(button.dataset.host);}));
 
 function selectScope(scope) {
   selectedScope=scope;
   document.querySelectorAll('[data-scope]').forEach((button)=>button.setAttribute('aria-pressed',String(button.dataset.scope===scope)));
-  document.querySelector('[data-base-field]').hidden=scope!=='base';
+  const needsBase=['base','branch','pull-request'].includes(scope);const needsHead=['commit','pull-request'].includes(scope);
+  document.querySelector('[data-revision-fields]').hidden=!needsBase&&!needsHead;
+  document.querySelector('[data-base-field]').hidden=!needsBase;document.querySelector('[data-head-field]').hidden=!needsHead;
+  updateRunAvailability();
 }
 document.querySelectorAll('[data-scope]').forEach((button)=>button.addEventListener('click',()=>selectScope(button.dataset.scope)));
+
+function updateRunAvailability(running=false){const workingHasChanges=(statusData?.snapshot?.files??0)>0;document.querySelector('[data-run]').disabled=running||!selectedHost||(selectedScope==='working'&&!workingHasChanges);}
 
 const stageOrder=['snapshot','reviewing','validating','complete'];
 function updateProgress(state) {
@@ -298,7 +320,7 @@ function showLoading() {
 }
 
 function historyScope(scope) {
-  return t({working:'scopeWorking',staged:'scopeStaged',base:'scopeBase'}[scope?.mode]||'scopeWorking');
+  return t({working:'scopeWorking',staged:'scopeStaged',base:'scopeBase',commit:'commitScope',branch:'branchScope','pull-request':'prScope'}[scope?.mode]||'scopeWorking');
 }
 
 function historyTime(value) {
@@ -380,21 +402,27 @@ function localizedHostError(message) {
   return message;
 }
 
-function renderReport(report) {
+async function setFindingState(recordId,findingId,state){try{const record=await api(`/api/history/${recordId}/findings/${findingId}`,{method:'PATCH',body:JSON.stringify({state})});lastJob=record;renderReport(record.report,record);await loadHistory();}catch(error){showError(error.message);}}
+function findingPrompt(finding){return `Fix this verified code-review finding without changing unrelated behavior.\n\n${finding.title}\nLocation: ${finding.file}:${finding.startLine}-${finding.endLine}\nTrigger and impact: ${finding.failureScenario}\nEvidence: ${finding.evidence}\nSuggested direction: ${finding.suggestedFix||t('noRepair')}`;}
+async function copyText(value){if(!navigator.clipboard?.writeText)throw new Error(language==='zh'?'当前环境无法访问剪贴板。':'Clipboard access is unavailable.');await navigator.clipboard.writeText(value);}
+function renderReport(report,record=lastJob) {
   const result=document.querySelector('[data-result]');result.replaceChildren();
-  if(!report.findings.length){const clean=element('div','clean-report');clean.append(element('span','check','✓'),element('h3','',t('cleanTitle')),element('p','',report.summary||t('cleanBody')));result.append(clean);return;}
+  if(!report.findings.length){const clean=element('div','clean-report');clean.append(element('span','check','✓'),element('h3','',t('cleanTitle')),element('p','',report.summary||t('cleanBody')));const rerun=element('button','report-rerun',t('rerun'));rerun.type='button';rerun.addEventListener('click',()=>runReview());clean.append(rerun);result.append(clean);return;}
   const overview=element('header','report-overview');
   const summary=element('div','report-copy');summary.append(element('span','report-label',t('verifiedFindings')),element('p','report-summary',report.summary));
   const total=element('strong','report-count',t('findingCount').replace('{count}',report.findings.length));
-  overview.append(summary,total);result.append(overview);
+  const overviewActions=element('div','report-overview-actions');overviewActions.append(total);const rerun=element('button','report-rerun',t('rerun'));rerun.type='button';rerun.addEventListener('click',()=>runReview());overviewActions.append(rerun);overview.append(summary,overviewActions);result.append(overview);
   const categoryLabel=(category)=>t(`category${category.split('-').map((part)=>part[0].toUpperCase()+part.slice(1)).join('')}`);
   report.findings.forEach((finding,index)=>{
     const card=element('article',`finding-card priority-${finding.priority.toLowerCase()}`);
+    const state=record?.findingStates?.[finding.id]||'open';card.dataset.findingState=state;
     const header=element('header','finding-header');
     const identity=element('div','finding-identity');identity.append(element('span','finding-number',String(index+1).padStart(2,'0')),element('span','priority',finding.priority));
     const heading=element('div','finding-heading');heading.append(element('h3','',finding.title));
     const meta=element('div','finding-meta');meta.append(element('span','category',categoryLabel(finding.category)),element('span','confidence',`${t('confidenceLabel')} ${Math.round(finding.confidence*100)}%`));heading.append(meta);header.append(identity,heading);
-    const location=element('div','finding-location');location.append(element('span','location-label',t('location')),element('code','',`${finding.file}:${finding.startLine}${finding.endLine!==finding.startLine?`–${finding.endLine}`:''}`));
+    const actions=element('div','finding-actions');const copy=element('button','',t('copyFix'));copy.type='button';copy.addEventListener('click',async()=>{try{await copyText(findingPrompt(finding));showToast(t('copied'));}catch(error){showError(error.message);}});actions.append(copy);
+    if(record?.id&&finding.id){const resolved=element('button','',state==='resolved'?t('reopen'):t('resolved'));resolved.type='button';resolved.addEventListener('click',()=>setFindingState(record.id,finding.id,state==='resolved'?'open':'resolved'));const falsePositive=element('button','',state==='false-positive'?t('reopen'):t('falsePositive'));falsePositive.type='button';falsePositive.addEventListener('click',()=>setFindingState(record.id,finding.id,state==='false-positive'?'open':'false-positive'));actions.append(resolved,falsePositive);}header.append(actions);
+    const location=element('div','finding-location');location.append(element('span','location-label',t('location')),element('code','',`${finding.file}:${finding.startLine}${finding.endLine!==finding.startLine?`–${finding.endLine}`:''}`));if(desktopApi?.openSource){const open=element('button','finding-open-source',t('openSource'));open.type='button';open.addEventListener('click',()=>desktopApi.openSource(finding.file).catch((error)=>showError(error.message)));location.append(open);}
     const grid=element('div','finding-grid');
     [['trigger',finding.failureScenario],['evidence',finding.evidence],['repair',finding.suggestedFix||t('noRepair')]].forEach(([key,value])=>{const box=element('section',`finding-detail ${key}`);box.append(element('h4','',t(key)),element('p','',value));grid.append(box);});
     card.append(header,location,grid);result.append(card);
@@ -402,12 +430,12 @@ function renderReport(report) {
 }
 
 function renderJob(job) {
-  lastJob=job;if(job.host)selectHost(job.host);if(job.scope?.mode)selectScope(job.scope.mode);updateProgress(job.state);setResultStatus(job.state);
+  lastJob=job;if(job.host)selectHost(job.host);if(job.scope?.mode){selectScope(job.scope.mode);if(job.scope.base)document.querySelector('[data-base-input]').value=job.scope.base;if(job.scope.head)document.querySelector('[data-head-input]').value=job.scope.head;}updateProgress(job.state);setResultStatus(job.state);
   if(job.snapshot)renderFiles(job.snapshot);
   const running=!['complete','failed','cancelled'].includes(job.state);
   document.querySelector('[data-cancel]').hidden=!running;
-  document.querySelector('[data-run]').disabled=running||!selectedHost;
-  if(job.state==='complete'&&job.report)renderReport(job.report);
+  updateRunAvailability(running);
+  if(job.state==='complete'&&job.report)renderReport(job.report,job);
   else if(job.state==='failed'||job.state==='cancelled')showError(job.state==='cancelled'?t('cancelled'):(localizedHostError(job.error)||t('failed')),job.state);
   else showLoading();
 }
@@ -423,16 +451,18 @@ function restoreJob(job) {
   if(!['complete','failed','cancelled'].includes(job.state))pollTimer=setTimeout(pollJob,250);
 }
 
-document.querySelector('[data-run]').addEventListener('click',async()=>{
+async function runReview(){
   try{
-    const payload={host:selectedHost,scope:selectedScope};if(selectedScope==='base')payload.base=document.querySelector('[data-base-input]').value.trim();
+    const payload={host:selectedHost,scope:selectedScope};if(['base','branch','pull-request'].includes(selectedScope))payload.base=document.querySelector('[data-base-input]').value.trim();if(['commit','pull-request'].includes(selectedScope))payload.head=document.querySelector('[data-head-input]').value.trim();
     const job=await api('/api/reviews',{method:'POST',body:JSON.stringify(payload)});currentJob=job.id;lastJob=job;updateProgress('snapshot');setResultStatus('snapshot');showLoading();document.querySelector('[data-cancel]').hidden=false;document.querySelector('[data-run]').disabled=true;showToast(t('reviewStarted'));pollTimer=setTimeout(pollJob,250);
   }catch(error){showError(error.message);}
-});
+}
+document.querySelector('[data-run]').addEventListener('click',runReview);
 
 document.querySelector('[data-cancel]').addEventListener('click',async()=>{
   if(!currentJob)return;clearTimeout(pollTimer);try{await api(`/api/reviews/${currentJob}/cancel`,{method:'POST',body:'{}'});pollTimer=setTimeout(pollJob,250);}catch(error){showError(error.message);}
 });
+document.addEventListener('keydown',(event)=>{if(event.key==='Escape'){closeLogViewer();closeDiagnostics();}});
 
 async function start(){
   if(!token){showError(t('authError'));return;}

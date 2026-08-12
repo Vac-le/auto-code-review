@@ -2,17 +2,20 @@ import { once } from "node:events";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, Tray } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, net, shell, Tray } from "electron";
 import { createDashboardServer } from "@auto-code-review/cli/dist/ui.js";
 import { createLogger } from "./logger.mjs";
 import { readLogSnapshot } from "./log-viewer.mjs";
 import { isAllowedDesktopPage } from "./security.mjs";
-import { readSettings, rememberRepository, writeSettings } from "./settings.mjs";
+import { readSettings, rememberRepository, toggleFavorite, writeSettings } from "./settings.mjs";
+import { resolveRepositoryFile } from "./source-file.mjs";
+import { isNewerVersion, versionParts } from "./version.mjs";
 
 const sourceDirectory = fileURLToPath(new URL(".", import.meta.url));
 const welcomePath = join(sourceDirectory, "welcome.html");
 const welcomeUrl = pathToFileURL(welcomePath).href;
 const iconPath = join(sourceDirectory, "..", "assets", "icon.png");
+const releasesUrl = "https://github.com/Vac-le/auto-code-review/releases/latest";
 
 app.enableSandbox();
 app.setAppUserModelId("dev.autocodereview.desktop");
@@ -24,13 +27,14 @@ let quitting = false;
 let settingsPath = "";
 let logsDirectory = "";
 let logPath = "";
-let settings = { lastRepository: null, recentRepositories: [] };
+let settings = { lastRepository: null, recentRepositories: [], favoriteRepositories: [] };
 let log = () => {};
 
 function desktopState() {
   return {
     activeRepository: dashboard?.repositoryRoot ?? null,
     recentRepositories: settings.recentRepositories,
+    favoriteRepositories: settings.favoriteRepositories,
     version: app.getVersion(),
   };
 }
@@ -182,12 +186,44 @@ function registerIpc() {
       return showProjectPicker();
     }
   });
+  ipcMain.handle("desktop:toggle-favorite", (event, repositoryPath) => {
+    requireTrustedSender(event);
+    if (typeof repositoryPath !== "string" || !settings.recentRepositories.includes(repositoryPath)) throw new Error("Unknown recent repository.");
+    settings = toggleFavorite(settings, repositoryPath);
+    writeSettings(settingsPath, settings);
+    return desktopState();
+  });
   ipcMain.handle("desktop:show-project-picker", async (event) => { requireTrustedSender(event); return showProjectPicker(); });
   ipcMain.handle("desktop:open-repository", async (event) => {
     requireTrustedSender(event);
     if (!dashboard?.repositoryRoot) return "No repository is open.";
     return shell.openPath(dashboard.repositoryRoot);
   });
+  ipcMain.handle("desktop:open-source", async (event, file) => {
+    requireTrustedSender(event);
+    if (!dashboard?.repositoryRoot || typeof file !== "string" || file.length < 1 || file.length > 1_024 || file.includes("\\") || file.split("/").some((segment) => segment === ".." || segment === "")) {
+      throw new Error("Invalid source location.");
+    }
+    const target = resolveRepositoryFile(dashboard.repositoryRoot, file);
+    if (!target) throw new Error("Source file is not available in this repository.");
+    const error = await shell.openPath(target);
+    if (error) throw new Error(error);
+    return { ok: true };
+  });
+  ipcMain.handle("desktop:check-updates", async (event) => {
+    requireTrustedSender(event);
+    const response = await net.fetch("https://api.github.com/repos/Vac-le/auto-code-review/releases/latest", {
+      headers: { Accept: "application/vnd.github+json", "User-Agent": `Auto-Code-Review/${app.getVersion()}` },
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!response.ok) throw new Error(`GitHub returned HTTP ${response.status}.`);
+    const text = await response.text();
+    if (text.length > 256 * 1024) throw new Error("The update response was unexpectedly large.");
+    const data = JSON.parse(text);
+    if (typeof data.tag_name !== "string" || !versionParts(data.tag_name)) throw new Error("GitHub returned an invalid release version.");
+    return { current: app.getVersion(), latest: data.tag_name.replace(/^v/, ""), updateAvailable: isNewerVersion(data.tag_name, app.getVersion()) };
+  });
+  ipcMain.handle("desktop:open-releases", async (event) => { requireTrustedSender(event); await shell.openExternal(releasesUrl); });
   ipcMain.handle("desktop:get-logs", (event) => { requireTrustedSender(event); return readLogSnapshot(logPath); });
   ipcMain.handle("desktop:quit", (event) => { requireTrustedSender(event); quitting = true; app.quit(); });
 }

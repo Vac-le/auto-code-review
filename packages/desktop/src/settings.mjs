@@ -11,13 +11,25 @@ export function normalizeSettings(value) {
   const lastRepository = typeof value?.lastRepository === "string" && recent.includes(value.lastRepository)
     ? value.lastRepository
     : null;
-  return { lastRepository, recentRepositories: recent };
+  const favorites = Array.isArray(value?.favoriteRepositories)
+    ? value.favoriteRepositories.filter((item) => typeof item === "string" && recent.includes(item)).slice(0, MAX_RECENT)
+    : [];
+  return { lastRepository, recentRepositories: recent, favoriteRepositories: [...new Set(favorites)] };
 }
 
 export function rememberRepository(settings, repositoryPath) {
   const absolute = resolve(repositoryPath);
   const recentRepositories = [absolute, ...settings.recentRepositories.filter((item) => item !== absolute)].slice(0, MAX_RECENT);
-  return { lastRepository: absolute, recentRepositories };
+  return normalizeSettings({ ...settings, lastRepository: absolute, recentRepositories });
+}
+
+export function toggleFavorite(settings, repositoryPath) {
+  const normalized = normalizeSettings(settings);
+  if (!normalized.recentRepositories.includes(repositoryPath)) return normalized;
+  const favoriteRepositories = normalized.favoriteRepositories.includes(repositoryPath)
+    ? normalized.favoriteRepositories.filter((item) => item !== repositoryPath)
+    : [repositoryPath, ...normalized.favoriteRepositories];
+  return normalizeSettings({ ...normalized, favoriteRepositories });
 }
 
 export function readSettings(path) {

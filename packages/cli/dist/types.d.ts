@@ -1,4 +1,4 @@
-export type SnapshotMode = "working" | "staged" | "base";
+export type SnapshotMode = "working" | "staged" | "base" | "commit" | "branch" | "pull-request";
 export type OmissionReason = "binary" | "generated" | "lockfile" | "sensitive-path" | "too-large" | "file-limit" | "unsafe-path" | "unreadable";
 export interface LineRange {
     start: number;

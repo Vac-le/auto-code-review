@@ -1,4 +1,4 @@
-export type SnapshotMode = "working" | "staged" | "base";
+export type SnapshotMode = "working" | "staged" | "base" | "commit" | "branch" | "pull-request";
 
 export type OmissionReason =
   | "binary"

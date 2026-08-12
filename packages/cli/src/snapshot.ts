@@ -1,6 +1,7 @@
 import { closeSync, constants, fstatSync, lstatSync, openSync, readSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 import { CliError } from "./errors.ts";
+import { pathIgnoredByConfig } from "./config.ts";
 import { findRepositoryRoot, gitText, readGitBlob, resolveGitRevision, runGit } from "./git.ts";
 import { classifyIgnoredPath, detectLanguage, isBinary, looksGenerated } from "./ignore.ts";
 import { redactSecrets } from "./redact.ts";
@@ -18,6 +19,8 @@ export interface SnapshotOptions {
   cwd: string;
   mode?: SnapshotMode;
   base?: string;
+  head?: string;
+  ignorePaths?: string[];
   contextLines?: number;
   maxContextLines?: number;
   maxFiles?: number;
@@ -30,6 +33,8 @@ interface ResolvedOptions {
   cwd: string;
   mode: SnapshotMode;
   base: string | null;
+  head: string | null;
+  ignorePaths: string[];
   contextLines: number;
   maxContextLines: number;
   maxFiles: number;
@@ -58,6 +63,7 @@ const DEFAULTS = {
   maxPatchBytes: 128 * 1024,
   maxTotalBytes: 2 * 1024 * 1024,
 } as const;
+const EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
 
 function boundedInteger(name: string, value: number, minimum: number, maximum: number): number {
   if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
@@ -68,19 +74,24 @@ function boundedInteger(name: string, value: number, minimum: number, maximum: n
 
 function resolveOptions(options: SnapshotOptions): ResolvedOptions {
   const mode = options.mode ?? "working";
-  if (mode === "base" && !options.base) {
-    throw new CliError("snapshot --base requires a Git revision.", { code: "MISSING_BASE" });
+  if ((mode === "base" || mode === "branch") && !options.base) {
+    throw new CliError(`${mode} snapshot requires a base Git revision.`, { code: "MISSING_BASE" });
   }
-  if (mode !== "base" && options.base) {
-    throw new CliError("A base revision can only be used in base mode.", { code: "UNEXPECTED_BASE" });
+  if (mode === "commit" && !options.head) throw new CliError("commit snapshot requires a commit revision.", { code: "MISSING_HEAD" });
+  if (mode === "pull-request" && (!options.base || !options.head)) throw new CliError("pull-request snapshot requires base and head revisions.", { code: "MISSING_REVISION" });
+  if (mode !== "base" && mode !== "branch" && mode !== "pull-request" && options.base) {
+    throw new CliError("A base revision is not valid for this snapshot mode.", { code: "UNEXPECTED_BASE" });
   }
-  if (options.base && (options.base.startsWith("-") || options.base.length > 1024 || /[\u0000-\u001f\u007f]/.test(options.base))) {
-    throw new CliError("The base revision is not a safe Git revision string.", { code: "INVALID_BASE" });
+  if (mode !== "commit" && mode !== "pull-request" && options.head) throw new CliError("A head revision is not valid for this snapshot mode.", { code: "UNEXPECTED_HEAD" });
+  for (const [name, revision] of [["base", options.base], ["head", options.head]] as const) {
+    if (revision && (revision.startsWith("-") || revision.length > 1024 || /[\u0000-\u001f\u007f]/.test(revision))) throw new CliError(`The ${name} revision is not safe.`, { code: `INVALID_${name.toUpperCase()}` });
   }
   return {
     cwd: options.cwd,
     mode,
     base: options.base ?? null,
+    head: options.head ?? null,
+    ignorePaths: options.ignorePaths ?? [],
     contextLines: boundedInteger("contextLines", options.contextLines ?? DEFAULTS.contextLines, 0, 1_000),
     maxContextLines: boundedInteger("maxContextLines", options.maxContextLines ?? DEFAULTS.maxContextLines, 1, 5_000),
     maxFiles: boundedInteger("maxFiles", options.maxFiles ?? DEFAULTS.maxFiles, 1, 1_000),
@@ -152,16 +163,24 @@ export function parseNameStatus(output: Buffer | string): ChangedPath[] {
 
 function resolveScope(root: string, options: ResolvedOptions, head: string | null): DiffScope {
   if (options.mode === "staged") return { args: ["--cached"], baseCommit: head };
-  if (options.mode === "base") {
+  if (options.mode === "commit") {
+    const commit = resolveGitRevision(root, options.head!);
+    if (!commit) throw new CliError(`The commit '${options.head}' does not resolve.`, { code: "INVALID_HEAD" });
+    const parent = resolveGitRevision(root, `${commit}^`);
+    return { args: [`${parent ?? EMPTY_TREE}..${commit}`], baseCommit: parent };
+  }
+  if (options.mode === "base" || options.mode === "branch" || options.mode === "pull-request") {
     if (!head) throw new CliError("Base comparison requires a repository with at least one commit.", { code: "MISSING_HEAD" });
     const base = resolveGitRevision(root, options.base!);
     if (!base) throw new CliError(`The base revision '${options.base}' does not resolve to a commit.`, { code: "INVALID_BASE" });
-    const mergeBaseResult = runGit(root, ["merge-base", base, head], { allowFailure: true });
+    const target = options.mode === "pull-request" ? resolveGitRevision(root, options.head!) : head;
+    if (!target) throw new CliError(`The head revision '${options.head}' does not resolve to a commit.`, { code: "INVALID_HEAD" });
+    const mergeBaseResult = runGit(root, ["merge-base", base, target], { allowFailure: true });
     if (mergeBaseResult.status !== 0) {
       throw new CliError(`No merge base exists between '${options.base}' and HEAD.`, { code: "NO_MERGE_BASE" });
     }
     const mergeBase = mergeBaseResult.stdout.toString("utf8").trim();
-    return { args: [`${mergeBase}..${head}`], baseCommit: mergeBase };
+    return { args: [`${mergeBase}..${target}`], baseCommit: mergeBase };
   }
   return head ? { args: [head], baseCommit: head } : { args: ["--cached"], baseCommit: null };
 }
@@ -191,8 +210,7 @@ function listChangedPaths(root: string, options: ResolvedOptions, scope: DiffSco
       .filter((path) => !tracked.has(path));
     entries.push(...untracked.map((path): ChangedPath => ({ path, status: "added", untracked: true })));
   }
-
-  return entries.sort((left, right) => left.path.localeCompare(right.path, "en"));
+  return entries.filter((entry) => !pathIgnoredByConfig(entry.path, options.ignorePaths)).sort((left, right) => left.path.localeCompare(right.path, "en"));
 }
 
 function readWorktreeFile(root: string, path: string, maxBytes: number): Buffer | null {
@@ -232,7 +250,8 @@ function readNewContent(root: string, entry: ChangedPath, options: ResolvedOptio
   if (options.mode === "staged") {
     return { data: readGitBlob(root, `:${entry.path}`, options.maxFileBytes), source: "index" };
   }
-  return { data: head ? readGitBlob(root, `${head}:${entry.path}`, options.maxFileBytes) : null, source: "base" };
+  const target = options.mode === "commit" || options.mode === "pull-request" ? resolveGitRevision(root, options.head!) : head;
+  return { data: target ? readGitBlob(root, `${target}:${entry.path}`, options.maxFileBytes) : null, source: "base" };
 }
 
 function readOldContent(root: string, entry: ChangedPath, options: ResolvedOptions, scope: DiffScope): Buffer | null {
@@ -455,6 +474,7 @@ export function createSnapshot(input: SnapshotOptions): ReviewSnapshot {
   const branchResult = runGit(root, ["symbolic-ref", "--quiet", "--short", "HEAD"], { allowFailure: true });
   const branch = branchResult.status === 0 ? branchResult.stdout.toString("utf8").trim() || null : null;
   const scope = resolveScope(root, options, head);
+  const reviewedHead = options.mode === "commit" || options.mode === "pull-request" ? resolveGitRevision(root, options.head!) : head;
   const changed = listChangedPaths(root, options, scope);
   const files: SnapshotFile[] = [];
   const omitted: OmittedFile[] = [];
@@ -467,7 +487,7 @@ export function createSnapshot(input: SnapshotOptions): ReviewSnapshot {
       globallyTruncated = true;
       continue;
     }
-    const result = processEntry(root, entry, options, scope, head);
+    const result = processEntry(root, entry, options, scope, reviewedHead);
     if (result.omitted) {
       omitted.push(result.omitted);
       continue;
@@ -491,10 +511,10 @@ export function createSnapshot(input: SnapshotOptions): ReviewSnapshot {
     schemaVersion: "1.0",
     repository: {
       root: ".",
-      head,
+      head: reviewedHead,
       branch,
       mode: options.mode,
-      base: options.mode === "base" ? scope.baseCommit : null,
+      base: ["base", "branch", "pull-request", "commit"].includes(options.mode) ? scope.baseCommit : null,
     },
     limits: {
       contextLines: options.contextLines,

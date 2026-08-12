@@ -1,19 +1,31 @@
 const api = window.autoCodeReviewDesktop;
 const recent = document.querySelector('[data-recent]');
+const search = document.querySelector('[data-project-search]');
 const nameOf = (path) => path.split(/[\\/]/).filter(Boolean).pop() || path;
+let desktopState = null;
 
 async function render() {
-  const state = await api.getState();
+  desktopState = await api.getState();
+  renderProjects();
+}
+
+function renderProjects() {
+  const state = desktopState;
+  if (!state) return;
   document.querySelector('[data-version]').textContent = `v${state.version}`;
   recent.replaceChildren();
-  if (!state.recentRepositories.length) {
+  const query = search.value.trim().toLocaleLowerCase('zh-CN');
+  const repositories = [...state.recentRepositories]
+    .sort((left, right) => Number(state.favoriteRepositories.includes(right)) - Number(state.favoriteRepositories.includes(left)))
+    .filter((path) => !query || path.toLocaleLowerCase('zh-CN').includes(query));
+  if (!repositories.length) {
     const empty = document.createElement('p');
     empty.className = 'empty';
-    empty.textContent = '还没有打开过仓库。';
+    empty.textContent = query ? '没有匹配的项目。' : '还没有打开过仓库。';
     recent.append(empty);
     return;
   }
-  for (const path of state.recentRepositories) {
+  for (const path of repositories) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'recent-item';
@@ -28,11 +40,23 @@ async function render() {
     arrow.textContent = '→';
     button.append(strong, detail, arrow);
     button.addEventListener('click', () => api.openRecentRepository(path));
-    recent.append(button);
+    const favorite = document.createElement('button');
+    favorite.type = 'button';
+    favorite.className = 'favorite';
+    favorite.title = state.favoriteRepositories.includes(path) ? '取消收藏' : '收藏项目';
+    favorite.setAttribute('aria-label', favorite.title);
+    favorite.setAttribute('aria-pressed', String(state.favoriteRepositories.includes(path)));
+    favorite.textContent = state.favoriteRepositories.includes(path) ? '★' : '☆';
+    favorite.addEventListener('click', async () => { desktopState = await api.toggleFavorite(path); renderProjects(); });
+    const row = document.createElement('div');
+    row.className = 'recent-row';
+    row.append(button, favorite);
+    recent.append(row);
   }
 }
 
 document.querySelector('[data-select]').addEventListener('click', () => api.selectRepository());
+search.addEventListener('input', renderProjects);
 function closeLogViewer() {
   const viewer = document.querySelector('[data-log-viewer]');
   if (viewer.hidden) return;

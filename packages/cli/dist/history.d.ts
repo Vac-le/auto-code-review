@@ -23,11 +23,13 @@ export interface HistoryRecord {
     scope: {
         mode: SnapshotMode;
         base: string | null;
+        head: string | null;
         branch: string | null;
     };
     snapshot?: HistorySnapshot;
     report?: ReviewReport;
     error?: string;
+    findingStates?: Record<string, "open" | "resolved" | "false-positive">;
 }
 export interface HistorySummary {
     id: string;
@@ -47,7 +49,9 @@ export interface ReviewHistoryStore {
     save(record: HistoryRecord): void;
     delete(id: string): boolean;
     clear(): void;
+    setFindingState(id: string, findingId: string, state: "open" | "resolved" | "false-positive"): HistoryRecord | null;
 }
 export declare function defaultHistoryDirectory(): string;
+export declare function fitWithinHistoryLimit(records: HistoryRecord[]): HistoryRecord[];
 export declare function createReviewHistoryStore(repositoryRoot: string, directory?: string): ReviewHistoryStore;
 //# sourceMappingURL=history.d.ts.map

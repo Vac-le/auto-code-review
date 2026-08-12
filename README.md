@@ -89,6 +89,8 @@ The remaining commands provide deterministic plumbing:
 
 ```bash
 npm exec -- auto-code-review snapshot --staged --output snapshot.json
+npm exec -- auto-code-review snapshot --commit abc123 --output snapshot.json
+npm exec -- auto-code-review snapshot --pr-base origin/main --pr-head HEAD --output snapshot.json
 npm exec -- auto-code-review validate --report report.json --snapshot snapshot.json
 npm exec -- auto-code-review format --report report.json
 npm exec -- auto-code-review doctor
@@ -96,9 +98,25 @@ npm exec -- auto-code-review doctor
 
 `snapshot` enumerates changed hunks and bounded context while excluding binaries, generated output, lockfiles, and common secret paths. `validate` rejects invalid paths, line ranges, weak evidence, duplicate findings, unsupported categories, and low-confidence results.
 
+Repository defaults can be stored in an optional `.auto-code-review.json` file:
+
+```json
+{
+  "defaultHost": "codex",
+  "defaultScope": "branch",
+  "baseRevision": "origin/main",
+  "minimumConfidence": 0.9,
+  "maxFindings": 5,
+  "ignorePaths": ["vendor", "generated"],
+  "instructions": "Prioritize public API compatibility."
+}
+```
+
+The file is parsed strictly and treated as untrusted repository input. Instructions can refine review priorities but cannot override read-only operation, evidence requirements, output limits, or safety boundaries.
+
 ## Windows desktop app
 
-The desktop app wraps the same local dashboard and review engine in an installable Windows application. It adds a native repository picker, recent projects, background tray operation, local lifecycle logs, and an NSIS installer without introducing a model gateway or a second review implementation.
+The desktop app wraps the same local dashboard and review engine in an installable Windows application. It adds a native repository picker, searchable and favoritable recent projects, background tray operation, local lifecycle logs, explicit update checks, environment diagnostics, and an NSIS installer without introducing a model gateway or a second review implementation.
 
 Published installers are available from [GitHub Releases](https://github.com/Vac-le/auto-code-review/releases). Each tagged version is rebuilt on GitHub's Windows runner and attached to its release; workflow-dispatch builds are also retained as downloadable Actions artifacts.
 
@@ -116,7 +134,7 @@ Create the Windows `.exe` installer:
 npm run dist:win --workspace @auto-code-review/desktop
 ```
 
-The installer is written to `packages/desktop/release/`. Closing the main window keeps an active review available in the system tray; choose **退出** from the tray menu to stop the local service. Desktop settings and logs are stored under Electron's per-user application-data directory. Review history continues to use the shared CLI history store and remains isolated by repository.
+The installer is written to `packages/desktop/release/`. Closing the main window keeps an active review available in the system tray; choose **退出** from the tray menu to stop the local service. Desktop settings and logs are stored under Electron's per-user application-data directory. Review history continues to use the shared CLI history store and remains isolated by repository. Update checks contact only GitHub and run only after the user presses **检查更新**.
 
 ## Review behavior
 
