@@ -241,6 +241,10 @@ export async function runHostReview(input: {
       if (exceeded) return reject(new Error("The model response exceeded the safe output limit."));
       if (code !== 0) {
         const detail = safeHostFailureDetail(stderr);
+        // Log full stderr for debugging (will be visible in desktop logs)
+        console.error(`[host-review] ${input.host} failed with exit code ${code}`);
+        console.error(`[host-review] stderr:`, stderr.slice(-2000));
+        console.error(`[host-review] stdout:`, stdout.slice(-500));
         return reject(new Error(`${input.host} review failed${detail ? `: ${detail}` : "."}`));
       }
       try { resolve(canonicalizeHostReport(parseHostOutput(input.host, stdout))); } catch (error) { reject(error); }

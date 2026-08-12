@@ -303,6 +303,14 @@ export function createDashboardServer(options, dependencies = {}) {
                     catch (error) {
                         job.state = job.controller.signal.aborted ? "cancelled" : "failed";
                         job.error = errorMessage(error);
+                        // Log detailed error for debugging
+                        emitEvent("error", {
+                            id: job.id,
+                            host: job.host,
+                            state: job.state,
+                            error: job.error,
+                            stack: error instanceof Error ? error.stack : undefined
+                        });
                     }
                     finally {
                         job.updatedAt = new Date().toISOString();
