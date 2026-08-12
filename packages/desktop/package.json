@@ -4,6 +4,10 @@
   "private": true,
   "description": "Native desktop shell for the local Auto Code Review dashboard",
   "author": "Auto Code Review contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vac-le/auto-code-review.git"
+  },
   "type": "module",
   "main": "src/main.mjs",
   "scripts": {
