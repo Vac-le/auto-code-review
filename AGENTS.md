@@ -1,5 +1,6 @@
 # Contributor instructions
 
+- Before changing code, read and follow `AGENT_DEVELOPMENT.md`. It defines the required development, verification, versioning, and release workflow for every agent task.
 - Keep the product local-first and read-only by default.
 - Do not add a model gateway or require a second model API key for the default workflow.
 - Keep platform-neutral review rules in the shared Codex skill and generate or adapt platform wrappers from it.
