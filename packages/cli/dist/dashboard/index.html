@@ -114,8 +114,8 @@
               <button type="button" class="choice" data-scope="pull-request" aria-pressed="false" data-i18n="prScope">Pull Request</button>
             </div>
             <div class="revision-fields" data-revision-fields hidden>
-              <label class="base-field" data-base-field><span data-i18n="baseRevision">基础分支</span><input type="text" value="main" maxlength="1024" data-base-input /></label>
-              <label class="base-field" data-head-field hidden><span data-i18n="headRevision">目标 Commit</span><input type="text" value="HEAD" maxlength="1024" data-head-input /></label>
+              <label class="base-field" data-base-field><span data-i18n="baseRevision">基础分支</span><div class="scope-branch-select" data-scope-base-branch hidden><button type="button" data-scope-base-select aria-label="选择基础分支" aria-haspopup="listbox" aria-expanded="false"><span data-scope-base-value>main</span><i aria-hidden="true"></i></button><div class="scope-branch-options" data-scope-base-options role="listbox" aria-label="选择基础分支" hidden></div></div><input type="text" value="main" maxlength="1024" data-base-input /></label>
+              <label class="base-field" data-head-field hidden><span data-i18n="headRevision">目标 Commit</span><div class="scope-branch-select" data-scope-head-branch hidden><button type="button" data-scope-head-select aria-label="选择目标分支" aria-haspopup="listbox" aria-expanded="false"><span data-scope-head-value>HEAD</span><i aria-hidden="true"></i></button><div class="scope-branch-options" data-scope-head-options role="listbox" aria-label="选择目标分支" hidden></div></div><input type="text" value="HEAD" maxlength="1024" data-head-input /></label>
             </div>
           </fieldset>
         </div>

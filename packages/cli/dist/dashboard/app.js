@@ -1,12 +1,12 @@
 const copy = {
   zh: {
     history:'历史审查',clearHistory:'清空记录',historyLoading:'正在读取历史记录…',historyEmpty:'还没有历史审查记录。',historyCount:'{count} 条记录',historyFindings:'{count} 个问题',historyFiles:'{count} 个文件',deleteHistory:'删除这条记录',historyDeleted:'历史记录已删除',historyCleared:'历史记录已清空',historyViewed:'历史记录',confirmClear:'确定清空当前仓库的全部历史审查记录吗？',scopeWorking:'未提交变更',scopeStaged:'暂存区变更',scopeBase:'基础分支对比',
-    overview:'审查概览',newReview:'发起审查',projectHistory:'项目审查记录',recentProjects:'最近项目',loadMore:'显示更多',selectBranch:'选择分支',switchBranch:'切换',branchSafety:'切换前需要保持工作区干净。',branchSwitched:'已切换到分支 {branch}',branchSwitching:'正在切换…',openFolder:'打开目录',refresh:'刷新',activity:'Review 活跃度',activityHint:'过去一年每天完成的代码审查',pastYear:'过去 365 天',totalReviews:'审查次数',activeDays:'活跃天数',totalFindings:'发现问题',currentStreak:'连续天数',less:'少',more:'多',collapseSidebar:'收起侧栏',expandSidebar:'展开侧栏',logsTitle:'运行日志',logsDescription:'查看桌面端运行与审查事件',logsLocalOnly:'日志仅保存在本机',logsRefresh:'刷新日志',logsLoading:'正在读取日志…',logsEmpty:'暂无运行日志。',diagnostics:'诊断',diagnosticsTitle:'环境诊断',diagnosticsDescription:'检查 Git、审查平台、项目配置和本地存储',diagnosticsLocalOnly:'诊断仅执行本机只读检查',diagnosticsLoading:'正在执行只读诊断…',diagnosticsHealthy:'环境可用',diagnosticsNeedsAttention:'需要处理',configured:'已配置',notConfigured:'使用默认配置',openSource:'打开文件',rerun:'重新审查',checkUpdates:'检查更新',updateCurrent:'当前已是最新版本',updateAvailable:'发现新版本 {version}',
+    overview:'审查概览',newReview:'发起审查',projectHistory:'项目审查记录',recentProjects:'最近项目',loadMore:'显示更多',selectBranch:'选择分支',switchBranch:'切换',branchSafety:'切换前需要保持工作区干净。',branchSwitched:'已切换到分支 {branch}',branchSwitching:'正在切换…',openFolder:'打开目录',refresh:'刷新',activity:'Review 活跃度',activityHint:'过去一年每天完成的代码审查',pastYear:'过去 365 天',totalReviews:'审查次数',activeDays:'活跃天数',totalFindings:'发现问题',currentStreak:'连续天数',less:'少',more:'多',collapseSidebar:'收起侧栏',expandSidebar:'展开侧栏',logsTitle:'运行日志',logsDescription:'查看桌面端运行与审查事件',logsLocalOnly:'日志仅保存在本机',logsRefresh:'刷新日志',logsLoading:'正在读取日志…',logsEmpty:'暂无运行日志。',diagnostics:'诊断',diagnosticsTitle:'环境诊断',diagnosticsDescription:'检查 Git、审查平台、项目配置和本地存储',diagnosticsLocalOnly:'诊断仅执行本机只读检查',diagnosticsLoading:'正在执行只读诊断…',diagnosticsHealthy:'环境可用',diagnosticsNeedsAttention:'需要处理',configured:'已配置',notConfigured:'使用默认配置',openSource:'打开文件',rerun:'重新审查',checkUpdates:'检查更新',updateCurrent:'当前已是最新版本',updateAvailable:'发现新版本 {version}',copyReport:'复制完整报告',reportCopied:'报告已复制',
     skip:'跳到主要内容',localOnly:'仅在本机运行',eyebrow:'真实本地审查',title:'检查当前代码变更',intro:'代码快照在本机生成，由你已登录的 Codex 或 Claude Code 审查；结果通过证据校验后才会显示。',repository:'当前仓库',settings:'设置审查',settingsHint:'选择平台和范围，然后开始一次只读审查。',platform:'审查平台',scope:'审查范围',working:'未提交变更',staged:'暂存区',base:'与基础分支对比',commitScope:'指定 Commit',branchScope:'分支对比',prScope:'Pull Request',baseRevision:'基础分支',headRevision:'目标 Commit',readonly:'只读运行，不会修改代码或 Git 状态',run:'开始真实审查',progress:'审查进度',stageSnapshot:'生成安全快照',stageSnapshotHint:'过滤密钥与无关文件',stageReview:'模型分析代码',stageReviewHint:'使用当前平台账号',stageValidate:'验证证据与行号',stageValidateHint:'淘汰不可靠问题',stageComplete:'生成审查报告',stageCompleteHint:'最多十条高置信度问题',cancel:'取消审查',result:'审查结果',waiting:'等待开始',restoring:'正在恢复审查状态',emptyTitle:'还没有审查报告',emptyBody:'选择上方设置并开始审查。模型完成分析后，经过验证的问题会显示在这里。',files:'变更文件',filesLoading:'正在读取 Git 变更…',available:'可用',unavailable:'未安装',branch:'分支',changes:'{files} 个文件 · +{additions} −{deletions}',running:'审查中',reviewLoading:'正在审查当前代码变更…',complete:'审查完成',failed:'审查失败',cancelled:'已取消',cleanTitle:'没有发现可靠问题',cleanBody:'本次审查没有问题通过证据门槛。这不等同于形式化证明代码完全正确。',verifiedFindings:'已验证问题',findingCount:'{count} 个',confidenceLabel:'置信度',trigger:'触发条件与影响',evidence:'代码证据',repair:'修复方向',noRepair:'报告未提供修复方向',location:'位置',copyFix:'复制修复提示',resolved:'标记已解决',falsePositive:'误报',reopen:'重新打开',copied:'修复提示已复制',categoryCorrectness:'正确性',categorySecurity:'安全',categoryDataIntegrity:'数据完整性',categoryConcurrency:'并发',categoryPerformance:'性能',categoryCompatibility:'兼容性',categoryTesting:'测试',reviewStarted:'真实审查已开始',authError:'本地会话链接无效，请重新运行 auto-code-review ui。',noHost:'请先安装并登录 Codex 或 Claude Code。',statusError:'无法读取本地仓库状态。',unknownError:'发生未知错误。',statusModified:'修改',statusAdded:'新增',statusDeleted:'删除',statusRenamed:'重命名',statusCopied:'复制',statusTypeChanged:'类型变化',statusUnmerged:'冲突'
   },
   en: {
     history:'Review history',clearHistory:'Clear history',historyLoading:'Loading review history…',historyEmpty:'No review history yet.',historyCount:'{count} records',historyFindings:'{count} findings',historyFiles:'{count} files',deleteHistory:'Delete this record',historyDeleted:'History record deleted',historyCleared:'Review history cleared',historyViewed:'History',confirmClear:'Clear all review history for this repository?',scopeWorking:'Uncommitted changes',scopeStaged:'Staged changes',scopeBase:'Base comparison',
-    overview:'Overview',newReview:'New review',projectHistory:'Project review history',recentProjects:'Recent projects',loadMore:'Show more',selectBranch:'Select branch',switchBranch:'Switch',branchSafety:'Keep the working tree clean before switching.',branchSwitched:'Switched to {branch}',branchSwitching:'Switching…',openFolder:'Open folder',refresh:'Refresh',activity:'Review activity',activityHint:'Daily code reviews during the past year',pastYear:'Past 365 days',totalReviews:'Reviews',activeDays:'Active days',totalFindings:'Findings',currentStreak:'Day streak',less:'Less',more:'More',collapseSidebar:'Collapse sidebar',expandSidebar:'Expand sidebar',logsTitle:'Runtime logs',logsDescription:'Desktop runtime and review events',logsLocalOnly:'Logs are stored on this computer only',logsRefresh:'Refresh logs',logsLoading:'Loading logs…',logsEmpty:'No runtime logs yet.',diagnostics:'Diagnostics',diagnosticsTitle:'Environment diagnostics',diagnosticsDescription:'Check Git, review hosts, project configuration, and local storage',diagnosticsLocalOnly:'Diagnostics run read-only checks on this computer',diagnosticsLoading:'Running read-only diagnostics…',diagnosticsHealthy:'Environment ready',diagnosticsNeedsAttention:'Needs attention',configured:'Configured',notConfigured:'Using defaults',openSource:'Open file',rerun:'Review again',checkUpdates:'Check for updates',updateCurrent:'You are on the latest version',updateAvailable:'Version {version} is available',
+    overview:'Overview',newReview:'New review',projectHistory:'Project review history',recentProjects:'Recent projects',loadMore:'Show more',selectBranch:'Select branch',switchBranch:'Switch',branchSafety:'Keep the working tree clean before switching.',branchSwitched:'Switched to {branch}',branchSwitching:'Switching…',openFolder:'Open folder',refresh:'Refresh',activity:'Review activity',activityHint:'Daily code reviews during the past year',pastYear:'Past 365 days',totalReviews:'Reviews',activeDays:'Active days',totalFindings:'Findings',currentStreak:'Day streak',less:'Less',more:'More',collapseSidebar:'Collapse sidebar',expandSidebar:'Expand sidebar',logsTitle:'Runtime logs',logsDescription:'Desktop runtime and review events',logsLocalOnly:'Logs are stored on this computer only',logsRefresh:'Refresh logs',logsLoading:'Loading logs…',logsEmpty:'No runtime logs yet.',diagnostics:'Diagnostics',diagnosticsTitle:'Environment diagnostics',diagnosticsDescription:'Check Git, review hosts, project configuration, and local storage',diagnosticsLocalOnly:'Diagnostics run read-only checks on this computer',diagnosticsLoading:'Running read-only diagnostics…',diagnosticsHealthy:'Environment ready',diagnosticsNeedsAttention:'Needs attention',configured:'Configured',notConfigured:'Using defaults',openSource:'Open file',rerun:'Review again',checkUpdates:'Check for updates',updateCurrent:'You are on the latest version',updateAvailable:'Version {version} is available',copyReport:'Copy full report',reportCopied:'Report copied',
     skip:'Skip to content',localOnly:'Runs on this computer only',eyebrow:'Real local review',title:'Review the current code change',intro:'A bounded snapshot is created locally, reviewed by your signed-in Codex or Claude Code, and shown only after evidence validation.',repository:'Current repository',settings:'Configure review',settingsHint:'Choose a platform and scope, then start a read-only review.',platform:'Review platform',scope:'Review scope',working:'Uncommitted changes',staged:'Staged changes',base:'Against a base branch',commitScope:'Specific commit',branchScope:'Branch comparison',prScope:'Pull Request',baseRevision:'Base revision',headRevision:'Head commit',readonly:'Read-only: code and Git state will not be modified',run:'Start real review',progress:'Review progress',stageSnapshot:'Create safe snapshot',stageSnapshotHint:'Filter secrets and unrelated files',stageReview:'Analyze with the model',stageReviewHint:'Use the active platform account',stageValidate:'Validate evidence and lines',stageValidateHint:'Remove unreliable findings',stageComplete:'Create review report',stageCompleteHint:'At most ten high-confidence findings',cancel:'Cancel review',result:'Review result',waiting:'Waiting to start',restoring:'Restoring review state',emptyTitle:'No review report yet',emptyBody:'Choose the settings above and start. Verified findings will appear here after the model finishes.',files:'Changed files',filesLoading:'Reading Git changes…',available:'Available',unavailable:'Not installed',branch:'Branch',changes:'{files} files · +{additions} −{deletions}',running:'Reviewing',reviewLoading:'Reviewing the current code change…',complete:'Review complete',failed:'Review failed',cancelled:'Cancelled',cleanTitle:'No verified findings',cleanBody:'No issue passed the evidence threshold. This is not a formal proof that the code is perfect.',verifiedFindings:'Verified findings',findingCount:'{count}',confidenceLabel:'Confidence',trigger:'Trigger and impact',evidence:'Code evidence',repair:'Repair direction',noRepair:'No repair direction was provided',location:'Location',copyFix:'Copy fix prompt',resolved:'Mark resolved',falsePositive:'False positive',reopen:'Reopen',copied:'Fix prompt copied',categoryCorrectness:'Correctness',categorySecurity:'Security',categoryDataIntegrity:'Data integrity',categoryConcurrency:'Concurrency',categoryPerformance:'Performance',categoryCompatibility:'Compatibility',categoryTesting:'Testing',reviewStarted:'Real review started',authError:'The local session link is invalid. Run auto-code-review ui again.',noHost:'Install and sign in to Codex or Claude Code first.',statusError:'Unable to read the local repository.',unknownError:'An unknown error occurred.',statusModified:'Modified',statusAdded:'Added',statusDeleted:'Deleted',statusRenamed:'Renamed',statusCopied:'Copied',statusTypeChanged:'Type changed',statusUnmerged:'Conflict'
   }
 };
@@ -183,6 +183,7 @@ function renderBranches(data) {
   });
   document.querySelector('[data-branch-switch]').disabled=!selectedBranch||selectedBranch===branchData.current;
   document.querySelector('[data-sidebar-project-branch]').textContent=branchData.current||'HEAD';
+  renderScopeBranches(branchData);
 }
 
 function closeBranchOptions(){const select=document.querySelector('[data-branch-select]');const options=document.querySelector('[data-branch-options]');if(!select||!options)return false;const open=select.getAttribute('aria-expanded')==='true';select.setAttribute('aria-expanded','false');options.hidden=true;return open;}
@@ -200,6 +201,74 @@ document.querySelector('[data-branch-switch]')?.addEventListener('click',async()
     const [status,history,activity]=await Promise.all([api('/api/status'),api('/api/history'),api('/api/activity')]);renderStatus(status);renderHistory(history.records||[]);renderActivity(activity.records||[]);showToast(t('branchSwitched').replace('{branch}',branch));
   }catch(error){showError(error.message);renderBranches(branchData);}
   finally{button.textContent=t('switchBranch');}
+});
+
+function renderScopeBranches(data) {
+  if (!desktopApi) return;
+  const branches = data?.branches || [];
+  ['base', 'head'].forEach((type) => {
+    const selectBtn = document.querySelector(`[data-scope-${type}-select]`);
+    const valueSpan = document.querySelector(`[data-scope-${type}-value]`);
+    const optionsDiv = document.querySelector(`[data-scope-${type}-options]`);
+    const input = document.querySelector(type === 'base' ? '[data-base-input]' : '[data-head-input]');
+    if (!selectBtn || !optionsDiv || !input) return;
+    const currentValue = input.value.trim() || (type === 'base' ? 'main' : 'HEAD');
+    if (valueSpan) valueSpan.textContent = currentValue;
+    selectBtn.setAttribute('aria-expanded', 'false');
+    optionsDiv.hidden = true;
+    optionsDiv.replaceChildren();
+    branches.forEach((branch) => {
+      const option = element('button', 'scope-branch-option');
+      option.type = 'button';
+      option.setAttribute('role', 'option');
+      option.setAttribute('aria-selected', String(branch.name === currentValue));
+      option.textContent = branch.name;
+      option.addEventListener('click', () => {
+        input.value = branch.name;
+        if (valueSpan) valueSpan.textContent = branch.name;
+        selectBtn.setAttribute('aria-expanded', 'false');
+        optionsDiv.hidden = true;
+        selectBtn.focus();
+      });
+      optionsDiv.append(option);
+    });
+  });
+}
+
+function setupScopeBranchSelect(type) {
+  const selectBtn = document.querySelector(`[data-scope-${type}-select]`);
+  const optionsDiv = document.querySelector(`[data-scope-${type}-options]`);
+  const container = document.querySelector(`[data-scope-${type}-branch]`);
+  if (!selectBtn || !optionsDiv || !container) return;
+  selectBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const open = selectBtn.getAttribute('aria-expanded') === 'true';
+    document.querySelectorAll('.scope-branch-select button[aria-expanded="true"]').forEach((btn) => {
+      btn.setAttribute('aria-expanded', 'false');
+      btn.parentElement.querySelector('.scope-branch-options').hidden = true;
+    });
+    selectBtn.setAttribute('aria-expanded', String(!open));
+    optionsDiv.hidden = open;
+  });
+  optionsDiv.addEventListener('click', (event) => event.stopPropagation());
+  container.addEventListener('focusout', (event) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      selectBtn.setAttribute('aria-expanded', 'false');
+      optionsDiv.hidden = true;
+    }
+  });
+}
+
+if (desktopApi) {
+  setupScopeBranchSelect('base');
+  setupScopeBranchSelect('head');
+}
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.scope-branch-select button[aria-expanded="true"]').forEach((btn) => {
+    btn.setAttribute('aria-expanded', 'false');
+    btn.parentElement.querySelector('.scope-branch-options').hidden = true;
+  });
 });
 
 function localDay(value) {
@@ -278,6 +347,19 @@ function selectScope(scope) {
   const needsBase=['base','branch','pull-request'].includes(scope);const needsHead=['commit','pull-request'].includes(scope);
   document.querySelector('[data-revision-fields]').hidden=!needsBase&&!needsHead;
   document.querySelector('[data-base-field]').hidden=!needsBase;document.querySelector('[data-head-field]').hidden=!needsHead;
+  const isBranchMode = scope === 'branch';
+  const baseInput = document.querySelector('[data-base-input]');
+  const headInput = document.querySelector('[data-head-input]');
+  const baseBranchSelect = document.querySelector('[data-scope-base-branch]');
+  const headBranchSelect = document.querySelector('[data-scope-head-branch]');
+  if (desktopApi && needsBase) {
+    if (baseBranchSelect) baseBranchSelect.hidden = !isBranchMode;
+    if (baseInput) baseInput.hidden = isBranchMode;
+  }
+  if (desktopApi && needsHead) {
+    if (headBranchSelect) headBranchSelect.hidden = !isBranchMode;
+    if (headInput) headInput.hidden = isBranchMode;
+  }
   updateRunAvailability();
 }
 document.querySelectorAll('[data-scope]').forEach((button)=>button.addEventListener('click',()=>selectScope(button.dataset.scope)));
@@ -405,13 +487,32 @@ function localizedHostError(message) {
 async function setFindingState(recordId,findingId,state){try{const record=await api(`/api/history/${recordId}/findings/${findingId}`,{method:'PATCH',body:JSON.stringify({state})});lastJob=record;renderReport(record.report,record);await loadHistory();}catch(error){showError(error.message);}}
 function findingPrompt(finding){return `Fix this verified code-review finding without changing unrelated behavior.\n\n${finding.title}\nLocation: ${finding.file}:${finding.startLine}-${finding.endLine}\nTrigger and impact: ${finding.failureScenario}\nEvidence: ${finding.evidence}\nSuggested direction: ${finding.suggestedFix||t('noRepair')}`;}
 async function copyText(value){if(!navigator.clipboard?.writeText)throw new Error(language==='zh'?'当前环境无法访问剪贴板。':'Clipboard access is unavailable.');await navigator.clipboard.writeText(value);}
+function formatReportForCopy(report) {
+  const categoryLabel=(category)=>t(`category${category.split('-').map((part)=>part[0].toUpperCase()+part.slice(1)).join('')}`);
+  let text = `# ${t('verifiedFindings')} (${report.findings.length})\n\n`;
+  if (report.summary) text += `${report.summary}\n\n`;
+  text += '---\n\n';
+  report.findings.forEach((finding, index) => {
+    text += `## ${index + 1}. ${finding.title}\n\n`;
+    text += `**${t('category')}**: ${categoryLabel(finding.category)}\n`;
+    text += `**${t('confidenceLabel')}**: ${Math.round(finding.confidence * 100)}%\n`;
+    text += `**${t('location')}**: ${finding.file}:${finding.startLine}${finding.endLine !== finding.startLine ? `–${finding.endLine}` : ''}\n\n`;
+    text += `### ${t('trigger')}\n${finding.failureScenario}\n\n`;
+    text += `### ${t('evidence')}\n${finding.evidence}\n\n`;
+    text += `### ${t('repair')}\n${finding.suggestedFix || t('noRepair')}\n\n`;
+    text += '---\n\n';
+  });
+  return text;
+}
 function renderReport(report,record=lastJob) {
   const result=document.querySelector('[data-result]');result.replaceChildren();
   if(!report.findings.length){const clean=element('div','clean-report');clean.append(element('span','check','✓'),element('h3','',t('cleanTitle')),element('p','',report.summary||t('cleanBody')));const rerun=element('button','report-rerun',t('rerun'));rerun.type='button';rerun.addEventListener('click',()=>runReview());clean.append(rerun);result.append(clean);return;}
   const overview=element('header','report-overview');
   const summary=element('div','report-copy');summary.append(element('span','report-label',t('verifiedFindings')),element('p','report-summary',report.summary));
   const total=element('strong','report-count',t('findingCount').replace('{count}',report.findings.length));
-  const overviewActions=element('div','report-overview-actions');overviewActions.append(total);const rerun=element('button','report-rerun',t('rerun'));rerun.type='button';rerun.addEventListener('click',()=>runReview());overviewActions.append(rerun);overview.append(summary,overviewActions);result.append(overview);
+  const overviewActions=element('div','report-overview-actions');overviewActions.append(total);
+  const copyReport=element('button','report-copy-all',t('copyReport'));copyReport.type='button';copyReport.addEventListener('click',async()=>{try{await copyText(formatReportForCopy(report));showToast(t('reportCopied'));}catch(error){showError(error.message);}});overviewActions.append(copyReport);
+  const rerun=element('button','report-rerun',t('rerun'));rerun.type='button';rerun.addEventListener('click',()=>runReview());overviewActions.append(rerun);overview.append(summary,overviewActions);result.append(overview);
   const categoryLabel=(category)=>t(`category${category.split('-').map((part)=>part[0].toUpperCase()+part.slice(1)).join('')}`);
   report.findings.forEach((finding,index)=>{
     const card=element('article',`finding-card priority-${finding.priority.toLowerCase()}`);

@@ -104,6 +104,8 @@
 }
 
 .report-overview-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; }
+.report-copy-all { padding: 7px 10px; color: #2f694d; background: #fff; border: 1px solid #d4e6da; border-radius: 8px; cursor: pointer; font-size: .68rem; font-weight: 700; }
+.report-copy-all:hover { background: #edf6f0; }
 .report-rerun { padding: 7px 10px; color: #4037a2; background: #fff; border: 1px solid #d9d5f5; border-radius: 8px; cursor: pointer; font-size: .68rem; font-weight: 700; }
 .report-rerun:hover { background: #f3f1ff; }
 
