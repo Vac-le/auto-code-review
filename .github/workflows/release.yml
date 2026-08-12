@@ -21,13 +21,17 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build CLI package
-        run: npm run build --workspace=packages/cli
+        run: |
+          cd packages/cli
+          npm run build
 
       - name: Build Desktop installer
-        run: npm run dist:win --workspace=packages/desktop
+        run: |
+          cd packages/desktop
+          npm run dist:win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
