@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, symlinkSync } from "node:fs";
+import { mkdtempSync, realpathSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -19,7 +19,7 @@ test("semantic version comparison handles upgrade and downgrade order", () => {
 test("source file resolution accepts regular repository files and rejects traversal", () => {
   const root = mkdtempSync(join(tmpdir(), "acr-source-file-"));
   const source = write(root, "src/app.ts", "export const ok = true;\n");
-  assert.equal(resolveRepositoryFile(root, "src/app.ts"), source);
+  assert.equal(resolveRepositoryFile(root, "src/app.ts"), realpathSync(source));
   assert.equal(resolveRepositoryFile(root, "../outside.ts"), null);
   assert.equal(resolveRepositoryFile(root, "src\\app.ts"), null);
   assert.equal(resolveRepositoryFile(root, "src"), null);

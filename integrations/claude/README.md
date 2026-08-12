@@ -66,4 +66,4 @@ When Claude Code is installed, also run its official validator:
 claude plugin validate . --strict
 ```
 
-The plugin and marketplace versions are intentionally pinned. Bump both copies of `0.1.0` for every release so installed users receive updates.
+The plugin and marketplace versions are intentionally pinned. Bump every manifest version together for each release so installed users receive updates.
