@@ -1,6 +1,6 @@
 {
   "name": "@auto-code-review/desktop",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "Native desktop shell for the local Auto Code Review dashboard",
   "author": "Auto Code Review contributors",
@@ -18,7 +18,7 @@
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@auto-code-review/cli": "0.2.1"
+    "@auto-code-review/cli": "0.2.2"
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",

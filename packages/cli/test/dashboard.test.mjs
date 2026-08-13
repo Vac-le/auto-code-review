@@ -99,6 +99,10 @@ test("local dashboard requires its session token and never exposes patch bodies"
     assert.match(dashboardScript, /setMainInert\(true\)/);
     assert.match(dashboardScript, /selectedScope==='working'&&!workingHasChanges/);
     assert.doesNotMatch(dashboardScript, /loading:'(?:Reading Git changes|Reviewing the current code change)/);
+    const desktopApiDeclaration = dashboardScript.indexOf("const desktopApi = window.autoCodeReviewDesktop;");
+    const initialLanguageApplication = dashboardScript.indexOf("applyLanguage(language);");
+    assert.ok(desktopApiDeclaration >= 0 && desktopApiDeclaration < initialLanguageApplication,
+      "desktopApi must be initialized before language rendering invokes branch rendering");
 
     const unauthorized = await fetch(`${dashboard.baseUrl}/api/status`);
     assert.equal(unauthorized.status, 401);

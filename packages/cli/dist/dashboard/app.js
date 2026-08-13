@@ -33,6 +33,7 @@ let selectedBranch = null;
 let desktopState = null;
 let sidebarHistoryLimit = 60;
 let projectDefaultsApplied = false;
+const desktopApi = window.autoCodeReviewDesktop;
 const t = (key) => copy[language][key] || key;
 const element = (tag, className, text) => { const node=document.createElement(tag); if(className)node.className=className;if(text!==undefined)node.textContent=text;return node; };
 
@@ -65,7 +66,6 @@ function applyLanguage(next) {
 document.querySelectorAll('[data-language]').forEach((button)=>button.addEventListener('click',()=>applyLanguage(button.dataset.language)));
 applyLanguage(language);
 
-const desktopApi = window.autoCodeReviewDesktop;
 if (desktopApi) {
   document.querySelector('[data-desktop-actions]').hidden = false;
   document.body.classList.add('desktop-mode');
