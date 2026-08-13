@@ -13,7 +13,7 @@ import type { ReviewReport, SnapshotMode } from "./types.ts";
 import { startDashboard } from "./ui.ts";
 import { validateReport } from "./validate.ts";
 
-const VERSION = "0.2.2";
+const VERSION = "0.2.4";
 const MAX_JSON_INPUT = 16 * 1024 * 1024;
 
 const HELP = `Auto Code Review deterministic local CLI
