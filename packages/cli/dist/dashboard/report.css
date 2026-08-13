@@ -108,6 +108,7 @@
 .report-copy-all:hover { background: #edf6f0; }
 .report-rerun { padding: 7px 10px; color: #4037a2; background: #fff; border: 1px solid #d9d5f5; border-radius: 8px; cursor: pointer; font-size: .68rem; font-weight: 700; }
 .report-rerun:hover { background: #f3f1ff; }
+.clean-report-actions { margin-top: 12px; display: flex; justify-content: center; gap: 8px; }
 
 .finding-card {
   padding: 0;

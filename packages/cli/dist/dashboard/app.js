@@ -204,7 +204,6 @@ document.querySelector('[data-branch-switch]')?.addEventListener('click',async()
 });
 
 function renderScopeBranches(data) {
-  if (!desktopApi) return;
   const branches = data?.branches || [];
   ['base', 'head'].forEach((type) => {
     const selectBtn = document.querySelector(`[data-scope-${type}-select]`);
@@ -212,7 +211,9 @@ function renderScopeBranches(data) {
     const optionsDiv = document.querySelector(`[data-scope-${type}-options]`);
     const input = document.querySelector(type === 'base' ? '[data-base-input]' : '[data-head-input]');
     if (!selectBtn || !optionsDiv || !input) return;
-    const currentValue = input.value.trim() || (type === 'base' ? 'main' : 'HEAD');
+    const fallback = type === 'base' ? (branches.find((branch)=>branch.name==='main')?.name || data?.current || branches[0]?.name || 'HEAD') : (data?.current || branches[0]?.name || 'HEAD');
+    const currentValue = branches.some((branch)=>branch.name===input.value.trim()) ? input.value.trim() : fallback;
+    input.value = currentValue;
     if (valueSpan) valueSpan.textContent = currentValue;
     selectBtn.setAttribute('aria-expanded', 'false');
     optionsDiv.hidden = true;
@@ -222,7 +223,9 @@ function renderScopeBranches(data) {
       option.type = 'button';
       option.setAttribute('role', 'option');
       option.setAttribute('aria-selected', String(branch.name === currentValue));
-      option.textContent = branch.name;
+      const copy = element('span', 'scope-branch-copy');
+      copy.append(element('strong', '', branch.name), element('small', '', branch.commit || ''));
+      option.append(element('span', 'scope-branch-check', branch.name === currentValue ? '✓' : ''), copy, element('span', 'scope-branch-current', branch.current ? (language === 'zh' ? '当前' : 'Current') : ''));
       option.addEventListener('click', () => {
         input.value = branch.name;
         if (valueSpan) valueSpan.textContent = branch.name;
@@ -259,10 +262,8 @@ function setupScopeBranchSelect(type) {
   });
 }
 
-if (desktopApi) {
-  setupScopeBranchSelect('base');
-  setupScopeBranchSelect('head');
-}
+setupScopeBranchSelect('base');
+setupScopeBranchSelect('head');
 
 document.addEventListener('click', () => {
   document.querySelectorAll('.scope-branch-select button[aria-expanded="true"]').forEach((btn) => {
@@ -347,18 +348,19 @@ function selectScope(scope) {
   const needsBase=['base','branch','pull-request'].includes(scope);const needsHead=['commit','pull-request'].includes(scope);
   document.querySelector('[data-revision-fields]').hidden=!needsBase&&!needsHead;
   document.querySelector('[data-base-field]').hidden=!needsBase;document.querySelector('[data-head-field]').hidden=!needsHead;
-  const isBranchMode = scope === 'branch';
+  const baseUsesBranch = ['base','branch','pull-request'].includes(scope);
+  const headUsesBranch = ['commit','pull-request'].includes(scope);
   const baseInput = document.querySelector('[data-base-input]');
   const headInput = document.querySelector('[data-head-input]');
   const baseBranchSelect = document.querySelector('[data-scope-base-branch]');
   const headBranchSelect = document.querySelector('[data-scope-head-branch]');
-  if (desktopApi && needsBase) {
-    if (baseBranchSelect) baseBranchSelect.hidden = !isBranchMode;
-    if (baseInput) baseInput.hidden = isBranchMode;
+  if (needsBase) {
+    if (baseBranchSelect) baseBranchSelect.hidden = !baseUsesBranch;
+    if (baseInput) baseInput.hidden = baseUsesBranch;
   }
-  if (desktopApi && needsHead) {
-    if (headBranchSelect) headBranchSelect.hidden = !isBranchMode;
-    if (headInput) headInput.hidden = isBranchMode;
+  if (needsHead) {
+    if (headBranchSelect) headBranchSelect.hidden = !headUsesBranch;
+    if (headInput) headInput.hidden = headUsesBranch;
   }
   updateRunAvailability();
 }
@@ -486,7 +488,14 @@ function localizedHostError(message) {
 
 async function setFindingState(recordId,findingId,state){try{const record=await api(`/api/history/${recordId}/findings/${findingId}`,{method:'PATCH',body:JSON.stringify({state})});lastJob=record;renderReport(record.report,record);await loadHistory();}catch(error){showError(error.message);}}
 function findingPrompt(finding){return `Fix this verified code-review finding without changing unrelated behavior.\n\n${finding.title}\nLocation: ${finding.file}:${finding.startLine}-${finding.endLine}\nTrigger and impact: ${finding.failureScenario}\nEvidence: ${finding.evidence}\nSuggested direction: ${finding.suggestedFix||t('noRepair')}`;}
-async function copyText(value){if(!navigator.clipboard?.writeText)throw new Error(language==='zh'?'当前环境无法访问剪贴板。':'Clipboard access is unavailable.');await navigator.clipboard.writeText(value);}
+async function copyText(value){
+  if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(value);return;}catch{/* Fall back for Electron and browsers that deny the async Clipboard API. */}}
+  const textarea=document.createElement('textarea');
+  textarea.value=value;textarea.readOnly=true;textarea.setAttribute('aria-hidden','true');textarea.style.cssText='position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none';
+  document.body.append(textarea);textarea.focus();textarea.select();textarea.setSelectionRange(0,textarea.value.length);
+  let copied=false;try{copied=document.execCommand('copy');}finally{textarea.remove();}
+  if(!copied)throw new Error(language==='zh'?'复制失败，请检查系统剪贴板权限。':'Copy failed. Check the system clipboard permission.');
+}
 function formatReportForCopy(report) {
   const categoryLabel=(category)=>t(`category${category.split('-').map((part)=>part[0].toUpperCase()+part.slice(1)).join('')}`);
   let text = `# ${t('verifiedFindings')} (${report.findings.length})\n\n`;
@@ -506,7 +515,7 @@ function formatReportForCopy(report) {
 }
 function renderReport(report,record=lastJob) {
   const result=document.querySelector('[data-result]');result.replaceChildren();
-  if(!report.findings.length){const clean=element('div','clean-report');clean.append(element('span','check','✓'),element('h3','',t('cleanTitle')),element('p','',report.summary||t('cleanBody')));const rerun=element('button','report-rerun',t('rerun'));rerun.type='button';rerun.addEventListener('click',()=>runReview());clean.append(rerun);result.append(clean);return;}
+  if(!report.findings.length){const clean=element('div','clean-report');clean.append(element('span','check','✓'),element('h3','',t('cleanTitle')),element('p','',report.summary||t('cleanBody')));const actions=element('div','clean-report-actions');const copyReport=element('button','report-copy-all',t('copyReport'));copyReport.type='button';copyReport.addEventListener('click',async()=>{try{await copyText(formatReportForCopy(report));showToast(t('reportCopied'));}catch(error){showError(error.message);}});const rerun=element('button','report-rerun',t('rerun'));rerun.type='button';rerun.addEventListener('click',()=>runReview());actions.append(copyReport,rerun);clean.append(actions);result.append(clean);return;}
   const overview=element('header','report-overview');
   const summary=element('div','report-copy');summary.append(element('span','report-label',t('verifiedFindings')),element('p','report-summary',report.summary));
   const total=element('strong','report-count',t('findingCount').replace('{count}',report.findings.length));
@@ -531,7 +540,7 @@ function renderReport(report,record=lastJob) {
 }
 
 function renderJob(job) {
-  lastJob=job;if(job.host)selectHost(job.host);if(job.scope?.mode){selectScope(job.scope.mode);if(job.scope.base)document.querySelector('[data-base-input]').value=job.scope.base;if(job.scope.head)document.querySelector('[data-head-input]').value=job.scope.head;}updateProgress(job.state);setResultStatus(job.state);
+  lastJob=job;if(job.host)selectHost(job.host);if(job.scope?.mode){selectScope(job.scope.mode);if(job.scope.base)document.querySelector('[data-base-input]').value=job.scope.base;if(job.scope.head)document.querySelector('[data-head-input]').value=job.scope.head;renderScopeBranches(branchData);}updateProgress(job.state);setResultStatus(job.state);
   if(job.snapshot)renderFiles(job.snapshot);
   const running=!['complete','failed','cancelled'].includes(job.state);
   document.querySelector('[data-cancel]').hidden=!running;

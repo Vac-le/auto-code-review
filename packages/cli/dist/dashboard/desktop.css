@@ -247,7 +247,7 @@ body.desktop-mode {
 .desktop-mode .repository-card {
   position: relative;
   padding: 16px 18px 16px 48px;
-  overflow: hidden;
+  overflow: visible;
   background: rgba(255, 255, 255, .86);
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -282,9 +282,11 @@ body.desktop-mode {
   box-shadow: 0 12px 32px rgba(30, 33, 29, .06);
 }
 
-.desktop-mode .control-panel,
 .desktop-mode .history-panel,
 .desktop-mode .changes-panel { overflow: hidden; }
+.desktop-mode .control-panel { overflow: visible; }
+.desktop-mode .control-heading { border-radius: 15px 15px 0 0; }
+.desktop-mode .run-row { border-radius: 0 0 15px 15px; }
 
 .desktop-mode .control-heading,
 .desktop-mode .result-heading,
@@ -317,10 +319,16 @@ body.desktop-mode {
 .desktop-mode .scope-branch-select > button[aria-expanded="true"] i { top: 16px; transform: rotate(225deg); }
 .desktop-mode .scope-branch-select > button:hover { background: #fff; border-color: #c9ccc5; }
 .desktop-mode .scope-branch-select > button:focus-visible,.desktop-mode .scope-branch-select > button[aria-expanded="true"] { border-color: #aaa2ee; box-shadow: 0 0 0 3px rgba(93,77,231,.15); }
-.desktop-mode .scope-branch-options { position: absolute; z-index: 45; top: calc(100% + 6px); left: 0; right: 0; max-height: 240px; padding: 5px; overflow-y: auto; background: #fff; border: 1px solid #dfe2db; border-radius: 10px; box-shadow: 0 16px 38px rgba(27,29,26,.17); scrollbar-width: thin; scrollbar-color: #d0d3cc #f5f6f3; }
-.desktop-mode .scope-branch-option { width: 100%; min-height: 38px; padding: 6px 8px; display: flex; align-items: center; gap: 7px; color: var(--ink); background: transparent; border: 0; border-radius: 7px; cursor: pointer; text-align: left; font-size: .63rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.desktop-mode .scope-branch-options { position: absolute; z-index: 70; top: calc(100% + 6px); left: 0; right: 0; max-height: min(320px,45vh); padding: 6px; overflow-y: auto; overscroll-behavior: contain; background: #fff; border: 1px solid #dfe2db; border-radius: 10px; box-shadow: 0 20px 48px rgba(27,29,26,.2); scrollbar-width: thin; scrollbar-color: #d0d3cc #f5f6f3; }
+.desktop-mode .scope-branch-option { width: 100%; min-height: 46px; padding: 7px 9px; display: grid; grid-template-columns: 16px minmax(0,1fr) auto; align-items: center; gap: 8px; color: var(--ink); background: transparent; border: 0; border-radius: 7px; cursor: pointer; text-align: left; font-size: .63rem; }
 .desktop-mode .scope-branch-option:hover,.desktop-mode .scope-branch-option:focus-visible { background: #f2f1ff; outline: 0; }
 .desktop-mode .scope-branch-option[aria-selected="true"] { color: #4037a2; background: #f5f3ff; font-weight: 650; }
+.desktop-mode .scope-branch-check { color: var(--violet); font-size: .66rem; font-weight: 800; }
+.desktop-mode .scope-branch-copy { min-width: 0; display: grid; gap: 1px; }
+.desktop-mode .scope-branch-copy strong,.desktop-mode .scope-branch-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.desktop-mode .scope-branch-copy strong { font-size: .64rem; }
+.desktop-mode .scope-branch-copy small { color: #969991; font: .53rem ui-monospace,monospace; }
+.desktop-mode .scope-branch-current { padding: 2px 5px; color: #347858; background: #eaf5ee; border-radius: 5px; font-size: .49rem; font-weight: 700; }
 .desktop-mode .choice {
   min-width: 0;
   min-height: 47px;
@@ -352,12 +360,11 @@ body.desktop-mode {
 }
 .desktop-mode .run-button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(25, 26, 24, .18); }
 
-.desktop-mode .workspace { margin-top: 22px; grid-template-columns: 248px minmax(0, 1fr); min-height: 430px; }
-.desktop-mode .progress-panel { padding: 18px; display: flex; flex-direction: column; background: #f8f9f6; border-right-color: #e5e8e1; }
-.desktop-mode .progress-panel > .section-label { flex: 0 0 auto; }
-.desktop-mode .progress-panel > .progress-list { flex: 1 1 auto; }
-.desktop-mode .progress-panel > .cancel-button { flex: 0 0 auto; margin-top: auto; }
-.desktop-mode .progress-list { margin-top: 20px; }
+.desktop-mode .workspace { margin-top: 22px; grid-template-columns: 248px minmax(0, 1fr); min-height: 430px; align-items: start; background: #fff; }
+.desktop-mode .progress-panel { padding: 0; display: flex; flex-direction: column; align-self: start; width: 100%; background: #f8f9f6; border-right-color: #e5e8e1; border-bottom: 1px solid #e5e8e1; border-radius: 15px 0 10px 0; }
+.desktop-mode .progress-panel > .section-label { min-height: 58px; padding: 14px 18px; flex: 0 0 auto; border-bottom: 1px solid #e8eae5; }
+.desktop-mode .progress-panel > .progress-list { margin: 0; padding: 20px 18px 8px; flex: 0 0 auto; }
+.desktop-mode .progress-panel > .cancel-button { width: calc(100% - 36px); flex: 0 0 auto; margin: 8px 18px 18px; }
 .desktop-mode .progress-list li { min-height: 72px; gap: 11px; }
 .desktop-mode .progress-list li::after { left: 7px; background: #dfe2dc; }
 .desktop-mode .progress-list li > span { width: 15px; height: 15px; background: #f8f9f6; }
@@ -366,11 +373,11 @@ body.desktop-mode {
 .desktop-mode .progress-list li.done > span { box-shadow: inset 0 0 0 3px #f8f9f6; }
 .desktop-mode .cancel-button { padding: 8px; border-radius: 8px; font-size: .68rem; }
 
-.desktop-mode .result-panel { min-width: 0; display: flex; flex-direction: column; background: #fff; }
+.desktop-mode .result-panel { min-width: 0; min-height: 100%; display: flex; flex-direction: column; background: #fff; }
 .desktop-mode .result-panel > .result-heading { flex: 0 0 auto; }
 .desktop-mode .result-panel > .result-content { flex: 1 1 auto; }
 .desktop-mode .result-status { padding: 4px 8px; border: 0; border-radius: 7px; font-size: .62rem; font-weight: 650; }
-.desktop-mode .result-content { min-height: 370px; padding: 18px; }
+.desktop-mode .result-content { min-height: 370px; padding: 18px; overflow: visible; }
 .desktop-mode .empty-state,
 .desktop-mode .loading-state { min-height: 320px; }
 .desktop-mode .empty-state > span { width: 50px; height: 50px; margin: 0 auto; display: grid; place-items: center; color: var(--violet); background: var(--violet-soft); border-radius: 15px; font-size: 1.45rem; }

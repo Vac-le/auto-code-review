@@ -107,7 +107,7 @@ export function handleRequest(message, cwd = process.cwd()) {
     return {
       protocolVersion: message.params?.protocolVersion ?? '2024-11-05',
       capabilities: { tools: {} },
-      serverInfo: { name: 'auto-code-review', version: '0.2.4' }
+      serverInfo: { name: 'auto-code-review', version: '0.2.5' }
     };
   }
   if (message.method === 'ping') return {};

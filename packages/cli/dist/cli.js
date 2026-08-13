@@ -10,7 +10,7 @@ import { createSnapshot } from "./snapshot.js";
 import { findRepositoryRoot } from "./git.js";
 import { startDashboard } from "./ui.js";
 import { validateReport } from "./validate.js";
-const VERSION = "0.2.4";
+const VERSION = "0.2.5";
 const MAX_JSON_INPUT = 16 * 1024 * 1024;
 const HELP = `Auto Code Review deterministic local CLI
 

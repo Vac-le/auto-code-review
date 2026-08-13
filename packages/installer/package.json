@@ -1,6 +1,6 @@
 {
   "name": "@auto-code-review/install",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "One-command installer for Auto Code Review on Codex and Claude Code",
   "type": "module",
   "bin": {

@@ -1,6 +1,6 @@
 {
   "name": "@auto-code-review/cli",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Deterministic local context and validation engine for AI code review agents",
   "keywords": [
     "ai",

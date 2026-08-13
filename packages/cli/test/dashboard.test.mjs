@@ -86,6 +86,8 @@ test("local dashboard requires its session token and never exposes patch bodies"
     assert.match(dashboardHtml, /data-desktop-sidebar/);
     assert.match(dashboardHtml, /data-branch-select/);
     assert.match(dashboardHtml, /data-branch-options[^>]*role="listbox"/);
+    assert.match(dashboardHtml, /data-scope-base-options[^>]*role="listbox"/);
+    assert.match(dashboardHtml, /data-scope-head-options[^>]*role="listbox"/);
     assert.match(dashboardHtml, /data-activity-calendar/);
     assert.match(dashboardHtml, /data-log-viewer/);
     assert.match(dashboardHtml, /data-log-content/);
@@ -98,11 +100,26 @@ test("local dashboard requires its session token and never exposes patch bodies"
     assert.match(dashboardScript, /function setMainInert\(value\)/);
     assert.match(dashboardScript, /setMainInert\(true\)/);
     assert.match(dashboardScript, /selectedScope==='working'&&!workingHasChanges/);
+    assert.match(dashboardScript, /const baseUsesBranch = \['base','branch','pull-request'\]\.includes\(scope\)/);
+    assert.match(dashboardScript, /const headUsesBranch = \['commit','pull-request'\]\.includes\(scope\)/);
+    assert.doesNotMatch(dashboardScript, /if \(!desktopApi\) return;\s*const branches/);
+    assert.match(dashboardScript, /clean-report-actions/);
+    assert.match(dashboardScript, /formatReportForCopy\(report\)/);
+    assert.match(dashboardScript, /document\.execCommand\('copy'\)/);
+    assert.match(dashboardScript, /navigator\.clipboard\?\.writeText/);
     assert.doesNotMatch(dashboardScript, /loading:'(?:Reading Git changes|Reviewing the current code change)/);
     const desktopApiDeclaration = dashboardScript.indexOf("const desktopApi = window.autoCodeReviewDesktop;");
     const initialLanguageApplication = dashboardScript.indexOf("applyLanguage(language);");
     assert.ok(desktopApiDeclaration >= 0 && desktopApiDeclaration < initialLanguageApplication,
       "desktopApi must be initialized before language rendering invokes branch rendering");
+
+    const desktopCss = await (await fetch(`${dashboard.baseUrl}/desktop.css`)).text();
+    assert.match(desktopCss, /\.desktop-mode \.repository-card \{[\s\S]*?overflow: visible;/);
+    assert.match(desktopCss, /\.desktop-mode \.control-panel \{ overflow: visible; \}/);
+    assert.match(desktopCss, /\.desktop-mode \.progress-panel > \.section-label \{ min-height: 58px;/);
+    assert.match(desktopCss, /\.desktop-mode \.progress-panel \{[^}]*align-self: start;/);
+    assert.match(desktopCss, /\.desktop-mode \.progress-panel > \.progress-list \{[^}]*flex: 0 0 auto;/);
+    assert.match(desktopCss, /\.desktop-mode \.scope-branch-options \{[^}]*max-height: min\(320px,45vh\)/);
 
     const unauthorized = await fetch(`${dashboard.baseUrl}/api/status`);
     assert.equal(unauthorized.status, 401);
