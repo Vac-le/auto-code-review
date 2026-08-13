@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "auto-code-review",
   "displayName": "Auto Code Review",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "High-signal, read-only AI review for local Git changes, branches, paths, and pull requests.",
   "author": {
     "name": "Auto Code Review Contributors"

@@ -1,6 +1,6 @@
 {
   "name": "auto-code-review",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Evidence-first AI code review for Git changes, using the coding agent you already trust.",
   "author": {
     "name": "Auto Code Review Contributors"
